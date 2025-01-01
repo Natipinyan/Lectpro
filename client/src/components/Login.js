@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import '../css/globalStyles.css'
+import '../css/globalStyles.css';
 
 
 const Login = ({ onLoginSuccess }) => {
