@@ -1,1 +1,6 @@
+/.env
+/server/node_modules/
 /documents/
+/client/node_modules/
+/.idea/
+/.gitignore
