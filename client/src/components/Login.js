@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../css/globalStyles.css';
 
-
 const Login = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -27,7 +26,9 @@ const Login = ({ onLoginSuccess }) => {
             setMessage('Login successful!');
 
             Cookies.set('user', userName, { expires: 1 });
-            onLoginSuccess();
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
             setRedirectToHome(true);
         } else {
             setMessage(data.message || 'Login failed.');
