@@ -6,7 +6,7 @@ const PrivateRoute = ({ element: Component, ...rest }) => {
     const userCookie = Cookies.get('user');
 
     if (!userCookie) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/" />;
     }
 
     return <Component {...rest} />;

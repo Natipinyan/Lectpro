@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/globalStyles.css'
+import '../css/register.css'
 import axios from 'axios';
 
 
@@ -30,42 +30,45 @@ const Register = () => {
     };
 
     return (
-        <div>
+        <div className={"registerSection"}  >
             <h2>Register</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Name:</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your Name"
                     />
                 </div>
                 <div>
-                    <label>User Name:</label>
                     <input
                         type="text"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
+                        placeholder="Enter your username"
                     />
                 </div>
                 <div>
-                    <label>Email:</label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
                     />
                 </div>
                 <div>
-                    <label>Password:</label>
                     <input
                         type="password"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
+                        placeholder="Enter your password"
                     />
                 </div>
-                <button type="submit">Register</button>
+                <div>
+                    <button className={"submit"} type="submit">Register</button>
+                </div>
+
             </form>
             {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}
             {successMessage && <p style={{color: 'green'}}>{successMessage}</p>}

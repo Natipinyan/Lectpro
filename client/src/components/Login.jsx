@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import '../css/globalStyles.css';
-
+import '../css/login.css'
 
 const Login = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState('');
@@ -27,7 +26,9 @@ const Login = ({ onLoginSuccess }) => {
             setMessage('Login successful!');
 
             Cookies.set('user', userName, { expires: 1 });
-            onLoginSuccess();
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
             setRedirectToHome(true);
         } else {
             setMessage(data.message || 'Login failed.');
@@ -39,7 +40,7 @@ const Login = ({ onLoginSuccess }) => {
     }
 
     return (
-        <div>
+        <div className={"loginSection"} >
             <h1>Login Page</h1>
             <form onSubmit={handleLogin}>
                 <div>
