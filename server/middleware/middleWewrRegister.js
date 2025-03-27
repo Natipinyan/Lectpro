@@ -13,7 +13,7 @@ async function getList(req, res) {
 
 
 async function Adduser(req, res) {
-    const { userName, email, name, pass ,first_name,last_name , phone } = req.body;
+    const { userName, email, pass ,first_name,last_name , phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
     const query = `INSERT INTO students (user_name, pass, email, first_name, last_name , phone) VALUES ('${userName}', '${encryptedPass}', '${email}', '${first_name}','${last_name}', '${phone}')`;
@@ -23,6 +23,21 @@ async function Adduser(req, res) {
             res.status(500).json({ message: "Error adding user" });
         } else {
             res.status(200).json({ message: "User added successfully" });
+        }
+    });
+}
+
+async function UpdateUser(req, res) {
+    const { id, userName, pass, email ,first_name,last_name , phone } = req.body;
+    const encryptedPass = middleLog.EncWithSalt(pass);
+
+    const query = `UPDATE students SET first_name='${first_name}',last_name='${last_name}', user_name='${userName}', pass='${encryptedPass}', email='${email}',phone='${phone}' WHERE id=${id}`;
+
+    db_pool.query(query, function (err, result) {
+        if (err) {
+            res.status(500).json({ message: "Error updating user" });
+        } else {
+            res.status(200).json({ message: "User updated successfully" });
         }
     });
 }
@@ -45,6 +60,6 @@ async function delUser(req, res) {
 module.exports = {
     getList: getList,
     Adduser: Adduser,
-    //UpdateUser: UpdateUser,
+    UpdateUser: UpdateUser,
     delUser: delUser
 };
