@@ -1,7 +1,7 @@
 const middleLog = require("./middleWareLogin");
 
 async function getList(req, res) {
-    const q = `SELECT * FROM users`;
+    const q = `SELECT * FROM students`;
     db_pool.query(q, function (err, rows, fields) {
         if (err) {
             res.status(500).json({ message: "Error fetching users" });
@@ -13,10 +13,10 @@ async function getList(req, res) {
 
 
 async function Adduser(req, res) {
-    const { userName, email, name, pass } = req.body;
+    const { userName, email, name, pass ,first_name,last_name , phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `INSERT INTO users (name, userName, pass, email) VALUES ('${name}', '${userName}', '${encryptedPass}', '${email}')`;
+    const query = `INSERT INTO students (user_name, pass, email, first_name, last_name , phone) VALUES ('${userName}', '${encryptedPass}', '${email}', '${first_name}','${last_name}', '${phone}')`;
 
     db_pool.query(query, function (err, result) {
         if (err) {
@@ -27,18 +27,7 @@ async function Adduser(req, res) {
     });
 }
 
-async function UpdateUser(req, res) {
-    const { id, name, userName, pass, email } = req.body;
-    const query = `UPDATE users SET name='${name}', userName='${userName}', pass='${pass}', email='${email}' WHERE id=${id}`;
 
-    db_pool.query(query, function (err, result) {
-        if (err) {
-            res.status(500).json({ message: "Error updating user" });
-        } else {
-            res.status(200).json({ message: "User updated successfully" });
-        }
-    });
-}
 
 async function delUser(req, res) {
     const id = req.params.row_id;
@@ -56,6 +45,6 @@ async function delUser(req, res) {
 module.exports = {
     getList: getList,
     Adduser: Adduser,
-    UpdateUser: UpdateUser,
+    //UpdateUser: UpdateUser,
     delUser: delUser
 };

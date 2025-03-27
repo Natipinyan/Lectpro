@@ -62,7 +62,7 @@ async function CheckUser(req, res) {
 
     res.loggedEn = false;
 
-    const Query = `SELECT * FROM \`users\` WHERE userName='${uname}' AND pass='${password}'`;
+    const Query = `SELECT * FROM \`students\` WHERE user_name='${uname}' AND pass='${password}'`;
     console.log(Query);
 
     const promisePool = db_pool.promise();
