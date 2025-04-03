@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PrivateRoute from "./services/PrivateRoute";
-import LoginStudents from "./components/logAndReg/Login";
-import RegisterStudent from "./components/logAndReg/Register";
+import LoginStudents from "./components/logAndRegStudent/Login";
+import RegisterStudent from "./components/logAndRegStudent/Register";
 import RegisterInstructor from "./components/logAndRegInstructor/Register";
 import HomeStudent from "./components/Home";
 import PageOne from "./components/PageOne";
