@@ -47,4 +47,20 @@ form input[type="submit"] {
 form input[type="submit"]:hover {
     background-color: #005b8e;
 }
+.switchLoginButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: block;
+    margin: 0px auto;
+}
+
+.switchLoginButton:hover {
+    background-color: #0056b3;
+}
 

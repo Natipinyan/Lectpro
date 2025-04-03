@@ -1,9 +1,9 @@
 import React from 'react';
-import Root from './root';
+import BaseRouter from './BaseRouter';
 
 function App() {
   return (
-      <Root />
+      <BaseRouter />
   );
 }
 

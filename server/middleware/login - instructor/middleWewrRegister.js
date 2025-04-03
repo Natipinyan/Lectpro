@@ -1,7 +1,7 @@
 const middleLog = require("./middleWareLogin");
 
 async function getList(req, res) {
-    const q = `SELECT * FROM students`;
+    const q = `SELECT * FROM  teachers`;
     db_pool.query(q, function (err, rows, fields) {
         if (err) {
             res.status(500).json({ message: "Error fetching users" });
@@ -16,7 +16,7 @@ async function Adduser(req, res) {
     const { userName, email, pass ,first_name,last_name , phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `INSERT INTO students (user_name, pass, email, first_name, last_name , phone) VALUES ('${userName}', '${encryptedPass}', '${email}', '${first_name}','${last_name}', '${phone}')`;
+    const query = `INSERT INTO  teachers (user_name, pass, email, first_name, last_name , phone) VALUES ('${userName}', '${encryptedPass}', '${email}', '${first_name}','${last_name}', '${phone}')`;
 
     db_pool.query(query, function (err, result) {
         if (err) {
@@ -31,7 +31,7 @@ async function UpdateUser(req, res) {
     const { id, userName, pass, email ,first_name,last_name , phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `UPDATE students SET first_name='${first_name}',last_name='${last_name}', user_name='${userName}', pass='${encryptedPass}', email='${email}',phone='${phone}' WHERE id=${id}`;
+    const query = `UPDATE  teachers SET first_name='${first_name}',last_name='${last_name}', user_name='${userName}', pass='${encryptedPass}', email='${email}',phone='${phone}' WHERE id=${id}`;
 
     db_pool.query(query, function (err, result) {
         if (err) {
@@ -46,7 +46,7 @@ async function UpdateUser(req, res) {
 
 async function delUser(req, res) {
     const id = req.params.row_id;
-    const query = `DELETE FROM users WHERE id='${id}'`;
+    const query = `DELETE FROM teachers WHERE id='${id}'`;
 
     db_pool.query(query, function (err, result) {
         if (err) {

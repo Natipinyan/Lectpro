@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import '../css/register.css'
+import '../../css/logAndReg/register.css';
 import axios from 'axios';
-
 
 const Register = () => {
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phone, setPhone] = useState('');
     const [pass, setPass] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -15,10 +16,12 @@ const Register = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/register/Add', {
+            const response = await axios.post('http://localhost:5000/students/register/Add', {
                 userName,
                 email,
-                name,
+                first_name: firstName,
+                last_name: lastName,
+                phone,
                 pass
             });
             setSuccessMessage(response.data.message);
@@ -30,15 +33,23 @@ const Register = () => {
     };
 
     return (
-        <div className={"registerSection"}  >
-            <h2>Register</h2>
+        <div className="registerSection">
+            <h2>הרשמה - סטודנטים</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <input
                         type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter your Name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="שם פרטי"
+                    />
+                </div>
+                <div>
+                    <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="שם משפחה"
                     />
                 </div>
                 <div>
@@ -46,7 +57,7 @@ const Register = () => {
                         type="text"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your username"
+                        placeholder="שם משתמש"
                     />
                 </div>
                 <div>
@@ -54,7 +65,15 @@ const Register = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
+                        placeholder="כתובת אימייל"
+                    />
+                </div>
+                <div>
+                    <input
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="מספר טלפון"
                     />
                 </div>
                 <div>
@@ -62,16 +81,15 @@ const Register = () => {
                         type="password"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
-                        placeholder="Enter your password"
+                        placeholder="סיסמה"
                     />
                 </div>
                 <div>
-                    <button className={"submit"} type="submit">Register</button>
+                    <button className="submit" type="submit">הרשמה</button>
                 </div>
-
             </form>
-            {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}
-            {successMessage && <p style={{color: 'green'}}>{successMessage}</p>}
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
         </div>
     );
 };

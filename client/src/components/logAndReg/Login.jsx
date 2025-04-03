@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import '../css/login.css'
+import '../../css/logAndReg/login.css';
 
 const Login = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [redirectToHome, setRedirectToHome] = useState(false);
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        const response = await fetch('http://localhost:5000/login/chek', {
+        const response = await fetch('http://localhost:5000/students/login/chek', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,8 +41,13 @@ const Login = ({ onLoginSuccess }) => {
     }
 
     return (
-        <div className={"loginSection"} >
-            <h1>Login Page</h1>
+        <div className="loginSection">
+            <h1>התחברות - סטודנטים</h1>
+
+            <button onClick={() => navigate('/instructor')} className="switchLoginButton">
+                מעבר לכניסת מרצים
+            </button>
+
             <form onSubmit={handleLogin}>
                 <div>
                     <input
@@ -49,7 +55,7 @@ const Login = ({ onLoginSuccess }) => {
                         name="userName"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your username"
+                        placeholder="שם משתמש"
                     />
                 </div>
                 <div>
@@ -58,11 +64,11 @@ const Login = ({ onLoginSuccess }) => {
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
+                        placeholder="סיסמה"
                     />
                 </div>
                 <div>
-                    <input type="submit" value="Login" />
+                    <input type="submit" value="כניסה" />
                 </div>
             </form>
             {message && <p>{message}</p>}

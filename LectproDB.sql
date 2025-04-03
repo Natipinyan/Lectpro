@@ -63,7 +63,9 @@ CREATE TABLE `teachers`
     `first_name` varchar(255) DEFAULT NULL,
     `last_name`  varchar(255) DEFAULT NULL,
     `user_name`  varchar(255) DEFAULT NULL,
-    `pass`       varchar(255) DEFAULT NULL
+    `pass`       varchar(255) DEFAULT NULL,
+    `email`      varchar(255) NOT NULL,
+    `phone`      varchar(15)  NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `technology_in_use`

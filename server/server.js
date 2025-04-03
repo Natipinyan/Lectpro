@@ -28,11 +28,12 @@ db_pool.getConnection((err, connection) => {
     }
 });
 
-const login_rtr = require('./routers/login');
-app.use('/login', login_rtr);
 
-const register_rtr =require('./routers/register');
-app.use('/register',register_rtr);
+const students_rtr =require('./routers/students');
+app.use('/students',students_rtr);
+
+const instructor_rtr =require('./routers/instructor');
+app.use('/instructor',instructor_rtr);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

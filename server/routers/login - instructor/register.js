@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 module.exports = router;
 
-const middleReg = require("../middleware/middleWewrRegister");
+const middleReg = require("../../middleware/login - instructor/middleWewrRegister");
 
 router.get("/List", [middleReg.getList], function (req, res) {
 });

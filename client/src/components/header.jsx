@@ -6,7 +6,7 @@ export default function Header() {
         <>
             <nav className="nav-container">
                 <div className="nav-left-links">
-                    <Link to="/" className="nav-link">איזור אישי</Link>
+                    <Link to="/privatArea" className="nav-link">איזור אישי</Link>
                     <Link to="/" className="nav-link">התראות</Link>
                 </div>
                 <Link to="/" className="nav-link nav-right">דף בית</Link>
