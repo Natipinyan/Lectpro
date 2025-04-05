@@ -1,14 +1,25 @@
+* {
+    box-sizing: border-box; /* מבטיח שה-padding וה-border לא יגרמו לבעיות עם רוחב הדף */
+}
+
+body {
+    margin: 0; /* מוודא שאין מרווחים מיותרים */
+    overflow-x: hidden; /* מונע גלילה אופקית */
+}
+
 .nav-container {
     display: flex;
     align-items: center;
     padding: 10px;
     background-color: lightblue;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    justify-content: space-between; /* שיבטיח שהאלמנטים יהיו בצדי השורה */
 }
 
-.nav-left-links {
+.nav-left-links, .nav-right-links {
     display: flex;
-    gap: 15px;
+    gap: 15px; /* רווח בין הקישורים */
 }
 
 .nav-link {
@@ -28,5 +39,5 @@
 }
 
 .nav-right {
-    margin-left: auto;
+    margin-left: auto; /* צמוד לימין */
 }

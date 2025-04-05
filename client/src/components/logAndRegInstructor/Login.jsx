@@ -44,7 +44,7 @@ const Login = ({ onLoginSuccess }) => {
         <div className={"loginSection"} >
             <h1>התחברות - מרצים</h1>
 
-            <button onClick={() => navigate('/')} className="switchLoginButton">
+            <button onClick={() => navigate('/students')} className="switchLoginButton">
                 מעבר לכניסת סטודנטים
             </button>
 
