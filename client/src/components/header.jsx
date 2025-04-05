@@ -12,11 +12,11 @@ export default function Header() {
                 <Link to="/" className="nav-link nav-right">דף בית</Link>
             </nav>
             <nav className="nav-container">
-                <Link to="/">Login</Link> |
-                <Link to="/register">Register</Link> |
-                <Link to="/home">Home</Link> |
-                <Link to="/PageOne">Page One</Link> |
-                <Link to="/PageTwo">Page Two</Link>
+                <Link to="/students">Login</Link> |
+                <Link to="/students/register">Register</Link> |
+                <Link to="/students/HomeStudent">Home</Link> |
+                <Link to="/students/PageOne">Page One</Link> |
+                <Link to="/students/PageTwo">Page Two</Link>
             </nav>
 
         </>

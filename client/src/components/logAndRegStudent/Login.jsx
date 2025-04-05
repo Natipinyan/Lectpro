@@ -26,7 +26,7 @@ const Login = ({ onLoginSuccess }) => {
         if (data.loggedIn) {
             setMessage('Login successful!');
 
-            Cookies.set('user', userName, { expires: 1 });
+            Cookies.set('students', userName, { expires: 1 });
             if (onLoginSuccess) {
                 onLoginSuccess();
             }
@@ -37,7 +37,7 @@ const Login = ({ onLoginSuccess }) => {
     };
 
     if (redirectToHome) {
-        return <Navigate to="/home" />;
+        return <Navigate to="/students/HomeStudent" />;
     }
 
     return (

@@ -1,9 +1,11 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import PrivateRoute from "./services/PrivateRoute";
+import PrivateRouteStudents from "./services/PrivateRouteStudents";
+import PrivateRouteInstructor from "./services/PrivateRouteInstructor";
 import LoginStudents from "./components/logAndRegStudent/Login";
 import RegisterStudent from "./components/logAndRegStudent/Register";
 import RegisterInstructor from "./components/logAndRegInstructor/Register";
-import HomeStudent from "./components/Home";
+import HomeStudent from "./components/HomeStudents";
+import HomeInstructor from "./components/HomeInstructor";
 import PageOne from "./components/PageOne";
 import PageTwo from "./components/PageTwo";
 import MainLayout from "./layout/MainLayout";
@@ -15,25 +17,24 @@ const onLoginSuccess = () => {
 
 export default function BaseRouter() {
     const router = createBrowserRouter([
-        // נתיבי סטודנטים
         {
-            path: "/",
+            path: "/students",
             element: <MainLayout />,
             children: [
                 { index: true, element: <LoginStudents onLoginSuccess={onLoginSuccess} /> },
                 { path: "register", element: <RegisterStudent /> },
-                { path: "home", element: <PrivateRoute element={HomeStudent} /> },
-                { path: "pageOne", element: <PrivateRoute element={PageOne} /> },
-                { path: "pageTwo", element: <PrivateRoute element={PageTwo} /> },
+                { path: "HomeStudent", element: <PrivateRouteStudents element={HomeStudent} /> },
+                { path: "pageOne", element: <PrivateRouteStudents element={PageOne} /> },
+                { path: "pageTwo", element: <PrivateRouteStudents element={PageTwo} /> },
             ],
         },
-        // נתיבי מרצים
         {
             path: "/instructor",
             element: <MainLayout />,
             children: [
                 { index: true, element: <LoginInstructor onLoginSuccess={onLoginSuccess} /> },
                 { path: "register", element: <RegisterInstructor /> },
+                { path: "HomeInstructor", element: <PrivateRouteInstructor element={HomeInstructor} /> },
             ],
         },
     ]);

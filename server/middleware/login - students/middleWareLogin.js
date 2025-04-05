@@ -30,7 +30,7 @@ async function check_login(req, res, next) {
         if (res.loggedEn) {
             const token = jwt.sign({ userName: req.body.userName }, jwtSecret, { expiresIn: '1d' });
 
-            res.cookie('token', token, {
+            res.cookie('students', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 86400000,
