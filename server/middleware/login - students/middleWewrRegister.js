@@ -1,65 +1,71 @@
 const middleLog = require("./middleWareLogin");
 
-async function getList(req, res) {
+async function getList(req, res, next) {
     const q = `SELECT * FROM students`;
-    db_pool.query(q, function (err, rows, fields) {
+    db_pool.query(q, function (err, rows) {
         if (err) {
-            res.status(500).json({ message: "Error fetching users" });
-        } else {
-            res.status(200).json(rows);
+            return res.status(500).json({ message: "Error fetching users" });
         }
+        res.studentsList = rows;
+        next();
     });
 }
 
-
-async function Adduser(req, res) {
-    const { userName, email, pass ,first_name,last_name , phone } = req.body;
+async function Adduser(req, res, next) {
+    const { userName, email, pass, first_name, last_name, phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `INSERT INTO students (user_name, pass, email, first_name, last_name , phone) VALUES ('${userName}', '${encryptedPass}', '${email}', '${first_name}','${last_name}', '${phone}')`;
+    const query = `INSERT INTO students (user_name, pass, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)`;
 
-    db_pool.query(query, function (err, result) {
+    db_pool.query(query, [userName, encryptedPass, email, first_name, last_name, phone], function (err, result) {
         if (err) {
-            res.status(500).json({ message: "Error adding user" });
+            res.addStatus = 500;
+            res.addMessage = "Error adding user";
         } else {
-            res.status(200).json({ message: "User added successfully" });
+            res.addStatus = 200;
+            res.addMessage = "User added successfully";
         }
+        next();
     });
 }
 
-async function UpdateUser(req, res) {
-    const { id, userName, pass, email ,first_name,last_name , phone } = req.body;
+async function UpdateUser(req, res, next) {
+    const { id, userName, pass, email, first_name, last_name, phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `UPDATE students SET first_name='${first_name}',last_name='${last_name}', user_name='${userName}', pass='${encryptedPass}', email='${email}',phone='${phone}' WHERE id=${id}`;
+    const query = `UPDATE students SET first_name=?, last_name=?, user_name=?, pass=?, email=?, phone=? WHERE id=?`;
 
-    db_pool.query(query, function (err, result) {
+    db_pool.query(query, [first_name, last_name, userName, encryptedPass, email, phone, id], function (err, result) {
         if (err) {
-            res.status(500).json({ message: "Error updating user" });
+            res.updateStatus = 500;
+            res.updateMessage = "Error updating user";
         } else {
-            res.status(200).json({ message: "User updated successfully" });
+            res.updateStatus = 200;
+            res.updateMessage = "User updated successfully";
         }
+        next();
     });
 }
 
-
-
-async function delUser(req, res) {
+async function delUser(req, res, next) {
     const id = req.params.row_id;
-    const query = `DELETE FROM students WHERE id='${id}'`;
+    const query = `DELETE FROM students WHERE id=?`;
 
-    db_pool.query(query, function (err, result) {
+    db_pool.query(query, [id], function (err, result) {
         if (err) {
-            res.status(500).json({ message: "Error deleting user" });
+            res.deleteStatus = 500;
+            res.deleteMessage = "Error deleting user";
         } else {
-            res.status(200).json({ message: "User deleted successfully" });
+            res.deleteStatus = 200;
+            res.deleteMessage = "User deleted successfully";
         }
+        next();
     });
 }
 
 module.exports = {
-    getList: getList,
-    Adduser: Adduser,
-    UpdateUser: UpdateUser,
-    delUser: delUser
+    getList,
+    Adduser,
+    UpdateUser,
+    delUser
 };

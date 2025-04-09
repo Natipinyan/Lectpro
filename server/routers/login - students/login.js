@@ -10,20 +10,16 @@ const Cookies = require('js-cookie');
 
 const jwtSecret = process.env.JWT_SECRET_KEY;
 
-router.post("/chek", [middleLog.check_login], function (req, res, next) {
+router.post("/chek", middleLog.check_login, (req, res) => {
     if (res.loggedEn) {
-        const token = jwt.sign({ userName: req.body.userName }, jwtSecret, { expiresIn: '1d' });
-
-        res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 86400000 }); // 1 יום
-
-        res.json({
+        res.status(200).json({
             loggedIn: true,
             message: 'Login successful'
         });
     } else {
-        res.json({
+        res.status(401).json({
             loggedIn: false,
-            message: 'Invalid credentials'
+            message: res.message || 'Invalid credentials'
         });
     }
 });
