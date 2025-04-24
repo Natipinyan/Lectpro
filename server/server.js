@@ -35,6 +35,9 @@ app.use('/students',students_rtr);
 const instructor_rtr =require('./routers/instructor');
 app.use('/instructor',instructor_rtr);
 
+const upload_rtr =require('./routers/upload');
+app.use('/upload',upload_rtr);
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

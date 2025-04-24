@@ -5,6 +5,7 @@ import LoginStudents from "./components/logAndRegStudent/Login";
 import RegisterStudent from "./components/logAndRegStudent/Register";
 import RegisterInstructor from "./components/logAndRegInstructor/Register";
 import HomeStudent from "./components/HomeStudents";
+import UploadFile from "./components/UploadFile";
 import HomeInstructor from "./components/HomeInstructor";
 import PageOne from "./components/PageOne";
 import PageTwo from "./components/PageTwo";
@@ -26,6 +27,7 @@ export default function BaseRouter() {
                 { path: "HomeStudent", element: <PrivateRouteStudents element={HomeStudent} /> },
                 { path: "pageOne", element: <PrivateRouteStudents element={PageOne} /> },
                 { path: "pageTwo", element: <PrivateRouteStudents element={PageTwo} /> },
+                { path: "upload", element: <PrivateRouteStudents element={UploadFile} /> },
             ],
         },
         {

@@ -1,7 +1,21 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import "../css/homeStudent.css"
 
 const HomeStudents = () => {
-    return <h1>Welcome to the Home Page!students</h1>;
+    const navigate = useNavigate();
+
+    const handleNavigate = () => {
+        navigate("/students/upload");
+    };
+
+    return (
+        <div className="home-students-container">
+            <button onClick={handleNavigate}>פתיחת פרוייקט</button>
+            <button>איזור אישי</button>
+            <button>הפרוייקטים שלי</button>
+        </div>
+    );
 };
+
 export default HomeStudents;
