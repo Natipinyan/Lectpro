@@ -1,22 +1,23 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-
+const session = require("express-session");
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
-const { pool } = require('./LoginDB');
+const { db_pool } = require('./LoginDB');
 const PORT = 5000;
 
-const cookieParser = require('cookie-parser');
+
 app.use(cookieParser());
-
-app.use(express.json());
-
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true
 }));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 
 db_pool.getConnection((err, connection) => {
@@ -28,15 +29,10 @@ db_pool.getConnection((err, connection) => {
     }
 });
 
-
-const students_rtr =require('./routers/students');
-app.use('/students',students_rtr);
-
-const instructor_rtr =require('./routers/instructor');
-app.use('/instructor',instructor_rtr);
-
-const upload_rtr =require('./routers/upload');
-app.use('/upload',upload_rtr);
+app.use('/students', require('./routers/students'));
+app.use('/instructor', require('./routers/instructor'));
+app.use('/upload', require('./routers/upload'));
+app.use('/projects', require('./routers/projects'));
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
