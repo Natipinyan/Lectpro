@@ -1,0 +1,53 @@
+.form-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5em;
+}
+
+.formLabel {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    font-size: 25px;
+    color: #333;
+}
+
+.text-input,
+.text-area {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    direction: rtl;
+    resize: none;
+}
+
+.button-container {
+    margin-top: 1.5em;
+}
+
+.button {
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    width: 100%;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 119, 182, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.button:hover {
+    background-color: #005b8e;
+    transform: translateY(-2px);
+}
+.upMessage{
+    text-align: center;
+}

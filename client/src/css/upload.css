@@ -1,0 +1,41 @@
+.upload-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 2em auto;
+    padding: 2.5em;
+    border: 2px dashed #0077b6;
+    border-radius: 16px;
+    background-color: #f4f9fb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.upload-container:hover {
+    background-color: #e0f2f7;
+    transform: scale(1.01);
+}
+
+.upload-container:active {
+    background-color: #d0e7f0;
+}
+
+.upload-container input[type="file"] {
+    display: none;
+}
+
+.upload-container.dragover {
+    background-color: #d4f2ff;
+    border-color: #00aaff;
+}
+
+.upload-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.upMessage {
+    text-align: center;
+}

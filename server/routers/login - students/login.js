@@ -1,25 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-module.exports = router;
-
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 
-const jwt = require('jsonwebtoken');
-const Cookies = require('js-cookie');
-
-
-const jwtSecret = process.env.JWT_SECRET_KEY;
-
-router.post("/chek", middleLog.check_login, (req, res) => {
+router.post("/check", middleLog.check_login, (req, res) => {
     if (res.loggedEn) {
         res.status(200).json({
             loggedIn: true,
-            message: 'Login successful'
+            message: "Login successful",
+            user: { id: req.user.id, userName: req.user.user_name },
         });
     } else {
         res.status(401).json({
             loggedIn: false,
-            message: res.message || 'Invalid credentials'
+            message: res.message || "Invalid credentials",
         });
     }
 });
+
+module.exports = router;

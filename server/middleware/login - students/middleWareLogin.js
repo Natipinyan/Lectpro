@@ -1,5 +1,5 @@
-const md5 = require("md5");
 const jwt = require("jsonwebtoken");
+const md5 = require("md5");
 const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const Salt = process.env.SALT;
@@ -36,35 +36,60 @@ async function check_login(req, res, next) {
     let password = EncWithSalt(req.body.password);
     res.loggedEn = false;
 
-    const Query = `SELECT * FROM \`students\` WHERE user_name = ? AND pass = ?`;
+    const Query = `SELECT * FROM students WHERE user_name = ? AND pass = ?`;
     const promisePool = db_pool.promise();
 
     try {
         const [rows] = await promisePool.query(Query, [uname, password]);
 
         if (rows.length > 0) {
-            const token = jwt.sign({ userName: uname }, jwtSecret, { expiresIn: '1d' });
+            const token = jwt.sign(
+                { userName: uname, id: rows[0].id },
+                jwtSecret,
+                { expiresIn: "1d" }
+            );
 
-            res.cookie('students', token, {
+            res.cookie("students", token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: false,//change to true in production
                 maxAge: 86400000,
-                sameSite: 'Strict',
+                sameSite: "Lax",
             });
 
             res.loggedEn = true;
             req.user = rows[0];
+            console.log("Cookie set:", token);
         } else {
             res.message = "Invalid credentials";
         }
 
         return next();
     } catch (err) {
-        return res.status(500).json({ message: 'Database error', error: err.message });
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error", error: err.message });
+    }
+}
+
+function authenticateToken(req, res, next) {
+    const token = req.cookies.students;
+    console.log("Received token in check-auth:", token);
+
+    if (!token) {
+        return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = { id: decoded.id, userName: decoded.userName };
+        next();
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        return res.status(403).json({ message: "Invalid or expired token" });
     }
 }
 
 module.exports = {
     check_login,
-    EncWithSalt
+    EncWithSalt,
+    authenticateToken,
 };

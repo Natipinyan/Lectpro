@@ -1,20 +1,23 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const session = require("express-session");
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+
 
 const { db_pool } = require('./LoginDB');
 const PORT = 5000;
 
 
 app.use(cookieParser());
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true
-}));
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -31,8 +34,11 @@ db_pool.getConnection((err, connection) => {
 
 app.use('/students', require('./routers/students'));
 app.use('/instructor', require('./routers/instructor'));
-app.use('/upload', require('./routers/upload'));
+//app.use('/upload', require('./routers/upload'));
 app.use('/projects', require('./routers/projects'));
+
+const authRouter = require("./routers/auth");
+app.use("/api", authRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

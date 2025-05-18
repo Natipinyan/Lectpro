@@ -1,4 +1,4 @@
-const express = require("express");
+/*const express = require("express");
 const router = express.Router();
 const middleup = require("../middleware/middle_up");
 
@@ -15,3 +15,4 @@ router.post('/addFile', middleup.upload.single('file'), (req, res) => {
 });
 
 module.exports = router;
+*/

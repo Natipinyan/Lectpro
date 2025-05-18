@@ -1,15 +1,44 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import React, { useEffect, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const PrivateRouteStudents = ({ element: Component, ...rest }) => {
-    const userCookie = Cookies.get('students');
+    const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const location = useLocation();
 
-    if (!userCookie) {
-        return <Navigate to="/students" />;
+    useEffect(() => {
+        let isMounted = true;
+
+        const checkAuth = async () => {
+            //console.log("Checking auth for path:", location.pathname);
+            try {
+                const response = await axios.get("http://localhost:5000/api/check-auth", {
+                    withCredentials: true,
+                });
+                console.log("Check-auth response:", response.data);
+                if (isMounted) {
+                    setIsAuthenticated(response.data.isAuthenticated);
+                }
+            } catch (err) {
+                console.error("Check-auth failed:", err.response?.data || err.message);
+                if (isMounted) {
+                    setIsAuthenticated(false);
+                }
+            }
+        };
+
+        checkAuth();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [location.pathname]);
+
+    if (isAuthenticated === null) {
+        return <div>Loading...</div>;
     }
 
-    return <Component {...rest} />;
+    return isAuthenticated ? <Component {...rest} /> : <Navigate to="/students" replace />;
 };
 
 export default PrivateRouteStudents;
