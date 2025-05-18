@@ -11,6 +11,7 @@ import PageOne from "./components/PageOne";
 import PageTwo from "./components/PageTwo";
 import MainLayout from "./layout/MainLayout";
 import LoginInstructor from "./components/logAndRegInstructor/Login";
+import UpFile from "./components/Upload";
 
 const onLoginSuccess = () => {
     console.log("Login successful!");
@@ -28,6 +29,7 @@ export default function BaseRouter() {
                 { path: "pageOne", element: <PrivateRouteStudents element={PageOne} /> },
                 { path: "pageTwo", element: <PrivateRouteStudents element={PageTwo} /> },
                 { path: "upload", element: <PrivateRouteStudents element={OpenPro} /> },
+                { path: "UpFile", element: <PrivateRouteStudents element={UpFile} /> },
             ],
         },
         {

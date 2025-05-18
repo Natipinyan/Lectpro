@@ -34,7 +34,7 @@ db_pool.getConnection((err, connection) => {
 
 app.use('/students', require('./routers/students'));
 app.use('/instructor', require('./routers/instructor'));
-//app.use('/upload', require('./routers/upload'));
+app.use('/upload', require('./routers/upload'));
 app.use('/projects', require('./routers/projects'));
 
 const authRouter = require("./routers/auth");

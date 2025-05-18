@@ -21,6 +21,7 @@ export default function Header() {
                     <Link to="/students/HomeStudent">Home</Link> |
                     <Link to="/students/PageOne">Page One</Link> |
                     <Link to="/students/PageTwo">Page Two</Link>
+                    <Link to="/students/UpFile">UpFile</Link>
                     <div> - students link</div>
                 </div>
                 <div className="nav-right-links">

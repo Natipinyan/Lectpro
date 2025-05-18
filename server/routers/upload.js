@@ -1,18 +1,13 @@
-/*const express = require("express");
+const express = require("express");
 const router = express.Router();
-const middleup = require("../middleware/middle_up");
+const middleLog = require("../middleware/login - students/middleWareLogin");
+const { upload, handleFileUpload } = require("../middleware/middle_up"); // המידל וור להעלאת קובץ
 
-router.post('/addFile', middleup.upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "לא נשלח קובץ" });
-    }
-
-    res.json({
-        message: "הקובץ הועלה בהצלחה!",
-        fileName: req.file.originalname,
-        filePath: `/filesApp/${req.file.originalname}`
+router.post('/addFile', middleLog.authenticateToken, upload.single('file'), handleFileUpload, (req, res) => {
+    return res.status(200).json({
+        message: req.uploadResult.message,
+        filePath: req.uploadResult.filePath
     });
 });
 
 module.exports = router;
-*/

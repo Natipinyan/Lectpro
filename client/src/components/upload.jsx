@@ -1,46 +1,91 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import '../css/upFile.css'
+
 const Upload = () => {
+    const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState("גרור קובץ לכאן או לחץ לבחירה");
+    const fileInputRef = useRef(null);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        if (selectedFile.type !== "application/pdf") {
+            alert("אנא בחר קובץ PDF בלבד.");
+            return;
+        }
+
+        setFile(selectedFile);
+        setFileName(selectedFile.name);
+    };
+    const handleUpload = async () => {
+        if (!file) {
+            alert("אנא בחר קובץ לפני השליחה.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("http://localhost:5000/upload/addFile", {
+                method: "POST",
+                body: formData,
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                alert("הקובץ נשלח בהצלחה!");
+            } else {
+                alert("אירעה שגיאה בשליחת הקובץ.");
+            }
+        } catch (err) {
+            console.error("שגיאת רשת:", err);
+            alert("שגיאת רשת בשליחת הקובץ.");
+        }
+    };
+
     return (
         <>
             <h2 className="formLabel">:העלאת מסמך הפרוייקט</h2>
-            <div
-                className="upload-container"
-                id="upload-container"
-                onDragOver={handleDragOver}
-                onClick={handleClick}
-            >
-                <input
-                    type="file"
-                    name="file"
-                    id="file-input"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                />
-                <div className="upload-icon">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="48"
-                        height="48"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#6c63ff"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
+            <div className="upload-wrapper">
+                <div
+                    className="upload-container"
+                    id="upload-container"
+                    onDragOver={handleDragOver}
+                    onClick={handleClick}
+                >
+                    <input
+                        type="file"
+                        name="file"
+                        id="file-input"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        accept=".pdf"
+                        onChange={handleFileChange}
+                    />
+                    <div className="upload-icon">
+                    </div>
+                    <div className="upload-text" id="upload-text">
+                        {fileName}
+                    </div>
                 </div>
-                <div className="upload-text" id="upload-text">
-                    {fileName}
-                </div>
+
+                <button onClick={handleUpload} className="upload-submit-btn">
+                    שלח קובץ
+                </button>
             </div>
-
         </>
-    )
 
-}
+    );
+};
 
+export default Upload;
