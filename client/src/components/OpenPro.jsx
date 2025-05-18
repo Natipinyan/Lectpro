@@ -17,17 +17,20 @@ const OpenPro = () => {
             const response = await fetch("http://localhost:5000/projects/addproject", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify({
                     projectName,
-                    projectDesc
-                })
+                    projectDesc,
+                }),
             });
 
             const data = await response.json();
             if (response.ok) {
                 alert("הפרויקט נוסף בהצלחה!");
+                setProjectName("");
+                setProjectDesc("");
             } else {
                 alert(data.message || "אירעה שגיאה");
             }
@@ -39,7 +42,7 @@ const OpenPro = () => {
 
     return (
         <div>
-            <h1 className="upMessage">:יצירת פרוייקט חדש</h1>
+            <h1 className="upMessage">:יצירת פרויקט חדש</h1>
             <form id="openPro-form" onSubmit={handleSubmit}>
                 <div className="form-section">
                     <label htmlFor="project-name" className="formLabel">:שם הפרוייקט</label>
