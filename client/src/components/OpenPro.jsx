@@ -5,9 +5,7 @@ const OpenPro = () => {
     const [projectName, setProjectName] = useState("");
     const [projectDesc, setProjectDesc] = useState("");
     const [technologies, setTechnologies] = useState([]);
-    const [selectedTechnology, setSelectedTechnology] = useState("");
-    const [techType, setTechType] = useState("");
-    //chanfe to set type to techType!!!
+    const [selectedTechs, setSelectedTechs] = useState([{ id: "", techType: "" }]);
 
     useEffect(() => {
         const fetchTechnologies = async () => {
@@ -36,15 +34,33 @@ const OpenPro = () => {
         fetchTechnologies();
     }, []);
 
+    const addTechnologyField = () => {
+        setSelectedTechs([...selectedTechs, { id: "", techType: "" }]);
+    };
+
+    const handleTechnologyChange = (index, techId) => {
+        const updatedTechs = [...selectedTechs];
+        const selectedTech = technologies.find((tech) => tech.id === parseInt(techId));
+        updatedTechs[index] = {
+            id: techId,
+            techType: selectedTech ? selectedTech.title : "",
+        };
+        setSelectedTechs(updatedTechs);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!projectName.trim() || !projectDesc.trim() || !selectedTechnology || !techType) {
-            alert("יש למלא את כל השדות.");
+        if (!projectName.trim() || !projectDesc.trim()) {
+            alert("יש למלא את שם ותיאור הפרויקט.");
             return;
         }
 
-        const selectedTechnologies = [selectedTechnology];
+        const validTechs = selectedTechs.filter((tech) => tech.id && tech.techType);
+        if (validTechs.length === 0) {
+            alert("יש לבחור לפחות טכנולוגיה אחת תקינה.");
+            return;
+        }
 
         try {
             const response = await fetch("http://localhost:5000/projects/addproject", {
@@ -56,8 +72,7 @@ const OpenPro = () => {
                 body: JSON.stringify({
                     projectName,
                     projectDesc,
-                    selectedTechnologies,
-                    techType,
+                    selectedTechnologies: validTechs,
                 }),
             });
 
@@ -66,8 +81,7 @@ const OpenPro = () => {
                 alert("הפרויקט נוסף בהצלחה!");
                 setProjectName("");
                 setProjectDesc("");
-                setSelectedTechnology("");
-                setTechType("");
+                setSelectedTechs([{ id: "", techType: "" }]);
             } else {
                 alert(data.message || "אירעה שגיאה");
             }
@@ -76,7 +90,6 @@ const OpenPro = () => {
             alert("שגיאה בחיבור לשרת");
         }
     };
-
 
     return (
         <div>
@@ -106,39 +119,38 @@ const OpenPro = () => {
                     />
                 </div>
 
-                <div className="form-section">
-                    <label htmlFor="technology" className="formLabel">:בחר טכנולוגיה</label>
-                    <select
-                        id="technology"
-                        className="text-input"
-                        value={selectedTechnology}
-                        onChange={(e) => setSelectedTechnology(e.target.value)}
-                        required
-                    >
-                        <option value="">בחר טכנולוגיה</option>
-                        {technologies.map((tech) => (
-                            <option key={tech.id} value={tech.id}>
-                                {tech.language}
-                            </option>
-                        ))}
-                    </select>
+                {selectedTechs.map((tech, index) => (
+                    <div className="form-section" key={index}>
+                        <label htmlFor={`technology-${index}`} className="formLabel">
+                            :בחר טכנולוגיה {index + 1}
+                        </label>
+                        <select
+                            id={`technology-${index}`}
+                            className="text-input"
+                            value={tech.id}
+                            onChange={(e) => handleTechnologyChange(index, e.target.value)}
+                            required
+                        >
+                            <option value="">בחר טכנולוגיה</option>
+                            {technologies.map((t) => (
+                                <option key={t.id} value={t.id}>
+                                    {t.language}
+                                </option>
+                            ))}
+                        </select>
+                        {tech.techType && (
+                            <div className="form-section">
+                                <label className="formLabel">:סוג טכנולוגיה</label>
+                                <p>{tech.techType}</p>
+                            </div>
+                        )}
+                    </div>
+                ))}
 
-                </div>
-
                 <div className="form-section">
-                    <label htmlFor="tech-type" className="formLabel">:בחר סוג טכנולוגיה</label>
-                    <select
-                        id="tech-type"
-                        className="text-input"
-                        value={techType}
-                        onChange={(e) => setTechType(e.target.value)}
-                        required
-                    >
-                        <option value="">בחר סוג טכנולוגיה</option>
-                        <option value="Frontend">Frontend</option>
-                        <option value="Backend">Backend</option>
-                        <option value="Database">Database</option>
-                    </select>
+                    <button type="button" className="add-tech-button" onClick={addTechnologyField}>
+                        הוסף טכנולוגיה
+                    </button>
                 </div>
 
                 <div className="button-container">
