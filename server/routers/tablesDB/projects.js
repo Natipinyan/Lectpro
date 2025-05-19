@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const middleLog = require("../middleware/login - students/middleWareLogin");
-const middlePro = require("../middleware/middle_Projects");
+const middleLog = require("../../middleware/login - students/middleWareLogin");
+const middlePro = require("../../middleware/projects/middle_Projects");
 
 
 router.post('/addproject', middleLog.authenticateToken, middlePro.addProject, (req, res) => {

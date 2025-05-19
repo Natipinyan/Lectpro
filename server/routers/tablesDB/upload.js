@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const middleLog = require("../middleware/login - students/middleWareLogin");
-const { upload, handleFileUpload } = require("../middleware/middle_up"); // המידל וור להעלאת קובץ
+const middleLog = require("../../middleware/login - students/middleWareLogin");
+const { upload, handleFileUpload } = require("../../middleware/projects/middle_up"); // המידל וור להעלאת קובץ
 
 router.post('/addFile', middleLog.authenticateToken, upload.single('file'), handleFileUpload, (req, res) => {
     return res.status(200).json({

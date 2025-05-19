@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 module.exports = router;
 
-const middleReg = require("../../middleware/login - instructor/middleWewrRegister");
+const middleReg = require("../../../middleware/login - instructor/middleWewrRegister");
 
 router.get("/List", middleReg.getList, (req, res) => {
     res.status(200).json(res.teachersList);

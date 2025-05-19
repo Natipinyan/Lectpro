@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 module.exports = router;
 
-const middleTech = require("../middleware/technology");
+const middleTech = require("../../middleware/tables/technology");
 
 router.get("/List", middleTech.getTechnologies, (req, res) => {
     res.status(200).json(res.technologyList);

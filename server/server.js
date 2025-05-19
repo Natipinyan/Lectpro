@@ -32,22 +32,22 @@ db_pool.getConnection((err, connection) => {
     }
 });
 
-const studentsRouter = require("./routers/students");
+const studentsRouter = require("./routers/users/students");
 app.use("/students", studentsRouter);
 
-const instructorRouter = require("./routers/instructor");
+const instructorRouter = require("./routers/users/instructor");
 app.use("/instructor", instructorRouter);
 
-const uploadRouter = require("./routers/upload");
+const uploadRouter = require("./routers/tablesDB/upload");
 app.use("/upload", uploadRouter);
 
-const projectsRouter = require("./routers/projects");
+const projectsRouter = require("./routers/tablesDB/projects");
 app.use("/projects", projectsRouter);
 
-const authRouter = require("./routers/auth");
+const authRouter = require("./routers/login/login - students/authStudents");
 app.use("/api", authRouter);
 
-const techRouter = require("./routers/technology");
+const techRouter = require("./routers/tablesDB/technology");
 app.use("/technology", techRouter);
 
 

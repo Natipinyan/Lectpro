@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const middleLog = require("../middleware/login - students/middleWareLogin");
+const middleLog = require("../../../middleware/login - students/middleWareLogin");
 
 
 router.get("/check-auth", middleLog.authenticateToken, (req, res) => {

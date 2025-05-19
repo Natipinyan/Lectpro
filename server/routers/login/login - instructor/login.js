@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 module.exports = router;
 
-const middleLog = require("../../middleware/login - instructor/middleWareLogin");
+const middleLog = require("../../../middleware/login - instructor/middleWareLogin");
 
 const jwt = require('jsonwebtoken');
 const Cookies = require('js-cookie');
