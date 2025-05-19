@@ -1,12 +1,16 @@
 const addProject = (req, res, next) => {
     const { projectName, projectDesc, selectedTechnologies } = req.body;
     const studentId = req.user.id;
-    //console.log("Student ID:", studentId);
-    //console.log("Project Name:", projectName);
-    //console.log("Project Description:", projectDesc);
-    //console.log("Selected Technologies:", selectedTechnologies);
 
-    if (!projectName || !projectDesc || !studentId || !selectedTechnologies || selectedTechnologies.length === 0) {
+    if (
+        !projectName ||
+        !projectDesc ||
+        !studentId ||
+        !selectedTechnologies ||
+        !Array.isArray(selectedTechnologies) ||
+        selectedTechnologies.length === 0 ||
+        selectedTechnologies.some(tech => !tech.id)
+    ) {
         return res.status(400).json({ message: "חסרים פרטי פרויקט, טכנולוגיות או זיהוי משתמש" });
     }
 
@@ -20,20 +24,19 @@ const addProject = (req, res, next) => {
         const projectId = result.insertId;
 
         const queryUpdateStudent = `UPDATE students SET project_id = ? WHERE id = ?`;
-
         db_pool.query(queryUpdateStudent, [projectId, studentId], (err2, result2) => {
             if (err2) {
                 console.error("DB Error (students update):", err2);
                 return res.status(500).json({ message: "שגיאה בעדכון הסטודנט" });
             }
 
-            const technologyPromises = selectedTechnologies.map(technologyId => {
+            const technologyPromises = selectedTechnologies.map(({ id }) => {
                 const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
                 return new Promise((resolve, reject) => {
-                    db_pool.query(queryTechnology, [projectId, technologyId], (err3, result3) => {
+                    db_pool.query(queryTechnology, [projectId, id], (err3, result3) => {
                         if (err3) {
-                            console.error("DB Error (projects_technologies):", err3);
-                            reject({ message: "שגיאה בהוספת טכנולוגיות לפרויקט" });
+                            console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
+                            reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
                         }
                         resolve(result3);
                     });
