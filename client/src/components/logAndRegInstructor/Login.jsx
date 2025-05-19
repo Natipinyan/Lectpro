@@ -1,50 +1,42 @@
-import React, { useState } from 'react';
-import {Navigate, useNavigate} from 'react-router-dom';
-import Cookies from 'js-cookie';
-import '../../css/logAndReg/login.css';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "../../css/logAndReg/login.css";
 
-const Login = ({ onLoginSuccess }) => {
-    const [userName, setUserName] = useState('');
-    const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const [redirectToHome, setRedirectToHome] = useState(false);
+const LoginInstructor = ({ onLoginSuccess }) => {
+    const [userName, setUserName] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
-        const response = await fetch('http://localhost:5000/instructor/login/chek', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userName, password }),
-        });
-
-        const data = await response.json();
-
-        if (data.loggedIn) {
-            setMessage('Login successful!');
-
-            Cookies.set('instructor', userName, { expires: 1 });
-            if (onLoginSuccess) {
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/instructor/login/check",
+                { userName, password },
+                { withCredentials: true }
+            );
+            if (response.data.loggedIn) {
                 onLoginSuccess();
+                navigate("/instructor/HomeInstructor");
+            } else {
+                setError(response.data.message);
             }
-            setRedirectToHome(true);
-        } else {
-            setMessage(data.message || 'Login failed.');
+        } catch (err) {
+            setError(err.response?.data?.message || "Error connecting to server");
+            console.error(err);
         }
     };
 
-    if (redirectToHome) {
-        return <Navigate to="/instructor/HomeInstructor" />;
-    }
-
     return (
-        <div className={"loginSection"} >
+        <div className="loginSection">
             <h1>התחברות - מרצים</h1>
 
-            <button onClick={() => navigate('/students')} className="switchLoginButton">
+            <button
+                onClick={() => navigate("/students")}
+                className="switchLoginButton"
+            >
                 מעבר לכניסת סטודנטים
             </button>
 
@@ -71,9 +63,9 @@ const Login = ({ onLoginSuccess }) => {
                     <input type="submit" value="כניסה" />
                 </div>
             </form>
-            {message && <p>{message}</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
     );
 };
 
-export default Login;
+export default LoginInstructor;

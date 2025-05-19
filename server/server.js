@@ -44,8 +44,12 @@ app.use("/upload", uploadRouter);
 const projectsRouter = require("./routers/tablesDB/projects");
 app.use("/projects", projectsRouter);
 
-const authRouter = require("./routers/login/login - students/authStudents");
-app.use("/api", authRouter);
+const authRouterStd = require("./routers/login/login - students/authStudents");
+app.use("/apiStudent", authRouterStd);
+
+const authRouterIns= require("./routers/login/login - instructor/authInstructor");
+app.use("/apiInstructor", authRouterIns);
+
 
 const techRouter = require("./routers/tablesDB/technology");
 app.use("/technology", techRouter);

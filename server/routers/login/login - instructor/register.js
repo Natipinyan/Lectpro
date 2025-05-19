@@ -8,7 +8,7 @@ router.get("/List", middleReg.getList, (req, res) => {
     res.status(200).json(res.teachersList);
 });
 
-router.post("/Add", middleReg.Adduser, (req, res) => {
+router.post("/Add", middleReg.AddUser, (req, res) => {
     res.status(res.addStatus || 200).json({ message: res.addMessage });
 });
 

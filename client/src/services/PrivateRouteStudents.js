@@ -10,9 +10,8 @@ const PrivateRouteStudents = ({ element: Component, ...rest }) => {
         let isMounted = true;
 
         const checkAuth = async () => {
-            //console.log("Checking auth for path:", location.pathname);
             try {
-                const response = await axios.get("http://localhost:5000/api/check-auth", {
+                const response = await axios.get("http://localhost:5000/apiStudent/check-auth", {
                     withCredentials: true,
                 });
                 console.log("Check-auth response:", response.data);
