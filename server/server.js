@@ -32,13 +32,24 @@ db_pool.getConnection((err, connection) => {
     }
 });
 
-app.use('/students', require('./routers/students'));
-app.use('/instructor', require('./routers/instructor'));
-app.use('/upload', require('./routers/upload'));
-app.use('/projects', require('./routers/projects'));
+const studentsRouter = require("./routers/students");
+app.use("/students", studentsRouter);
+
+const instructorRouter = require("./routers/instructor");
+app.use("/instructor", instructorRouter);
+
+const uploadRouter = require("./routers/upload");
+app.use("/upload", uploadRouter);
+
+const projectsRouter = require("./routers/projects");
+app.use("/projects", projectsRouter);
 
 const authRouter = require("./routers/auth");
 app.use("/api", authRouter);
+
+const techRouter = require("./routers/technology");
+app.use("/technology", techRouter);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
