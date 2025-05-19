@@ -4,14 +4,14 @@ import PrivateRouteInstructor from "./services/PrivateRouteInstructor";
 import LoginStudents from "./components/logAndRegStudent/Login";
 import RegisterStudent from "./components/logAndRegStudent/Register";
 import RegisterInstructor from "./components/logAndRegInstructor/Register";
-import HomeStudent from "./components/HomeStudents";
-import OpenPro from "./components/OpenPro";
-import HomeInstructor from "./components/HomeInstructor";
-import PageOne from "./components/PageOne";
-import PageTwo from "./components/PageTwo";
+import HomeStudent from "./components/base/HomeStudents";
+import OpenPro from "./components/projects/OpenPro";
+import HomeInstructor from "./components/base/HomeInstructor";
+import PageOne from "./components/base/PageOne";
+import PageTwo from "./components/base/PageTwo";
 import MainLayout from "./layout/MainLayout";
 import LoginInstructor from "./components/logAndRegInstructor/Login";
-import UpFile from "./components/Upload";
+import UpFile from "./components/projects/Upload";
 
 const onLoginSuccess = () => {
     console.log("Login successful!");

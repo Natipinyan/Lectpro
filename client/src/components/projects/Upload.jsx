@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import '../css/upFile.css'
+import '../../css/projects/upFile.css'
 
 const Upload = () => {
     const [file, setFile] = useState(null);
