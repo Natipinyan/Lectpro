@@ -38,6 +38,12 @@ const OpenPro = () => {
         setSelectedTechs([...selectedTechs, { id: "", techType: "" }]);
     };
 
+    const removeTechnologyField = (index) => {
+        if (selectedTechs.length > 1) {
+            setSelectedTechs(selectedTechs.filter((_, i) => i !== index));
+        }
+    };
+
     const handleTechnologyChange = (index, techId) => {
         const updatedTechs = [...selectedTechs];
         const selectedTech = technologies.find((tech) => tech.id === parseInt(techId));
@@ -143,6 +149,15 @@ const OpenPro = () => {
                                 <label className="formLabel">:סוג טכנולוגיה</label>
                                 <p>{tech.techType}</p>
                             </div>
+                        )}
+                        {selectedTechs.length > 1 && (
+                            <button
+                                type="button"
+                                className="remove-tech-button"
+                                onClick={() => removeTechnologyField(index)}
+                            >
+                                הסר
+                            </button>
                         )}
                     </div>
                 ))}
