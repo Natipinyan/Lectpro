@@ -4,6 +4,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const { db_pool } = require('./LoginDB');
 const PORT = 5000;
@@ -50,9 +52,11 @@ app.use("/apiStudent", authRouterStd);
 const authRouterIns= require("./routers/login/login - instructor/authInstructor");
 app.use("/apiInstructor", authRouterIns);
 
-
 const techRouter = require("./routers/tablesDB/technology");
 app.use("/technology", techRouter);
+
+const EmailRouter = require("./routers/email/email");
+app.use("/Email", EmailRouter);
 
 
 app.listen(PORT, () => {
