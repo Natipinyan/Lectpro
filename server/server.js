@@ -1,16 +1,17 @@
 const express = require('express');
 const app = express();
+require('dotenv').config();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+
+const { db_pool } = require('./LoginDB');
+const { sendEmailFromServer } = require('./middleware/Email/Email');
+global.sendMailServer = sendEmailFromServer;
+
+const PORT = 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const { db_pool } = require('./LoginDB');
-const PORT = 5000;
-
-
 app.use(cookieParser());
 app.use(
     cors({
@@ -20,10 +21,6 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 
 db_pool.getConnection((err, connection) => {
     if (err) {
@@ -35,29 +32,22 @@ db_pool.getConnection((err, connection) => {
 });
 
 const studentsRouter = require("./routers/users/students");
-app.use("/students", studentsRouter);
-
 const instructorRouter = require("./routers/users/instructor");
-app.use("/instructor", instructorRouter);
-
 const uploadRouter = require("./routers/tablesDB/upload");
-app.use("/upload", uploadRouter);
-
 const projectsRouter = require("./routers/tablesDB/projects");
-app.use("/projects", projectsRouter);
-
 const authRouterStd = require("./routers/login/login - students/authStudents");
-app.use("/apiStudent", authRouterStd);
-
-const authRouterIns= require("./routers/login/login - instructor/authInstructor");
-app.use("/apiInstructor", authRouterIns);
-
+const authRouterIns = require("./routers/login/login - instructor/authInstructor");
 const techRouter = require("./routers/tablesDB/technology");
-app.use("/technology", techRouter);
-
 const EmailRouter = require("./routers/email/email");
-app.use("/Email", EmailRouter);
 
+app.use("/students", studentsRouter);
+app.use("/instructor", instructorRouter);
+app.use("/upload", uploadRouter);
+app.use("/projects", projectsRouter);
+app.use("/apiStudent", authRouterStd);
+app.use("/apiInstructor", authRouterIns);
+app.use("/technology", techRouter);
+app.use("/Email", EmailRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

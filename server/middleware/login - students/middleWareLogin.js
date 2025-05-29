@@ -40,11 +40,11 @@ async function check_login(req, res, next) {
     const promisePool = db_pool.promise();
 
     try {
-        const [rows] = await promisePool.query(Query, [uname, password]);
+        const [rows] = await promisePool.query(Query, [uname, password,]);
 
         if (rows.length > 0) {
             const token = jwt.sign(
-                { userName: uname, id: rows[0].id },
+                { userName: uname, id: rows[0].id ,Email: rows[0].email},
                 jwtSecret,
                 { expiresIn: "1d" }
             );
@@ -80,7 +80,7 @@ function authenticateToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = { id: decoded.id, userName: decoded.userName };
+        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
