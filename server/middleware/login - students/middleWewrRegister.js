@@ -30,12 +30,13 @@ async function Adduser(req, res, next) {
 }
 
 async function UpdateUser(req, res, next) {
-    const { id, userName, pass, email, first_name, last_name, phone } = req.body;
-    const encryptedPass = middleLog.EncWithSalt(pass);
+    const id = req.user.id;
+    const { user_name, first_name, last_name, email, phone, pass } = req.body;
 
+    const encryptedPass = middleLog.EncWithSalt(pass);
     const query = `UPDATE students SET first_name=?, last_name=?, user_name=?, pass=?, email=?, phone=? WHERE id=?`;
 
-    db_pool.query(query, [first_name, last_name, userName, encryptedPass, email, phone, id], function (err, result) {
+    db_pool.query(query, [first_name, last_name, user_name, encryptedPass, email, phone, id], function (err, result) {
         if (err) {
             res.updateStatus = 500;
             res.updateMessage = "Error updating user";
@@ -63,9 +64,25 @@ async function delUser(req, res, next) {
     });
 }
 
+async function getUser(req, res, next) {
+    const userid = req.user.id;
+    //console.log("Fetching user with ID:", userid);
+    const query = `SELECT * FROM students WHERE id= ${userid}`;
+
+    db_pool.query(query, function (err, result) {
+        if (err) {
+            return res.status(500).json({ message: "Error fetching user" });
+        } else {
+            res.student = result;
+        }
+        next();
+    });
+}
+
 module.exports = {
     getList,
     Adduser,
     UpdateUser,
-    delUser
+    delUser,
+    getUser
 };

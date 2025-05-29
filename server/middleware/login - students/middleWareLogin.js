@@ -58,7 +58,7 @@ async function check_login(req, res, next) {
 
             res.loggedEn = true;
             req.user = rows[0];
-            console.log("Cookie set:", token);
+            //console.log("Cookie set:", token);
         } else {
             res.message = "Invalid credentials";
         }
@@ -72,8 +72,7 @@ async function check_login(req, res, next) {
 
 function authenticateToken(req, res, next) {
     const token = req.cookies.students;
-    console.log("Received token in check-auth:", token);
-
+    //console.log("Received token in check-auth:", token);
     if (!token) {
         return res.status(401).json({ message: "Authentication required" });
     }

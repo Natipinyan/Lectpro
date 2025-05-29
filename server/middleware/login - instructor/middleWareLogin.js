@@ -58,7 +58,7 @@ async function check_login(req, res, next) {
 
             res.loggedEn = true;
             req.user = rows[0];
-            console.log("Cookie set:", token);
+            //console.log("Cookie set:", token);
         } else {
             res.message = "Invalid credentials";
         }
