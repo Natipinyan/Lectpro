@@ -52,3 +52,11 @@ router.delete("/Delete/:row_id", middleReg.delUser, (req, res) => {
 router.get("/getUser",middleLog.authenticateToken, middleReg.getUser, (req, res) => {
     res.status(200).json(res.student);
 });
+
+router.get("/resetPass", middleReg.forgot_password, (req, res) => {
+    res.status(200).json();
+});
+
+router.get("/upPass", middleReg.resetPassword, (req, res) => {
+    res.status(200).json();
+});

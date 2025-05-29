@@ -78,11 +78,86 @@ async function getUser(req, res, next) {
         next();
     });
 }
+async function forgot_password(req, res) {
+    const email = req.body.email;
+    const code = () => Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCode = code();
+
+    const selectQuery = `SELECT * FROM students WHERE email = ?`;
+    db_pool.query(selectQuery, [email], function (err, result) {
+        if (err || result.length === 0) {
+            return res.status(404).json({ message: "לא נמצא משתמש" });
+        }
+
+        const updateQuery = `UPDATE students SET forgot_password = ? WHERE email = ?`;
+        db_pool.query(updateQuery, [resetCode, email], function (updateErr) {
+            if (updateErr) {
+                return res.status(500).json({ message: "שגיאה בעדכון קוד" });
+            }
+
+            const link = `http://localhost:5000/students/register/upPass?code=${resetCode}`;
+            const htmlContent = `
+                <p>לאיפוס הסיסמה לחץ על הקישור:</p>
+                <p><a href="${link}">לאיפוס סיסמה</a></p>
+            `;
+
+            sendMailServer(email, 'איפוס סיסמה', htmlContent, true)
+                .then(() => {
+                    return res.status(200).json({ message: "נשלח קישור לאיפוס סיסמה" });
+                })
+                .catch(() => {
+                    return res.status(500).json({ message: "שגיאה בשליחת מייל" });
+                });
+        });
+    });
+}
+
+
+
+async function resetPassword(req, res) {
+    const { code } = req.query;
+
+    if (!code) {
+        return res.status(400).json({ message: "קוד איפוס חסר" });
+    }
+
+    const selectQuery = `SELECT * FROM students WHERE forgot_password = ?`;
+    db_pool.query(selectQuery, [code], function (err, result) {
+        if (err || result.length === 0) {
+            return res.status(404).json({ message: "קוד לא תקין או שפג תוקפו" });
+        }
+
+        const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
+
+        const encryptedPass = middleLog.EncWithSalt(newPassword);
+
+        const email = result[0].email;
+
+        const updateQuery = `UPDATE students SET pass = ?, forgot_password = NULL WHERE forgot_password = ?`;
+        db_pool.query(updateQuery, [encryptedPass, code], function (updateErr) {
+            if (updateErr) {
+                return res.status(500).json({ message: "שגיאה באיפוס הסיסמה" });
+            }
+
+            const html = `<p>הסיסמה החדשה שלך היא: <strong>${newPassword}</strong></p>`;
+            sendMailServer(email, 'סיסמה אופסה', html, true)
+                .then(() => {
+                    return res.status(200).json({ message: "הסיסמה אופסה ונשלחה למייל" });
+                })
+                .catch(() => {
+                    return res.status(500).json({ message: "שגיאה בשליחת סיסמה חדשה" });
+                });
+        });
+    });
+}
+
 
 module.exports = {
     getList,
     Adduser,
     UpdateUser,
     delUser,
-    getUser
+    getUser,
+    forgot_password,
+    resetPassword
 };
