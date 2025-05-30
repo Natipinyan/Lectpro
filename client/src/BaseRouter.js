@@ -13,6 +13,7 @@ import MainLayout from "./layout/MainLayout";
 import LoginInstructor from "./components/logAndRegInstructor/Login";
 import UpFile from "./components/projects/Upload";
 import Profile from "./components/logAndRegStudent/Profile"
+import ForgotPassword from "./components/logAndRegStudent/ForgotPassword";
 
 const onLoginSuccess = () => {
     console.log("Login successful!");
@@ -26,6 +27,7 @@ export default function BaseRouter() {
             children: [
                 { index: true, element: <LoginStudents onLoginSuccess={onLoginSuccess} /> },
                 { path: "register", element: <RegisterStudent /> },
+                { path: "forgot-password", element:<ForgotPassword />},
                 { path: "HomeStudent", element: <PrivateRouteStudents element={HomeStudent} /> },
                 { path: "pageOne", element: <PrivateRouteStudents element={PageOne} /> },
                 { path: "pageTwo", element: <PrivateRouteStudents element={PageTwo} /> },

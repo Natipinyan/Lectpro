@@ -53,7 +53,7 @@ router.get("/getUser",middleLog.authenticateToken, middleReg.getUser, (req, res)
     res.status(200).json(res.student);
 });
 
-router.get("/resetPass", middleReg.forgot_password, (req, res) => {
+router.post("/resetPass", middleReg.forgot_password, (req, res) => {
     res.status(200).json();
 });
 
