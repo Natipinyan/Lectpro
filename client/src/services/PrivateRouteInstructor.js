@@ -11,7 +11,7 @@ const PrivateRouteInstructor = ({ element: Component, ...rest }) => {
 
         const checkAuth = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/apiInstructor/check-auth", {
+                const response = await axios.get(`${process.env.BASE_URL}/apiInstructor/check-auth`, {
                     withCredentials: true,
                 });
                 //console.log("Check-auth response:", response.data);

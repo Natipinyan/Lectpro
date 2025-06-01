@@ -78,6 +78,7 @@ async function getUser(req, res, next) {
         next();
     });
 }
+
 async function forgot_password(req, res) {
     const email = req.body.email;
     const code = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -96,7 +97,8 @@ async function forgot_password(req, res) {
                 return res.status(500).json({ message: "שגיאה בעדכון קוד" });
             }
 
-            const link = `http://localhost:5000/students/register/upPass?code=${resetCode}`;
+            const link = `${process.env.BASE_URL}/students/register/upPass?code=${resetCode}`;
+
             const htmlContent = `
                 <p>לאיפוס הסיסמה לחץ על הקישור:</p>
                 <p><a href="${link}">לאיפוס סיסמה</a></p>
@@ -112,8 +114,6 @@ async function forgot_password(req, res) {
         });
     });
 }
-
-
 
 async function resetPassword(req, res) {
     const { code } = req.query;

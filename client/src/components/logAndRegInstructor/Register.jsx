@@ -16,7 +16,7 @@ const Register = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/instructor/register/Add', {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/instructor/register/Add`, {
                 userName,
                 email,
                 first_name: firstName,

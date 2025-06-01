@@ -10,7 +10,7 @@ const OpenPro = () => {
     useEffect(() => {
         const fetchTechnologies = async () => {
             try {
-                const response = await fetch("http://localhost:5000/technology/List", {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/technology/List`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -69,7 +69,7 @@ const OpenPro = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/projects/addproject", {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/addproject`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

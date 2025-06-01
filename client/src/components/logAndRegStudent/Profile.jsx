@@ -33,17 +33,16 @@ export default function Profile() {
                 last_name: userData[0].last_name || "",
                 email: userData[0].email || "",
                 phone: userData[0].phone || "",
-                pass: "", // הוספה עבור סיסמה
+                pass: "",
             });
         }
     }, [userData]);
 
     const handleSave = async () => {
         try {
-            await updateUserData(formData); // שליחת העדכון
-            // קריאה מחדש לנתוני המשתמש
+            await updateUserData(formData);
             const updatedData = await fetchUserData();
-            setUserData(updatedData); // עדכון עם הנתונים החדשים
+            setUserData(updatedData);
             setIsEditing(false);
             alert("הנתונים עודכנו בהצלחה!");
         } catch (error) {

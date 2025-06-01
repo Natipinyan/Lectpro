@@ -15,8 +15,9 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+
         try {
-            const response = await axios.post('http://localhost:5000/students/register/Add', {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/Add`, {
                 userName,
                 email,
                 first_name: firstName,
@@ -78,7 +79,7 @@ const Register = () => {
                 </div>
                 <div>
                     <input
-                        type="password"
+                        type="text"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
                         placeholder="סיסמה"

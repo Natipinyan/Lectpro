@@ -13,7 +13,7 @@ const LoginInstructor = ({ onLoginSuccess }) => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                "http://localhost:5000/instructor/login/check",
+                `${process.env.REACT_APP_BASE_URL}/instructor/login/check`,
                 { userName, password },
                 { withCredentials: true }
             );

@@ -13,7 +13,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                "http://localhost:5000/students/login/check",
+                `${process.env.REACT_APP_BASE_URL}/students/login/check`,
                 { userName, password },
                 { withCredentials: true }
             );
@@ -52,7 +52,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
                 </div>
                 <div>
                     <input
-                        type="password"
+                        type="text"
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}

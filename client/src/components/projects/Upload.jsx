@@ -36,7 +36,7 @@ const Upload = () => {
         formData.append("file", file);
 
         try {
-            const response = await fetch("http://localhost:5000/upload/addFile", {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/upload/addFile`, {
                 method: "POST",
                 body: formData,
                 credentials: 'include',
