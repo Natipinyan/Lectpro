@@ -14,6 +14,15 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
+
+        if (!passwordRegex.test(pass)) {
+            setErrorMessage('הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.');
+            setSuccessMessage('');
+            setTimeout(() => setErrorMessage(''), 5000);
+            return;
+        }
+
 
         try {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/Add`, {

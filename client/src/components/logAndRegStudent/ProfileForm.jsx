@@ -1,9 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 
 const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
+    const [errorMessage, setErrorMessage] = useState('');
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = () => {
+        const password = formData.pass;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+            setErrorMessage('הסיסמה חייבת לכלול לפחות 8 תווים, אות קטנה, אות גדולה, מספר ותו מיוחד. אנגלית בלבד.');
+            setTimeout(() => setErrorMessage(''), 5000);
+            return;
+        }
+
+        setErrorMessage('');
+        onSave();
     };
 
     return (
@@ -65,7 +81,9 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
                         />
                     </p>
 
-                    <button onClick={onSave}>שמור</button>
+                    {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
+                    <button onClick={handleSave}>שמור</button>
                     <button onClick={onCancel} style={{ marginRight: "10px" }}>
                         ביטול
                     </button>
