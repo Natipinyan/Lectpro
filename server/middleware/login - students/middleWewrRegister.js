@@ -15,7 +15,6 @@ async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    // בדיקת אם שם המשתמש או המייל כבר קיימים
     const checkQuery = `SELECT * FROM students WHERE user_name = ? OR email = ?`;
 
     db_pool.query(checkQuery, [userName, email], function (err, result) {
@@ -128,6 +127,7 @@ async function forgot_password(req, res) {
             const htmlContent = `
                 <p>לאיפוס הסיסמה לחץ על הקישור:</p>
                 <p><a href="${link}">לאיפוס סיסמה</a></p>
+                <p>שים לב הקישור תקף לעשר דקות בלבד!</p>
             `;
 
             sendMailServer(email, 'איפוס סיסמה', htmlContent, true)
@@ -145,13 +145,13 @@ async function resetPassword(req, res) {
     const { code } = req.query;
 
     if (!code) {
-        return res.status(400).json({ message: "קוד איפוס חסר" });
+        return renderMessagePage(res, 400, "קוד איפוס חסר", "red");
     }
 
     const selectQuery = `SELECT * FROM students WHERE forgot_password = ?`;
     db_pool.query(selectQuery, [code], function (err, result) {
         if (err || result.length === 0) {
-            return res.status(404).json({ message: "קוד לא תקין או שפג תוקפו" });
+            return renderMessagePage(res, 404, "קוד לא תקין או שפג תוקפו", "red");
         }
 
         const resetPasswordExpires = result[0].reset_password_expires;
@@ -161,7 +161,7 @@ async function resetPassword(req, res) {
         const timeDifference = now - resetTime;
 
         if (timeDifference > 60000 * 10) {
-            return res.status(400).json({ message: "הזמן לפעולה עבר, קוד האיפוס פג" });
+            return renderMessagePage(res, 400, "הזמן לפעולה עבר, קוד האיפוס פג", "orange");
         }
 
         const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
@@ -173,22 +173,54 @@ async function resetPassword(req, res) {
         const updateQuery = `UPDATE students SET pass = ?, forgot_password = NULL WHERE forgot_password = ?`;
         db_pool.query(updateQuery, [encryptedPass, code], function (updateErr) {
             if (updateErr) {
-                return res.status(500).json({ message: "שגיאה באיפוס הסיסמה" });
+                return renderMessagePage(res, 500, "שגיאה באיפוס הסיסמה", "red");
             }
 
             const html = `<p>הסיסמה החדשה שלך היא: <strong>${newPassword}</strong></p>`;
             sendMailServer(email, 'סיסמה אופסה', html, true)
                 .then(() => {
-                    return res.status(200).json({ message: "הסיסמה אופסה ונשלחה למייל" });
+                    return renderMessagePage(res, 200, "הסיסמה אופסה ונשלחה למייל", "green");
                 })
                 .catch(() => {
-                    return res.status(500).json({ message: "שגיאה בשליחת סיסמה חדשה" });
+                    return renderMessagePage(res, 500, "שגיאה בשליחת סיסמה חדשה", "red");
                 });
         });
     });
 }
 
-
+function renderMessagePage(res, statusCode, message, color = 'black') {
+    return res.status(statusCode).send(`
+        <html dir="rtl">
+          <head>
+            <meta charset="UTF-8">
+            <title>הודעה</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                direction: rtl;
+                text-align: center;
+                padding-top: 100px;
+              }
+              .message {
+                font-size: 22px;
+                color: ${color};
+                background-color: #fff;
+                padding: 20px;
+                margin: auto;
+                display: inline-block;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+              }
+            </style>
+          </head>
+          <body>
+            <div class="message">${message}</div>
+          </body>
+        </html>
+    `);
+}
 
 module.exports = {
     getList,
