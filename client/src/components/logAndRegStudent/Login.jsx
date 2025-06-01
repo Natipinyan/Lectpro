@@ -22,10 +22,12 @@ const LoginStudents = ({ onLoginSuccess }) => {
                 navigate("/students/HomeStudent");
             } else {
                 setError(response.data.message);
+                setTimeout(() => setError(""), 1500);
             }
         } catch (err) {
             setError(err.response?.data?.message || "Error connecting to server");
             console.error(err);
+            setTimeout(() => setError(""), 1500);
         }
     };
 
@@ -52,7 +54,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
                 </div>
                 <div>
                     <input
-                        type="text"
+                        type="text"  // changed to "password" On prod
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}

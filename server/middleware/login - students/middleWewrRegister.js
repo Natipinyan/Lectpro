@@ -15,19 +15,45 @@ async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone } = req.body;
     const encryptedPass = middleLog.EncWithSalt(pass);
 
-    const query = `INSERT INTO students (user_name, pass, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)`;
+    // בדיקת אם שם המשתמש או המייל כבר קיימים
+    const checkQuery = `SELECT * FROM students WHERE user_name = ? OR email = ?`;
 
-    db_pool.query(query, [userName, encryptedPass, email, first_name, last_name, phone], function (err, result) {
+    db_pool.query(checkQuery, [userName, email], function (err, result) {
         if (err) {
             res.addStatus = 500;
-            res.addMessage = "שגיאה בהוספת משתמש";
-        } else {
-            res.addStatus = 200;
-            res.addMessage = "משתמש נוסף בהצלחה";
+            res.addMessage = "שגיאה בבדיקת נתונים";
+            return next();
         }
-        next();
+
+        if (result.length > 0) {
+            const existingUser = result.find(user => user.user_name === userName);
+            const existingEmail = result.find(user => user.email === email);
+
+            if (existingUser) {
+                res.addStatus = 400;
+                res.addMessage = "שם משתמש כבר קיים";
+            } else if (existingEmail) {
+                res.addStatus = 400;
+                res.addMessage = "מייל כבר קיים";
+            }
+            return next();
+        }
+
+        const query = `INSERT INTO students (user_name, pass, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)`;
+
+        db_pool.query(query, [userName, encryptedPass, email, first_name, last_name, phone], function (err, result) {
+            if (err) {
+                res.addStatus = 500;
+                res.addMessage = "שגיאה בהוספת משתמש";
+            } else {
+                res.addStatus = 200;
+                res.addMessage = "משתמש נוסף בהצלחה";
+            }
+            next();
+        });
     });
 }
+
 
 async function UpdateUser(req, res, next) {
     const id = req.user.id;

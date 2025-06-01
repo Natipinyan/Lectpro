@@ -15,7 +15,6 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-
         try {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/Add`, {
                 userName,
@@ -25,11 +24,14 @@ const Register = () => {
                 phone,
                 pass
             });
+            // אם ההרשמה הצליחה
             setSuccessMessage(response.data.message);
             setErrorMessage('');
+            setTimeout(() => setSuccessMessage(''), 1500);
         } catch (error) {
-            setErrorMessage('Error registering user');
+            setErrorMessage(error.response?.data?.message || 'שגיאה בהרשמה');
             setSuccessMessage('');
+            setTimeout(() => setErrorMessage(''), 1500);
         }
     };
 
@@ -79,7 +81,7 @@ const Register = () => {
                 </div>
                 <div>
                     <input
-                        type="text"
+                        type="password"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
                         placeholder="סיסמה"
