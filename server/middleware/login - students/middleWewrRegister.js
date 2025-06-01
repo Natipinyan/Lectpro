@@ -13,6 +13,13 @@ async function getList(req, res, next) {
 
 async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone } = req.body;
+
+    if (!isValidPassword(pass)) {
+        res.addStatus = 400;
+        res.addMessage = "הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.";
+        return next();
+    }
+
     const encryptedPass = middleLog.EncWithSalt(pass);
 
     const checkQuery = `SELECT * FROM students WHERE user_name = ? OR email = ?`;
@@ -53,12 +60,17 @@ async function Adduser(req, res, next) {
     });
 }
 
-
 async function UpdateUser(req, res, next) {
     const id = req.user.id;
     const { user_name, first_name, last_name, email, phone, pass } = req.body;
 
-    const encryptedPass = middleLog.EncWithSalt(pass);
+    if (pass && !isValidPassword(pass)) {
+        res.updateStatus = 400;
+        res.updateMessage = "הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.";
+        return next();
+    }
+
+    const encryptedPass = pass ? middleLog.EncWithSalt(pass) : null;
 
     const query = `
         UPDATE students
@@ -75,7 +87,7 @@ async function UpdateUser(req, res, next) {
 
     db_pool.query(
         query,
-        [first_name, last_name, user_name, encryptedPass, email, phone, id],
+        [first_name, last_name, user_name, encryptedPass || pass, email, phone, id],
         function (err, result) {
             if (err) {
                 console.error("Update error:", err);
@@ -89,7 +101,6 @@ async function UpdateUser(req, res, next) {
         }
     );
 }
-
 
 async function delUser(req, res, next) {
     const id = req.params.row_id;
@@ -240,6 +251,11 @@ function renderMessagePage(res, statusCode, message, color = 'black') {
     `);
 }
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+function isValidPassword(pass) {
+    return passwordRegex.test(pass);
+}
 module.exports = {
     getList,
     Adduser,
