@@ -20,10 +20,10 @@ async function Adduser(req, res, next) {
     db_pool.query(query, [userName, encryptedPass, email, first_name, last_name, phone], function (err, result) {
         if (err) {
             res.addStatus = 500;
-            res.addMessage = "Error adding user";
+            res.addMessage = "שגיאה בהוספת משתמש";
         } else {
             res.addStatus = 200;
-            res.addMessage = "User added successfully";
+            res.addMessage = "משתמש נוסף בהצלחה";
         }
         next();
     });
