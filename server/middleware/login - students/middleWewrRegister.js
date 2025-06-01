@@ -91,7 +91,7 @@ async function forgot_password(req, res) {
             return res.status(404).json({ message: "לא נמצא משתמש" });
         }
 
-        const updateQuery = `UPDATE students SET forgot_password = ? WHERE email = ?`;
+        const updateQuery = `UPDATE students SET forgot_password = ?, reset_password_expires = NOW() WHERE email = ?`;
         db_pool.query(updateQuery, [resetCode, email], function (updateErr) {
             if (updateErr) {
                 return res.status(500).json({ message: "שגיאה בעדכון קוד" });
@@ -128,6 +128,16 @@ async function resetPassword(req, res) {
             return res.status(404).json({ message: "קוד לא תקין או שפג תוקפו" });
         }
 
+        const resetPasswordExpires = result[0].reset_password_expires;
+
+        const now = new Date();
+        const resetTime = new Date(resetPasswordExpires);
+        const timeDifference = now - resetTime;
+
+        if (timeDifference > 60000 * 10) {
+            return res.status(400).json({ message: "הזמן לפעולה עבר, קוד האיפוס פג" });
+        }
+
         const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
 
         const encryptedPass = middleLog.EncWithSalt(newPassword);
@@ -151,6 +161,7 @@ async function resetPassword(req, res) {
         });
     });
 }
+
 
 
 module.exports = {
