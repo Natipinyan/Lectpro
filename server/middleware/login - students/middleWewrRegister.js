@@ -59,19 +59,37 @@ async function UpdateUser(req, res, next) {
     const { user_name, first_name, last_name, email, phone, pass } = req.body;
 
     const encryptedPass = middleLog.EncWithSalt(pass);
-    const query = `UPDATE students SET first_name=?, last_name=?, user_name=?, pass=?, email=?, phone=? WHERE id=?`;
 
-    db_pool.query(query, [first_name, last_name, user_name, encryptedPass, email, phone, id], function (err, result) {
-        if (err) {
-            res.updateStatus = 500;
-            res.updateMessage = "Error updating user";
-        } else {
-            res.updateStatus = 200;
-            res.updateMessage = "User updated successfully";
+    const query = `
+        UPDATE students
+        SET
+            first_name = ?,
+            last_name = ?,
+            user_name = ?,
+            pass = ?,
+            email = ?,
+            phone = ?,
+            must_change_password = 0
+        WHERE id = ?
+    `;
+
+    db_pool.query(
+        query,
+        [first_name, last_name, user_name, encryptedPass, email, phone, id],
+        function (err, result) {
+            if (err) {
+                console.error("Update error:", err);
+                res.updateStatus = 500;
+                res.updateMessage = "Error updating user";
+            } else {
+                res.updateStatus = 200;
+                res.updateMessage = "User updated successfully";
+            }
+            next();
         }
-        next();
-    });
+    );
 }
+
 
 async function delUser(req, res, next) {
     const id = req.params.row_id;
@@ -170,7 +188,7 @@ async function resetPassword(req, res) {
 
         const email = result[0].email;
 
-        const updateQuery = `UPDATE students SET pass = ?, forgot_password = NULL WHERE forgot_password = ?`;
+        const updateQuery = `UPDATE students SET pass = ?, forgot_password = NULL,reset_password_expires = NULL, must_change_password = TRUE WHERE forgot_password = ?`;
         db_pool.query(updateQuery, [encryptedPass, code], function (updateErr) {
             if (updateErr) {
                 return renderMessagePage(res, 500, "שגיאה באיפוס הסיסמה", "red");

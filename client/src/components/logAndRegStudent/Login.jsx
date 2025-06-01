@@ -7,27 +7,39 @@ const LoginStudents = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [mustChangePassword, setMustChangePassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/students/login/check`,
                 { userName, password },
                 { withCredentials: true }
             );
+
             if (response.data.loggedIn) {
                 onLoginSuccess();
+
+                if (response.data.mustChangePassword) {
+                    setMustChangePassword(true);
+                    setTimeout(() => {
+                        navigate("/students/Profile");
+                    }, 2000);
+                    return;
+                }
+
                 navigate("/students/HomeStudent");
             } else {
                 setError(response.data.message);
-                setTimeout(() => setError(""), 1500);
+                setTimeout(() => setError(""), 2000);
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Error connecting to server");
+            setError(err.response?.data?.message || "שגיאה בהתחברות לשרת");
             console.error(err);
-            setTimeout(() => setError(""), 1500);
+            setTimeout(() => setError(""), 2000);
         }
     };
 
@@ -50,15 +62,17 @@ const LoginStudents = ({ onLoginSuccess }) => {
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
                         placeholder="שם משתמש"
+                        required
                     />
                 </div>
                 <div>
                     <input
-                        type="text"  // changed to "password" On prod
+                        type="password"
                         name="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="סיסמה"
+                        required
                     />
                 </div>
                 <div>
@@ -74,7 +88,14 @@ const LoginStudents = ({ onLoginSuccess }) => {
                     </button>
                 </div>
             </form>
+
             {error && <p style={{ color: "red" }}>{error}</p>}
+
+            {mustChangePassword && (
+                <p style={{ color: "orange", fontWeight: "bold" }}>
+                    הסיסמה שלך חייבת להשתנות. מעביר אותך לדף שינוי סיסמה...
+                </p>
+            )}
         </div>
     );
 };

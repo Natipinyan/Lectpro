@@ -67,7 +67,8 @@ async function check_login(req, res, next) {
 
         res.loggedEn = true;
         req.user = rows[0];
-        //console.log("Cookie set:", token);
+
+        res.mustChangePassword = rows[0].must_change_password === 1;
 
         return next();
     } catch (err) {

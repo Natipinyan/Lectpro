@@ -7,7 +7,11 @@ router.post("/check", middleLog.check_login, (req, res) => {
         res.status(200).json({
             loggedIn: true,
             message: "Login successful",
-            user: { id: req.user.id, userName: req.user.user_name },
+            mustChangePassword: res.mustChangePassword || false,
+            user: {
+                id: req.user.id,
+                userName: req.user.user_name
+            }
         });
     } else {
         res.status(401).json({
