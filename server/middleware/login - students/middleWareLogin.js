@@ -22,19 +22,21 @@ async function check_login(req, res, next) {
     try {
         const rateLimiterRes = await rateLimiter.consume(req.connection.remoteAddress, 1);
         points = rateLimiterRes.remainingPoints;
-    } catch (rateLimiterRes) {
+    } catch {
         points = 0;
     }
 
     if (points <= 0) {
-        res.loggedEn = false;
-        res.message = "המערכת זיהתה ניסיונות מרובים, אנא המתן מספר דקות";
+        res.statusCodeToSend = 429;
+        res.responseData = {
+            loggedIn: false,
+            message: "המערכת זיהתה ניסיונות מרובים, אנא המתן מספר דקות",
+        };
         return next();
     }
 
-    let uname = req.body.userName;
-    let password = EncWithSalt(req.body.password);
-    res.loggedEn = false;
+    const uname = req.body.userName;
+    const password = EncWithSalt(req.body.password);
 
     const Query = `SELECT * FROM students WHERE user_name = ?`;
     const promisePool = db_pool.promise();
@@ -43,12 +45,20 @@ async function check_login(req, res, next) {
         const [rows] = await promisePool.query(Query, [uname]);
 
         if (rows.length === 0) {
-            res.message = "משתמש לא קיים";
+            res.statusCodeToSend = 401;
+            res.responseData = {
+                loggedIn: false,
+                message: "משתמש לא קיים",
+            };
             return next();
         }
 
         if (rows[0].pass !== password) {
-            res.message = "שגיאה בסיסמה, אנא נסה שנית";
+            res.statusCodeToSend = 401;
+            res.responseData = {
+                loggedIn: false,
+                message: "שגיאה בסיסמה, אנא נסה שנית",
+            };
             return next();
         }
 
@@ -60,20 +70,32 @@ async function check_login(req, res, next) {
 
         res.cookie("students", token, {
             httpOnly: true,
-            secure: false, // change to true in production
+            secure: false,// // change to true in production
             maxAge: 86400000,
             sameSite: "Lax",
         });
 
-        res.loggedEn = true;
-        req.user = rows[0];
-
-        res.mustChangePassword = rows[0].must_change_password === 1;
+        res.statusCodeToSend = 200;
+        res.responseData = {
+            loggedIn: true,
+            message: "Login successful",
+            mustChangePassword: rows[0].must_change_password === 1,
+            user: {
+                id: rows[0].id,
+                userName: rows[0].user_name,
+            },
+        };
 
         return next();
     } catch (err) {
         console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error", error: err.message });
+        res.statusCodeToSend = 500;
+        res.responseData = {
+            loggedIn: false,
+            message: "Database error",
+            error: err.message,
+        };
+        return next();
     }
 }
 

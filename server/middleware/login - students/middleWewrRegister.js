@@ -21,43 +21,62 @@ async function Adduser(req, res, next) {
     }
 
     const encryptedPass = middleLog.EncWithSalt(pass);
+    const promisePool = db_pool.promise();
 
-    const checkQuery = `SELECT * FROM students WHERE user_name = ? OR email = ?`;
+    try {
+        const [existing] = await promisePool.query(
+            `SELECT * FROM students WHERE user_name = ? OR email = ?`,
+            [userName, email]
+        );
 
-    db_pool.query(checkQuery, [userName, email], function (err, result) {
-        if (err) {
+        if (existing.length > 0) {
+            const existingUser = existing.find(u => u.user_name === userName);
+            const existingEmail = existing.find(u => u.email === email);
+
+            res.addStatus = 400;
+            res.addMessage = existingUser
+                ? "שם משתמש כבר קיים"
+                : "מייל כבר קיים";
+            return next();
+        }
+
+        await promisePool.query(
+            `INSERT INTO students (user_name, pass, email, first_name, last_name, phone)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [userName, encryptedPass, email, first_name, last_name, phone]
+        );
+
+        const emailContent = `
+            <h1>אישור הרשמה</h1>
+            <p>שלום ${first_name} ${last_name},</p>
+            <p>ההרשמה שלך הושלמה בהצלחה!</p>
+            <h3>פרטי המשתמש שלך:</h3>
+            <ul>
+                <li><strong>שם משתמש:</strong> ${userName}</li>
+                <li><strong>שם:</strong> ${first_name} ${last_name}</li>
+                <li><strong>טלפון:</strong> ${phone}</li>
+            </ul>
+            <p>תודה שהצטרפת אלינו!</p>
+        `;
+
+        try {
+            await sendMailServer(email, 'אישור הרשמה', emailContent, true);
+            res.addStatus = 200;
+            res.addMessage = "משתמש נוסף בהצלחה";
+        } catch (mailErr) {
+            console.error("שגיאה בשליחת מייל:", mailErr);
             res.addStatus = 500;
-            res.addMessage = "שגיאה בבדיקת נתונים";
-            return next();
+            res.addMessage = "נרשמת, אך שליחת מייל נכשלה.";
         }
 
-        if (result.length > 0) {
-            const existingUser = result.find(user => user.user_name === userName);
-            const existingEmail = result.find(user => user.email === email);
+        return next();
 
-            if (existingUser) {
-                res.addStatus = 400;
-                res.addMessage = "שם משתמש כבר קיים";
-            } else if (existingEmail) {
-                res.addStatus = 400;
-                res.addMessage = "מייל כבר קיים";
-            }
-            return next();
-        }
-
-        const query = `INSERT INTO students (user_name, pass, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)`;
-
-        db_pool.query(query, [userName, encryptedPass, email, first_name, last_name, phone], function (err, result) {
-            if (err) {
-                res.addStatus = 500;
-                res.addMessage = "שגיאה בהוספת משתמש";
-            } else {
-                res.addStatus = 200;
-                res.addMessage = "משתמש נוסף בהצלחה";
-            }
-            next();
-        });
-    });
+    } catch (err) {
+        console.error("שגיאה בתהליך ההוספה:", err);
+        res.addStatus = 500;
+        res.addMessage = "שגיאה כללית בהוספת משתמש";
+        return next();
+    }
 }
 
 async function UpdateUser(req, res, next) {
