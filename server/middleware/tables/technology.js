@@ -13,18 +13,44 @@ async function getTechnologies(req, res, next) {
 async function addTechnology(req, res, next) {
     const { technologyName, technologyTitle } = req.body;
 
-    const query = `INSERT INTO technology_in_use (title, language) VALUES (?, ?)`;
+    if (!technologyName || !technologyTitle) {
+        res.addStatus = 400;
+        res.addMessage = "שם וסוג הטכנולוגיה הם שדות חובה";
+        return next();
+    }
 
-    db_pool.query(query, [technologyTitle, technologyName], function (err, result) {
-        if (err) {
-            res.addStatus = 500;
-            res.addMessage = "Error adding technology";
-        } else {
-            res.addStatus = 200;
-            res.addMessage = "Technology added successfully";
-        }
+    try {
+        const checkQuery = `SELECT * FROM technology_in_use WHERE language = ?`;
+        db_pool.query(checkQuery, [technologyName], (err, results) => {
+            if (err) {
+                res.addStatus = 500;
+                res.addMessage = "שגיאה בחיבור למסד הנתונים";
+                return next();
+            }
+
+            if (results.length > 0) {
+                res.addStatus = 400;
+                res.addMessage = "טכנולוגיה עם שם זה כבר קיימת";
+                return next();
+            }
+
+            const insertQuery = `INSERT INTO technology_in_use (title, language) VALUES (?, ?)`;
+            db_pool.query(insertQuery, [technologyTitle, technologyName], (err, result) => {
+                if (err) {
+                    res.addStatus = 500;
+                    res.addMessage = "שגיאה בהוספת הטכנולוגיה";
+                } else {
+                    res.addStatus = 200;
+                    res.addMessage = "הטכנולוגיה נוספה בהצלחה";
+                }
+                next();
+            });
+        });
+    } catch (error) {
+        res.addStatus = 500;
+        res.addMessage = "שגיאה בחיבור לשרת";
         next();
-    });
+    }
 }
 
 

@@ -6,6 +6,12 @@ import NotificationPopup from "./NotificationPopup";
 const OpenPro = () => {
     const [isAddingTech, setIsAddingTech] = useState(false);
     const [notification, setNotification] = useState({ message: "", type: "" });
+    const [projectData, setProjectData] = useState({
+        projectName: "",
+        projectDesc: "",
+        linkToGithub: "",
+        selectedTechs: [{ id: "", techType: "" }],
+    });
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -13,6 +19,19 @@ const OpenPro = () => {
 
     const closeNotification = () => {
         setNotification({ message: "", type: "" });
+    };
+
+    const updateProjectData = (newData) => {
+        setProjectData((prev) => ({ ...prev, ...newData }));
+    };
+
+    const resetProjectData = () => {
+        setProjectData({
+            projectName: "",
+            projectDesc: "",
+            linkToGithub: "",
+            selectedTechs: [{ id: "", techType: "" }],
+        });
     };
 
     return (
@@ -33,6 +52,9 @@ const OpenPro = () => {
                 <OpenProject
                     onSwitchToAddTechnology={() => setIsAddingTech(true)}
                     showNotification={showNotification}
+                    projectData={projectData}
+                    updateProjectData={updateProjectData}
+                    resetProjectData={resetProjectData}
                 />
             )}
         </>

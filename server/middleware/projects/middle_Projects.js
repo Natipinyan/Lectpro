@@ -18,45 +18,57 @@ const addProject = (req, res, next) => {
         return res.status(400).json({ message: "נא להזין קישור תקין ל-GitHub" });
     }
 
-    const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github) VALUES (?, ?, ?, ?)`;
-    db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null], (err, result) => {
+    const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ?`;
+    db_pool.query(queryCheckDuplicate, [projectName], (err, results) => {
         if (err) {
-            console.error("DB Error (projects):", err);
-            return res.status(500).json({ message: "שגיאה בהוספת הפרויקט" });
+            console.error("DB Error (check duplicate):", err);
+            return res.status(500).json({ message: "שגיאה בבדיקת שם הפרויקט" });
         }
 
-        const projectId = result.insertId;
+        if (results.length > 0) {
+            return res.status(409).json({ message: "כבר קיים פרויקט בשם זה. אנא בחר שם אחר." });
+        }
 
-        const queryUpdateStudent = `UPDATE students SET project_id = ? WHERE id = ?`;
-        db_pool.query(queryUpdateStudent, [projectId, studentId], (err2, result2) => {
-            if (err2) {
-                console.error("DB Error (students update):", err2);
-                return res.status(500).json({ message: "שגיאה בעדכון הסטודנט" });
+        const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github) VALUES (?, ?, ?, ?)`;
+        db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null], (err, result) => {
+            if (err) {
+                console.error("DB Error (projects):", err);
+                return res.status(500).json({ message: "שגיאה בהוספת הפרויקט" });
             }
 
-            const technologyPromises = selectedTechnologies.map(({ id }) => {
-                const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
-                return new Promise((resolve, reject) => {
-                    db_pool.query(queryTechnology, [projectId, id], (err3, result3) => {
-                        if (err3) {
-                            console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
-                            reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
-                        }
-                        resolve(result3);
+            const projectId = result.insertId;
+
+            const queryUpdateStudent = `UPDATE students SET project_id = ? WHERE id = ?`;
+            db_pool.query(queryUpdateStudent, [projectId, studentId], (err2, result2) => {
+                if (err2) {
+                    console.error("DB Error (students update):", err2);
+                    return res.status(500).json({ message: "שגיאה בעדכון הסטודנט" });
+                }
+
+                const technologyPromises = selectedTechnologies.map(({ id }) => {
+                    const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
+                    return new Promise((resolve, reject) => {
+                        db_pool.query(queryTechnology, [projectId, id], (err3, result3) => {
+                            if (err3) {
+                                console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
+                                reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
+                            }
+                            resolve(result3);
+                        });
                     });
                 });
-            });
 
-            Promise.all(technologyPromises)
-                .then(() => {
-                    console.log("הטכנולוגיות נוספו בהצלחה");
-                    res.status(200).json({ message: "הפרויקט נוסף בהצלחה" });
-                    next();
-                })
-                .catch(error => {
-                    console.error(error);
-                    return res.status(500).json(error);
-                });
+                Promise.all(technologyPromises)
+                    .then(() => {
+                        console.log("הטכנולוגיות נוספו בהצלחה");
+                        res.status(200).json({ message: "הפרויקט נוסף בהצלחה" });
+                        next();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        return res.status(500).json(error);
+                    });
+            });
         });
     });
 };

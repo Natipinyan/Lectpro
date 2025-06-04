@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "../../css/projects/openPro.css";
 
-const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
-    const [projectName, setProjectName] = useState("");
-    const [projectDesc, setProjectDesc] = useState("");
-    const [linkToGithub, setLinkToGithub] = useState("");
+const OpenProject = ({
+                         onSwitchToAddTechnology,
+                         showNotification,
+                         projectData,
+                         updateProjectData,
+                         resetProjectData,
+                     }) => {
     const [technologies, setTechnologies] = useState([]);
-    const [selectedTechs, setSelectedTechs] = useState([{ id: "", techType: "" }]);
 
     useEffect(() => {
         const fetchTechnologies = async () => {
@@ -34,20 +36,24 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
     }, [showNotification]);
 
     const addTechnologyField = () => {
-        setSelectedTechs([...selectedTechs, { id: "", techType: "" }]);
+        updateProjectData({
+            selectedTechs: [...projectData.selectedTechs, { id: "", techType: "" }],
+        });
     };
 
     const removeTechnologyField = (index) => {
-        if (selectedTechs.length > 1) {
-            setSelectedTechs(selectedTechs.filter((_, i) => i !== index));
+        if (projectData.selectedTechs.length > 1) {
+            updateProjectData({
+                selectedTechs: projectData.selectedTechs.filter((_, i) => i !== index),
+            });
         }
     };
 
     const handleTechnologyChange = (index, techId) => {
         const selectedTech = technologies.find((tech) => tech.id === parseInt(techId));
-        const updated = [...selectedTechs];
+        const updated = [...projectData.selectedTechs];
         updated[index] = { id: techId, techType: selectedTech?.title || "" };
-        setSelectedTechs(updated);
+        updateProjectData({ selectedTechs: updated });
     };
 
     const validateGithubLink = (link) => {
@@ -57,17 +63,17 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!projectName.trim() || !projectDesc.trim()) {
+        if (!projectData.projectName.trim() || !projectData.projectDesc.trim()) {
             showNotification("יש למלא את שם ותיאור הפרויקט", "error");
             return;
         }
 
-        if (!validateGithubLink(linkToGithub)) {
+        if (!validateGithubLink(projectData.linkToGithub)) {
             showNotification("נא להזין קישור תקין ל-GitHub", "error");
             return;
         }
 
-        const validTechs = selectedTechs.filter((t) => t.id && t.techType);
+        const validTechs = projectData.selectedTechs.filter((t) => t.id && t.techType);
         if (validTechs.length === 0) {
             showNotification("יש לבחור לפחות טכנולוגיה אחת", "error");
             return;
@@ -81,9 +87,9 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
                     body: JSON.stringify({
-                        projectName,
-                        projectDesc,
-                        linkToGithub: linkToGithub || null,
+                        projectName: projectData.projectName,
+                        projectDesc: projectData.projectDesc,
+                        linkToGithub: projectData.linkToGithub || null,
                         selectedTechnologies: validTechs,
                     }),
                 }
@@ -92,10 +98,7 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
             const data = await response.json();
             if (response.ok) {
                 showNotification("הפרויקט נוסף בהצלחה!", "success");
-                setProjectName("");
-                setProjectDesc("");
-                setLinkToGithub("");
-                setSelectedTechs([{ id: "", techType: "" }]);
+                resetProjectData();
             } else {
                 showNotification(data.message || "אירעה שגיאה", "error");
             }
@@ -113,8 +116,8 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                     <label className="form-label">שם הפרויקט</label>
                     <input
                         className="text-input"
-                        value={projectName}
-                        onChange={(e) => setProjectName(e.target.value)}
+                        value={projectData.projectName}
+                        onChange={(e) => updateProjectData({ projectName: e.target.value })}
                         required
                     />
                 </div>
@@ -124,8 +127,8 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                     <textarea
                         className="text-area"
                         rows="4"
-                        value={projectDesc}
-                        onChange={(e) => setProjectDesc(e.target.value)}
+                        value={projectData.projectDesc}
+                        onChange={(e) => updateProjectData({ projectDesc: e.target.value })}
                         required
                     />
                 </div>
@@ -138,13 +141,13 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                     <input
                         className="text-input"
                         type="url"
-                        value={linkToGithub}
-                        onChange={(e) => setLinkToGithub(e.target.value)}
+                        value={projectData.linkToGithub}
+                        onChange={(e) => updateProjectData({ linkToGithub: e.target.value })}
                         placeholder="https://github.com/example/repo"
                     />
                 </div>
 
-                {selectedTechs.map((tech, index) => (
+                {projectData.selectedTechs.map((tech, index) => (
                     <div className="form-section" key={index}>
                         <label className="form-label">בחר טכנולוגיה {index + 1}</label>
                         <select
@@ -154,11 +157,18 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                             required
                         >
                             <option value="">בחר טכנולוגיה</option>
-                            {technologies.map((t) => (
-                                <option key={t.id} value={t.id}>
-                                    {t.language}
-                                </option>
-                            ))}
+                            {technologies
+                                .filter(
+                                    (t) =>
+                                        // שמור את האופציה אם היא עוד לא נבחרה בשדות אחרים, או שהיא האופציה שנבחרה כרגע בשדה הנוכחי
+                                        !projectData.selectedTechs.some((selected, i) => selected.id === String(t.id) && i !== index)
+                                )
+                                .map((t) => (
+                                    <option key={t.id} value={t.id}>
+                                        {t.language}
+                                    </option>
+                                ))}
+
                         </select>
                         {tech.techType && (
                             <div className="form-section">
@@ -166,7 +176,7 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                                 <p className="tech-type">{tech.techType}</p>
                             </div>
                         )}
-                        {selectedTechs.length > 1 && (
+                        {projectData.selectedTechs.length > 1 && (
                             <button
                                 type="button"
                                 className="remove-tech-button"
