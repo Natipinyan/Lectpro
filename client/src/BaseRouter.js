@@ -1,51 +1,38 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import PrivateRouteStudents from "./services/PrivateRouteStudents";
-import PrivateRouteInstructor from "./services/PrivateRouteInstructor";
-import LoginStudents from "./components/logAndRegStudent/Login";
-import RegisterStudent from "./components/logAndRegStudent/Register";
-import RegisterInstructor from "./components/logAndRegInstructor/Register";
-import HomeStudent from "./components/base/HomeStudents";
-import OpenPro from "./components/projects/OpenPro";
-import HomeInstructor from "./components/base/HomeInstructor";
-import PageOne from "./components/base/PageOne";
-import PageTwo from "./components/base/PageTwo";
-import MainLayout from "./layout/MainLayout";
-import LoginInstructor from "./components/logAndRegInstructor/Login";
-import UpFile from "./components/projects/UploadFile";
-import Profile from "./components/logAndRegStudent/Profile"
-import ForgotPassword from "./components/logAndRegStudent/ForgotPassword";
+import * as Imports from "./imports";
 
 const onLoginSuccess = () => {
     console.log("Login successful!");
 };
 
 export default function BaseRouter() {
-    const router = createBrowserRouter([
+    const router = Imports.createBrowserRouter([
         {
             path: "/students",
-            element: <MainLayout />,
+            element: <Imports.MainLayout />,
             children: [
-                { index: true, element: <LoginStudents onLoginSuccess={onLoginSuccess} /> },
-                { path: "register", element: <RegisterStudent /> },
-                { path: "forgot-password", element:<ForgotPassword />},
-                { path: "HomeStudent", element: <PrivateRouteStudents element={HomeStudent} /> },
-                { path: "pageOne", element: <PrivateRouteStudents element={PageOne} /> },
-                { path: "pageTwo", element: <PrivateRouteStudents element={PageTwo} /> },
-                { path: "upload", element: <PrivateRouteStudents element={OpenPro} /> },
-                { path: "UpFile", element: <PrivateRouteStudents element={UpFile} /> },
-                { path: "Profile", element: <PrivateRouteStudents element={Profile} /> },
+                { index: true, element: <Imports.LoginStudents onLoginSuccess={onLoginSuccess} /> },
+                { path: "register", element: <Imports.RegisterStudent /> },
+                { path: "forgot-password", element: <Imports.ForgotPassword /> },
+                { path: "HomeStudent", element: <Imports.PrivateRouteStudents element={Imports.HomeStudent} /> },
+                { path: "pageOne", element: <Imports.PrivateRouteStudents element={Imports.PageOne} /> },
+                { path: "pageTwo", element: <Imports.PrivateRouteStudents element={Imports.PageTwo} /> },
+                { path: "upload", element: <Imports.PrivateRouteStudents element={Imports.OpenPro} /> },
+                { path: "UpFile", element: <Imports.PrivateRouteStudents element={Imports.UpFile} /> },
+                { path: "Profile", element: <Imports.PrivateRouteStudents element={Imports.Profile} /> },
+                { path: "MyProjects", element: <Imports.PrivateRouteStudents element={Imports.MyProjects} /> },
+                { path: "project/:projectId", element: <Imports.PrivateRouteStudents element={Imports.ProjectDetails} /> },
             ],
         },
         {
             path: "/instructor",
-            element: <MainLayout />,
+            element: <Imports.MainLayout />,
             children: [
-                { index: true, element: <LoginInstructor onLoginSuccess={onLoginSuccess} /> },
-                { path: "register", element: <RegisterInstructor /> },
-                { path: "HomeInstructor", element: <PrivateRouteInstructor element={HomeInstructor} /> },
+                { index: true, element: <Imports.LoginInstructor onLoginSuccess={onLoginSuccess} /> },
+                { path: "register", element: <Imports.RegisterInstructor /> },
+                { path: "HomeInstructor", element: <Imports.PrivateRouteInstructor element={Imports.HomeInstructor} /> },
             ],
         },
     ]);
 
-    return <RouterProvider router={router} />;
+    return <Imports.RouterProvider router={router} />;
 }

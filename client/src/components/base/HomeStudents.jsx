@@ -13,7 +13,7 @@ const HomeStudents = () => {
         <div className="home-students-container">
             <button onClick={() => handleNavigate("/students/upload")}>פתיחת פרוייקט</button>
             <button onClick={() => handleNavigate("/students/profile")}>איזור אישי</button>
-            <button onClick={() => handleNavigate("/students/my-projects")}>הפרוייקטים שלי</button>
+            <button onClick={() => handleNavigate("/students/MyProjects")}>הפרוייקטים שלי</button>
         </div>
     );
 };

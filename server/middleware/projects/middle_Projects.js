@@ -73,4 +73,38 @@ const addProject = (req, res, next) => {
     });
 };
 
-module.exports = { addProject };
+async function getProjects(req, res, next) {
+    const studentId = req.user.id;
+    const q = `SELECT * FROM \`projects\` WHERE student_id1 = ?;`;
+    db_pool.query(q, [studentId], function (err, rows) {
+        if (err) {
+            return res.status(500).json({ message: "Error fetching users" });
+        }
+        res.projectsList = rows;
+        next();
+    });
+}
+
+async function getOneProject(req, res, next) {
+    const studentId = req.user.id;
+    const projectId = req.params.projectId;
+
+    const q = `SELECT * FROM projects WHERE id = ? AND student_id1 = ?;`;
+
+    db_pool.query(q, [projectId, studentId], function (err, rows) {
+        if (err) {
+            console.error("שגיאה בשליפת הפרויקט:", err);
+            return res.status(500).json({ message: "שגיאה בשליפת הפרויקט" });
+        }
+
+        res.project = rows.length > 0 ? rows[0] : null;
+        next();
+    });
+}
+
+
+module.exports = {
+    addProject,
+    getProjects,
+    getOneProject
+};
