@@ -5,7 +5,7 @@ module.exports = router;
 const middleReg = require("../../../middleware/login - students/middleWewrRegister");
 const middleLog = require("../../../middleware/login - students/middleWareLogin");
 
-router.get("/List", middleReg.getList, (req, res) => {
+router.get("/List",middleLog.authenticateToken, middleReg.getList, (req, res) => {
     res.status(200).json(res.studentsList);
 });
 
@@ -17,7 +17,7 @@ router.post("/Update",middleLog.authenticateToken, middleReg.UpdateUser, (req, r
     res.status(res.updateStatus || 200).json({ message: res.updateMessage });
 });
 
-router.delete("/Delete/:row_id", middleReg.delUser, (req, res) => {
+router.delete("/Delete/:row_id",middleLog.authenticateToken, middleReg.delUser, (req, res) => {
     res.status(res.deleteStatus || 200).json({ message: res.deleteMessage });
 });
 
