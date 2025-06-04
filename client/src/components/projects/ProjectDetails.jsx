@@ -12,18 +12,25 @@ const ProjectDetails = () => {
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`, {
+                const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
                 });
 
-                if (!response.ok) {
-                    throw new Error("שגיאה בטעינת פרטי הפרויקט");
-                }
+                if (!resProject.ok) throw new Error("שגיאה בטעינת פרטי הפרויקט");
 
-                const data = await response.json();
-                console.log("פרטי הפרויקט:", data);
-                setProject(data);
+                const dataProject = await resProject.json();
+
+                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getProjectTechnologies/${projectId}`, {
+                    method: "GET",
+                    credentials: 'include',
+                });
+
+                if (!resTech.ok) throw new Error("שגיאה בטעינת טכנולוגיות");
+
+                const techData = await resTech.json();
+
+                setProject({ ...dataProject, technologies: techData });
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
@@ -35,63 +42,35 @@ const ProjectDetails = () => {
         fetchProjectDetails();
     }, [projectId]);
 
-    if (loading) {
-        return (
-            <div className="project-details-wrapper">
-                <div className="loading">טוען...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="project-details-wrapper">
-                <div className="error">{error}</div>
-            </div>
-        );
-    }
-
-    if (!project) {
-        return (
-            <div className="project-details-wrapper">
-                <div className="no-project">הפרויקט לא נמצא</div>
-            </div>
-        );
-    }
+    if (loading) return <div className="loading">טוען פרטי פרויקט...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!project) return <div className="no-project">לא נמצא פרויקט</div>;
 
     return (
         <div className="project-details-wrapper">
-            <button className="back-button" onClick={() => navigate(-1)}>
-                חזור לרשימת הפרויקטים
-            </button>
+            <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
             <div className="project-details-container">
-                <h2 className="project-title">{project.title || "פרויקט ללא שם"}</h2>
-                <div className="project-description">
-                    <strong>תיאור:</strong> {project.description || "ללא תיאור"}
-                </div>
+                <div className="project-title">{project.title}</div>
+                <div className="project-description">{project.description}</div>
                 <div className="project-github">
-                    <strong>לינק לגיטהאב:</strong>{" "}
-                    {project.githubLink ? (
-                        <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
-                            {project.githubLink}
-                        </a>
-                    ) : (
-                        "ללא לינק לגיטהאב"
-                    )}
-                </div>
-                <div className="project-technologies">
-                    <strong>טכנולוגיות בשימוש:</strong>{" "}
-                    {Array.isArray(project.technologies) && project.technologies.length > 0 ? (
-                        <ul>
-                            {project.technologies.map((tech, index) => (
-                                <li key={index}>{tech}</li>
-                            ))}
-                        </ul>
-                    ) : (
-                        "לא צוינו טכנולוגיות"
-                    )}
+                    קישור לגיטהאב:{" "}
+                    <a href={project.github_link} target="_blank" rel="noopener noreferrer">
+                        {project.github_link}
+                    </a>
                 </div>
 
+                {project.technologies && project.technologies.length > 0 && (
+                    <div className="project-technologies">
+                        <h4>טכנולוגיות בפרויקט:</h4>
+                        <ul>
+                            {project.technologies.map(tech => (
+                                <li key={tech.id}>
+                                    {tech.title} {tech.language && `(${tech.language})`}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -101,10 +101,29 @@ async function getOneProject(req, res, next) {
         next();
     });
 }
+async function getProjectTechnologies(req, res, next) {
+    const { projectId } = req.params;
 
+    const q = `
+        SELECT t.id, t.title, t.language
+        FROM projects_technologies pt
+        JOIN technology_in_use t ON pt.technology_id = t.id
+        WHERE pt.project_id = ?
+    `;
+
+    try {
+        const [rows] = await db_pool.promise().query(q, [projectId]);
+        res.technologies = rows;
+        next();
+    } catch (err) {
+        console.error("שגיאה בקבלת טכנולוגיות:", err);
+        res.status(500).json({ message: 'שגיאה בקבלת טכנולוגיות הפרויקט' });
+    }
+}
 
 module.exports = {
     addProject,
     getProjects,
-    getOneProject
+    getOneProject,
+    getProjectTechnologies
 };

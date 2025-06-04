@@ -16,6 +16,10 @@ router.get('/getOneProject/:projectId', middleLog.authenticateToken, middlePro.g
     res.status(200).json(res.project);
 });
 
+router.get('/getProjectTechnologies/:projectId', middleLog.authenticateToken, middlePro.getProjectTechnologies, (req, res) => {
+    res.status(200).json(res.technologies);
+});
+
 
 
 module.exports = router;
