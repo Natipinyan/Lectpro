@@ -1,8 +1,12 @@
 .project-details-wrapper {
-    max-width: 600px;
-    margin: 0 20px 0 auto;
+    display: flex;
+    justify-content: space-around;
+    margin: 0 auto;
     padding: 20px;
     direction: rtl;
+    width: 100%;
+    /*background-color: black;*/
+    box-sizing: border-box;
 }
 
 .project-details-container {
@@ -10,6 +14,30 @@
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 0 0 48%;
+    box-sizing: border-box;
+}
+
+.pdfView {
+    /*background-color: #f7e600;*/
+    flex: 0 0 48%;
+    padding: 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.pdf-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pdf-container canvas {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    max-width: 100%;
 }
 
 .project-title {
@@ -20,7 +48,8 @@
 }
 
 .project-description,
-.project-github {
+.project-github,
+.no-pdf {
     font-size: 16px;
     color: #666;
     margin-bottom: 15px;
@@ -54,7 +83,8 @@
 
 .loading,
 .error,
-.no-project {
+.no-project,
+.no-pdf {
     text-align: center;
     font-size: 16px;
     color: #666;

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../css/projects/ProjectDetails.css";
-
-const ProjectDetails = () => {
+import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
     const { projectId } = useParams();
     const [project, setProject] = useState(null);
+    const [pdfUrl, setPdfUrl] = useState(null); // state חדש עבור ה-PDF
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -12,6 +11,7 @@ const ProjectDetails = () => {
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
+                // שליפת פרטי הפרויקט
                 const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
@@ -21,6 +21,7 @@ const ProjectDetails = () => {
 
                 const dataProject = await resProject.json();
 
+                // שליפת טכנולוגיות הפרויקט
                 const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getProjectTechnologies/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
@@ -30,16 +31,34 @@ const ProjectDetails = () => {
 
                 const techData = await resTech.json();
 
+                // שליפת קובץ ה-PDF
+                const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/file/${projectId}`, {
+                    method: "GET",
+                    credentials: 'include',
+                });
+
+                if (!resPdf.ok) throw new Error("שגיאה בטעינת קובץ ה-PDF");
+
+                // יצירת URL זמני לקובץ ה-PDF
+                const pdfBlob = await resPdf.blob();
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+
                 setProject({ ...dataProject, technologies: techData });
+                setPdfUrl(pdfUrl); // שמירת ה-URL של ה-PDF
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
-                setError("אירעה שגיאה בטעינת פרטי הפרויקט");
+                setError("אירעה שגיאה בטעינת פרטי הפרויקט או ה-PDF");
                 setLoading(false);
             }
         };
 
         fetchProjectDetails();
+
+        // ניקוי ה-URL של ה-PDF בעת עזיבת הרכיב
+        return () => {
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        };
     }, [projectId]);
 
     if (loading) return <div className="loading">טוען פרטי פרויקט...</div>;
@@ -48,8 +67,8 @@ const ProjectDetails = () => {
 
     return (
         <div className="project-details-wrapper">
-            <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
             <div className="project-details-container">
+                <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
                 <div className="project-title">{project.title}</div>
                 <div className="project-description">{project.description}</div>
                 <div className="project-github">
@@ -72,8 +91,22 @@ const ProjectDetails = () => {
                     </div>
                 )}
             </div>
+            <div className="pdfView">
+                {pdfUrl ? (
+                    <iframe
+                        src={pdfUrl}
+                        title="Project PDF"
+                        style={{ width: "100%", height: "500px", border: "none" }}
+                    />
+                ) : (
+                    <p>לא נמצא קובץ PDF עבור פרויקט זה</p>
+                )}
+            </div>
         </div>
     );
-};
 
+};
 export default ProjectDetails;
+
+
+

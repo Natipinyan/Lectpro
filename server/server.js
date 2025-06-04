@@ -3,6 +3,7 @@ const app = express();
 require('dotenv').config();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const { db_pool } = require('./LoginDB');
 const { sendEmailFromServer } = require('./middleware/Email/Email');
@@ -13,6 +14,7 @@ const PORT = 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/files', express.static(path.join(__dirname, 'filesApp')));
 app.use(
     cors({
         origin: "http://localhost:3000",
