@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import '../../css/projects/upFile.css'
 
-const Upload = () => {
+const UploadFile = () => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("גרור קובץ לכאן או לחץ לבחירה");
     const fileInputRef = useRef(null);
@@ -88,4 +88,4 @@ const Upload = () => {
     );
 };
 
-export default Upload;
+export default UploadFile;

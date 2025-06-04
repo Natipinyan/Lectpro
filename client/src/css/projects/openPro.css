@@ -1,3 +1,26 @@
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    direction: rtl;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 1.5em;
+    font-weight: 700;
+}
+
+.form-subtitle {
+    text-align: center;
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
 .form-section {
     display: flex;
     flex-direction: column;
@@ -5,16 +28,17 @@
     margin-bottom: 1.5em;
 }
 
-.formLabel {
+.form-label {
     text-align: center;
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 0.5em;
-    font-size: 25px;
+    font-size: 18px;
     color: #333;
 }
 
 .text-input,
-.text-area {
+.text-area,
+.form-select {
     width: 100%;
     max-width: 500px;
     padding: 12px 16px;
@@ -28,17 +52,18 @@
 }
 
 .text-input:focus,
-.text-area:focus {
+.text-area:focus,
+.form-select:focus {
     border-color: #0077b6;
     box-shadow: 0 2px 8px rgba(0, 119, 182, 0.2);
     outline: none;
 }
 
-.form-section p {
+.tech-type {
     margin-top: 0.5em;
     font-size: 16px;
     color: #005b8e;
-    font-weight: bold;
+    font-weight: 600;
     text-align: center;
     background-color: #f8f9fa;
     padding: 8px 12px;
@@ -51,27 +76,49 @@
     margin-top: 1.5em;
     display: flex;
     justify-content: center;
+    gap: 10px;
 }
 
-.button {
+.primary-button {
     background-color: #0077b6;
     color: white;
     border: none;
     padding: 14px 24px;
     width: 100%;
-    max-width: 500px;
+    max-width: 250px;
     border-radius: 12px;
     font-size: 17px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: 0 3px 8px rgba(0, 119, 182, 0.2);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
-.button:hover {
+.primary-button:hover {
     background-color: #005b8e;
     transform: translateY(-2px);
     box-shadow: 0 5px 12px rgba(0, 119, 182, 0.3);
+}
+
+.secondary-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    width: 100%;
+    max-width: 250px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(108, 117, 125, 0.2);
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.secondary-button:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(108, 117, 125, 0.3);
 }
 
 .add-tech-button {
@@ -83,11 +130,10 @@
     max-width: 200px;
     border-radius: 10px;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,9 +153,9 @@
 
 .remove-tech-button {
     background-color: #e9ecef;
-    color: #005b8e;
+    color: #dc3545;
     border: 1px solid #ccd6dd;
-    padding: 6px 12px;
+    padding: 8px 16px;
     width: 100%;
     max-width: 120px;
     border-radius: 8px;
@@ -125,10 +171,10 @@
 }
 
 .remove-tech-button:hover {
-    background-color: #ccd6dd;
-    color: #003d66;
+    background-color: #dc3545;
+    color: white;
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 119, 182, 0.15);
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
 }
 
 .remove-tech-button::before {
@@ -137,10 +183,17 @@
     margin-left: 6px;
 }
 
-.upMessage {
-    text-align: center;
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 1.5em;
-    font-weight: bold;
+.add-tech-link {
+    background: none;
+    border: none;
+    color: #0077b6;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.add-tech-link:hover {
+    color: #005b8e;
 }

@@ -11,7 +11,7 @@ import PageOne from "./components/base/PageOne";
 import PageTwo from "./components/base/PageTwo";
 import MainLayout from "./layout/MainLayout";
 import LoginInstructor from "./components/logAndRegInstructor/Login";
-import UpFile from "./components/projects/Upload";
+import UpFile from "./components/projects/UploadFile";
 import Profile from "./components/logAndRegStudent/Profile"
 import ForgotPassword from "./components/logAndRegStudent/ForgotPassword";
 
