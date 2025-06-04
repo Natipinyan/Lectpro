@@ -1,5 +1,5 @@
 const addProject = (req, res, next) => {
-    const { projectName, projectDesc, selectedTechnologies } = req.body;
+    const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
     const studentId = req.user.id;
 
     if (
@@ -14,8 +14,12 @@ const addProject = (req, res, next) => {
         return res.status(400).json({ message: "חסרים פרטי פרויקט, טכנולוגיות או זיהוי משתמש" });
     }
 
-    const queryProject = `INSERT INTO projects (title, description, student_id1) VALUES (?, ?, ?)`;
-    db_pool.query(queryProject, [projectName, projectDesc, studentId], (err, result) => {
+    if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
+        return res.status(400).json({ message: "נא להזין קישור תקין ל-GitHub" });
+    }
+
+    const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github) VALUES (?, ?, ?, ?)`;
+    db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null], (err, result) => {
         if (err) {
             console.error("DB Error (projects):", err);
             return res.status(500).json({ message: "שגיאה בהוספת הפרויקט" });
@@ -46,6 +50,7 @@ const addProject = (req, res, next) => {
             Promise.all(technologyPromises)
                 .then(() => {
                     console.log("הטכנולוגיות נוספו בהצלחה");
+                    res.status(200).json({ message: "הפרויקט נוסף בהצלחה" });
                     next();
                 })
                 .catch(error => {

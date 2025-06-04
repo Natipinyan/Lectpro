@@ -4,6 +4,7 @@ import "../../css/projects/openPro.css";
 const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDesc, setProjectDesc] = useState("");
+    const [linkToGithub, setLinkToGithub] = useState("");
     const [technologies, setTechnologies] = useState([]);
     const [selectedTechs, setSelectedTechs] = useState([{ id: "", techType: "" }]);
 
@@ -49,10 +50,20 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
         setSelectedTechs(updated);
     };
 
+    const validateGithubLink = (link) => {
+        if (!link) return true;
+        return /^https:\/\/github\.com\/.+$/.test(link);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!projectName.trim() || !projectDesc.trim()) {
             showNotification("יש למלא את שם ותיאור הפרויקט", "error");
+            return;
+        }
+
+        if (!validateGithubLink(linkToGithub)) {
+            showNotification("נא להזין קישור תקין ל-GitHub", "error");
             return;
         }
 
@@ -72,6 +83,7 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                     body: JSON.stringify({
                         projectName,
                         projectDesc,
+                        linkToGithub: linkToGithub || null,
                         selectedTechnologies: validTechs,
                     }),
                 }
@@ -82,6 +94,7 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                 showNotification("הפרויקט נוסף בהצלחה!", "success");
                 setProjectName("");
                 setProjectDesc("");
+                setLinkToGithub("");
                 setSelectedTechs([{ id: "", techType: "" }]);
             } else {
                 showNotification(data.message || "אירעה שגיאה", "error");
@@ -114,6 +127,20 @@ const OpenProject = ({ onSwitchToAddTechnology, showNotification }) => {
                         value={projectDesc}
                         onChange={(e) => setProjectDesc(e.target.value)}
                         required
+                    />
+                </div>
+
+                <div className="form-section">
+                    <label className="form-label">קישור ל-GitHub</label>
+                    <label className="form-label form-hint">
+                        אל דאגה, גם אם עדיין אין לך ריפו תמיד תוכל לעדכן אחר כך את הקישור :)
+                    </label>
+                    <input
+                        className="text-input"
+                        type="url"
+                        value={linkToGithub}
+                        onChange={(e) => setLinkToGithub(e.target.value)}
+                        placeholder="https://github.com/example/repo"
                     />
                 </div>
 
