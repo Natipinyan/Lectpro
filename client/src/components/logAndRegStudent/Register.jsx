@@ -33,7 +33,6 @@ const Register = () => {
                 phone,
                 pass
             });
-            // אם ההרשמה הצליחה
             setSuccessMessage(response.data.message);
             setErrorMessage('');
             setTimeout(() => setSuccessMessage(''), 1500);

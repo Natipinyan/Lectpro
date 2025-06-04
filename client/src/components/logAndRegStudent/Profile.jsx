@@ -13,7 +13,7 @@ export default function Profile() {
         const getUserData = async () => {
             try {
                 const data = await fetchUserData();
-                setUserData(data); // השרת מחזיר מערך
+                setUserData(data);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching user data:", error.message);
