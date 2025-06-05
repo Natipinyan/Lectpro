@@ -42,7 +42,7 @@ const addProject = (req, res, next) => {
             const projectId = result.insertId;
 
             const queryUpdateStudent = `UPDATE students SET project_id = ? WHERE id = ?`;
-            db_pool.query(queryUpdateStudent, [projectId, studentId], (err2, result2) => {
+            db_pool.query(queryUpdateStudent, [projectId, studentId], (err2) => {
                 if (err2) {
                     console.error("DB Error (students update):", err2);
                     return res.status(500).json({ message: "שגיאה בעדכון הסטודנט" });
@@ -51,24 +51,23 @@ const addProject = (req, res, next) => {
                 const technologyPromises = selectedTechnologies.map(({ id }) => {
                     const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
                     return new Promise((resolve, reject) => {
-                        db_pool.query(queryTechnology, [projectId, id], (err3, result3) => {
+                        db_pool.query(queryTechnology, [projectId, id], (err3) => {
                             if (err3) {
                                 console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
-                                reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
+                                return reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
                             }
-                            resolve(result3);
+                            resolve();
                         });
                     });
                 });
 
                 Promise.all(technologyPromises)
                     .then(() => {
-                        console.log("הטכנולוגיות נוספו בהצלחה");
-                        res.status(200).json({ message: "הפרויקט נוסף בהצלחה" });
+                        //console.log("הטכנולוגיות נוספו בהצלחה");
                         next();
                     })
                     .catch(error => {
-                        console.error(error);
+                        console.error("טעות בהוספת טכנולוגיות:", error);
                         return res.status(500).json(error);
                     });
             });

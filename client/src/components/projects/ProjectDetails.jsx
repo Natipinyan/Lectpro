@@ -31,15 +31,18 @@ const ProjectDetails = () => {
 
                 const techData = await resTech.json();
 
+                let newPdfUrl = null;
                 const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/file/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
                 });
 
-                if (!resPdf.ok) throw new Error("שגיאה בטעינת קובץ ה-PDF");
-
-                const pdfBlob = await resPdf.blob();
-                const newPdfUrl = URL.createObjectURL(pdfBlob);
+                if (resPdf.ok) {
+                    const pdfBlob = await resPdf.blob();
+                    newPdfUrl = URL.createObjectURL(pdfBlob);
+                } else if (resPdf.status !== 404) {
+                    throw new Error("שגיאה בטעינת קובץ ה-PDF");
+                }
 
                 setProject({ ...dataProject, technologies: techData });
                 setPdfUrl(newPdfUrl);
@@ -73,10 +76,16 @@ const ProjectDetails = () => {
                 <div className="project-title">{project.title}</div>
                 <div className="project-description">{project.description}</div>
                 <div className="project-github">
-                    קישור לגיטהאב:{" "}
-                    <a href={project.github_link} target="_blank" rel="noopener noreferrer">
-                        {project.github_link}
-                    </a>
+                    <div>קישור לגיטהאב</div>
+                    {project.link_to_github != null ? (
+                            <span>
+                                <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                                    {project.link_to_github}
+                                </a>
+                            </span>
+                    ) : (
+                        <span>לא הוזן קישור לגיטהאב</span>
+                    )}
                 </div>
 
                 {project.technologies && project.technologies.length > 0 && (
@@ -100,9 +109,10 @@ const ProjectDetails = () => {
                         style={{ width: "100%", height: "500px", border: "none" }}
                     />
                 ) : (
-                    <p>לא נמצא קובץ PDF עבור פרויקט זה</p>
+                    <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
                 )}
             </div>
+
         </div>
     );
 };
