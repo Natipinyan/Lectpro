@@ -160,7 +160,6 @@ const OpenProject = ({
                             {technologies
                                 .filter(
                                     (t) =>
-                                        // שמור את האופציה אם היא עוד לא נבחרה בשדות אחרים, או שהיא האופציה שנבחרה כרגע בשדה הנוכחי
                                         !projectData.selectedTechs.some((selected, i) => selected.id === String(t.id) && i !== index)
                                 )
                                 .map((t) => (

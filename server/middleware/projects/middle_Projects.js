@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 const addProject = (req, res, next) => {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
     const studentId = req.user.id;
@@ -101,6 +104,7 @@ async function getOneProject(req, res, next) {
         next();
     });
 }
+
 async function getProjectTechnologies(req, res, next) {
     const { projectId } = req.params;
 
@@ -121,9 +125,40 @@ async function getProjectTechnologies(req, res, next) {
     }
 }
 
+const getProjectFile = (req, res, next) => {
+    const projectId = req.params.projectId;
+    const studentId = req.user.id;
+
+    const q = `SELECT title FROM projects WHERE id = ? AND student_id1 = ?`;
+
+    db_pool.query(q, [projectId, studentId], (err, results) => {
+        if (err) {
+            console.error('שגיאה בשליפת הפרויקט:', err);
+            return res.status(500).json({ message: 'שגיאה בשליפת הפרויקט' });
+        }
+
+        if (results.length === 0) {
+            return res.status(403).json({ message: 'אין לך הרשאה לגשת לקובץ זה' });
+        }
+
+        const projectTitle = results[0].title;
+        const safeTitle = projectTitle.replace(/[^a-zA-Z0-9א-ת _-]/g, '').replace(/\s+/g, '_');
+        const fileName = `${safeTitle}.pdf`;
+        const filePath = path.join(__dirname, '..', '..', 'filesApp', fileName);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: 'קובץ PDF לא נמצא עבור שם הפרויקט: ' + fileName });
+        }
+
+        res.filePath = filePath;
+        next();
+    });
+};
+
 module.exports = {
     addProject,
     getProjects,
     getOneProject,
-    getProjectTechnologies
+    getProjectTechnologies,
+    getProjectFile,
 };

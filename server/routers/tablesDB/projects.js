@@ -3,10 +3,6 @@ const router = express.Router();
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 const middlePro = require("../../middleware/projects/middle_Projects");
 
-const path = require('path');
-const fs = require('fs');
-
-
 router.post('/addproject', middleLog.authenticateToken, middlePro.addProject, (req, res) => {
     //console.log("Authenticated user:", req.user);
     return res.status(200).json({ message: "הפרויקט התקבל בהצלחה!" });
@@ -23,34 +19,12 @@ router.get('/getProjectTechnologies/:projectId', middleLog.authenticateToken, mi
     res.status(200).json(res.technologies);
 });
 
-router.get('/file/:projectId', middleLog.authenticateToken, (req, res) => {
-    console.log("Request for file with projectId:", req.params.projectId);
-    const projectId = req.params.projectId;
-    const fileName = `1_19.05.2025.pdf`;
-    const filePath = path.join(__dirname, '..', '..', 'filesApp', fileName);
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: 'הקובץ לא נמצא' });
-    }
-
-    const studentId = req.user.id;
-    const q = `SELECT * FROM projects WHERE id = ? AND student_id1 = ?;`;
-
-    db_pool.query(q, [projectId, studentId], (err, rows) => {
+router.get('/file/:projectId', middleLog.authenticateToken, middlePro.getProjectFile, (req, res) => {
+    res.sendFile(res.filePath, (err) => {
         if (err) {
-            console.error('שגיאה בשליפת הפרויקט:', err);
-            return res.status(500).json({ message: 'שגיאה בשליפת הפרויקט' });
+            console.error('שגיאה בהגשת הקובץ:', err);
+            return res.status(500).json({ message: 'שגיאה בהגשת הקובץ' });
         }
-        if (rows.length === 0) {
-            return res.status(403).json({ message: 'אין לך הרשאה לגשת לקובץ זה' });
-        }
-
-        // הגשת הקובץ
-        res.sendFile(filePath, (err) => {
-            if (err) {
-                console.error('שגיאה בהגשת הקובץ:', err);
-                return res.status(500).json({ message: 'שגיאה בהגשת הקובץ' });
-            }
-        });
     });
 });
 

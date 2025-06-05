@@ -60,7 +60,7 @@ const UploadFile = () => {
                 alert("הקובץ נשלח בהצלחה!");
                 setFile(null);
                 setFileName("גרור קובץ לכאן או לחץ לבחירה");
-                setSelectedProject(null); // איפוס הפרויקט שנבחר
+                setSelectedProject(null);
             } else {
                 alert("אירעה שגיאה בשליחת הקובץ.");
             }

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
+import "../../css/projects/ProjectDetails.css";
+
+const ProjectDetails = () => {
     const { projectId } = useParams();
     const [project, setProject] = useState(null);
-    const [pdfUrl, setPdfUrl] = useState(null); // state חדש עבור ה-PDF
+    const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
@@ -38,10 +39,10 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
                 if (!resPdf.ok) throw new Error("שגיאה בטעינת קובץ ה-PDF");
 
                 const pdfBlob = await resPdf.blob();
-                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const newPdfUrl = URL.createObjectURL(pdfBlob);
 
                 setProject({ ...dataProject, technologies: techData });
-                setPdfUrl(pdfUrl);
+                setPdfUrl(newPdfUrl);
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
@@ -51,11 +52,15 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
         };
 
         fetchProjectDetails();
-
-        return () => {
-            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        };
     }, [projectId]);
+
+    useEffect(() => {
+        return () => {
+            if (pdfUrl) {
+                URL.revokeObjectURL(pdfUrl);
+            }
+        };
+    }, [pdfUrl]);
 
     if (loading) return <div className="loading">טוען פרטי פרויקט...</div>;
     if (error) return <div className="error">{error}</div>;
@@ -80,7 +85,7 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
                         <ul>
                             {project.technologies.map(tech => (
                                 <li key={tech.id}>
-                                    {tech.title} {tech.language && `(${tech.language})`}
+                                    {tech.title} {tech.language && (`${tech.language}`)}
                                 </li>
                             ))}
                         </ul>
@@ -100,9 +105,6 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
             </div>
         </div>
     );
-
 };
+
 export default ProjectDetails;
-
-
-

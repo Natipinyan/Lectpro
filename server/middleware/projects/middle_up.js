@@ -29,7 +29,7 @@ const handleFileUpload = async (req, res, next) => {
         const ext = path.extname(req.file.originalname);
 
         const cleanProjectTitle = projectTitle.replace(/[^a-zA-Z0-9א-ת_-]/g, '_');
-        const newFileName = `${userId}_${cleanProjectTitle}${ext}`;
+        const newFileName = `${cleanProjectTitle}${ext}`;
         const newPath = path.join(req.file.destination, newFileName);
 
         await fs.promises.rename(oldPath, newPath);
