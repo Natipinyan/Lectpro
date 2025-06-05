@@ -1,5 +1,7 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -7,16 +9,8 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const userId = req.user.id;
-        const now = new Date();
-
-        const formattedDate = now.toLocaleDateString('he-IL', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/[\/\s:]/g, '-').replace('-', '_').replace(':', '_').replace(',', '');
-
         const ext = path.extname(file.originalname);
-        cb(null, `${userId}_${formattedDate}${ext}`);
+        cb(null, `${userId}_${ext}`);
     }
 });
 
@@ -28,7 +22,19 @@ const handleFileUpload = async (req, res, next) => {
             return res.status(400).json({ message: "לא נשלח קובץ" });
         }
 
-        const filePath = `/uploads/${req.file.filename}`;
+        const oldPath = req.file.path;
+        const userId = req.user.id;
+
+        const projectTitle = req.body.projectTitle || 'unnamed_project';
+        const ext = path.extname(req.file.originalname);
+
+        const cleanProjectTitle = projectTitle.replace(/[^a-zA-Z0-9א-ת_-]/g, '_');
+        const newFileName = `${userId}_${cleanProjectTitle}${ext}`;
+        const newPath = path.join(req.file.destination, newFileName);
+
+        await fs.promises.rename(oldPath, newPath);
+
+        const filePath = `/uploads/${newFileName}`;
         const stageId = req.body.stage_id || null;
 
         const Query = `INSERT INTO files (routing, stage_id) VALUES (?, ?)`;
@@ -43,10 +49,10 @@ const handleFileUpload = async (req, res, next) => {
 
         next();
     } catch (err) {
+        console.error("שגיאת שרת ב-handleFileUpload:", err);
         return res.status(500).json({ message: "שגיאת שרת", error: err.message });
     }
 };
-
 module.exports = {
     upload,
     handleFileUpload

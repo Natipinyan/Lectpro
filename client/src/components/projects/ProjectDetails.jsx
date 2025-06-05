@@ -8,10 +8,10 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                // שליפת פרטי הפרויקט
                 const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
@@ -21,7 +21,6 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
 
                 const dataProject = await resProject.json();
 
-                // שליפת טכנולוגיות הפרויקט
                 const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getProjectTechnologies/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
@@ -31,7 +30,6 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
 
                 const techData = await resTech.json();
 
-                // שליפת קובץ ה-PDF
                 const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/file/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
@@ -39,12 +37,11 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
 
                 if (!resPdf.ok) throw new Error("שגיאה בטעינת קובץ ה-PDF");
 
-                // יצירת URL זמני לקובץ ה-PDF
                 const pdfBlob = await resPdf.blob();
                 const pdfUrl = URL.createObjectURL(pdfBlob);
 
                 setProject({ ...dataProject, technologies: techData });
-                setPdfUrl(pdfUrl); // שמירת ה-URL של ה-PDF
+                setPdfUrl(pdfUrl);
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
@@ -55,7 +52,6 @@ import "../../css/projects/ProjectDetails.css";const ProjectDetails = () => {
 
         fetchProjectDetails();
 
-        // ניקוי ה-URL של ה-PDF בעת עזיבת הרכיב
         return () => {
             if (pdfUrl) URL.revokeObjectURL(pdfUrl);
         };
