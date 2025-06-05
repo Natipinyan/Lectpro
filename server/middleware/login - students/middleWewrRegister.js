@@ -13,6 +13,7 @@ async function getList(req, res, next) {
 
 async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone } = req.body;
+    console.log("Adding user:", userName, email, first_name, last_name, phone);
 
     if (!isValidPassword(pass)) {
         res.addStatus = 400;

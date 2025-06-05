@@ -16,12 +16,13 @@ import Profile from "./components/logAndRegStudent/Profile";
 import ForgotPassword from "./components/logAndRegStudent/ForgotPassword";
 import MyProjects from "./components/projects/MyProjects";
 import ProjectDetails from "./components/projects/ProjectDetails";
-
+import LoginSignupForm from "./components/logAndRegStudent/LoginSignupForm";
 export {
     createBrowserRouter,
     RouterProvider,
     PrivateRouteStudents,
     PrivateRouteInstructor,
+    LoginSignupForm,
     LoginStudents,
     RegisterStudent,
     RegisterInstructor,
