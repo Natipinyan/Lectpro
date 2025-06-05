@@ -5,7 +5,7 @@ const UploadFile = () => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("גרור קובץ לכאן או לחץ לבחירה");
     const [projects, setProjects] = useState([]);
-    const [selectedProject, setSelectedProject] = useState(null); // מצב לפרויקט שנבחר
+    const [selectedProject, setSelectedProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
@@ -46,8 +46,8 @@ const UploadFile = () => {
         }
 
         const formData = new FormData();
-        formData.append('file',  file);  // שולח את הקובץ
-        formData.append('projectTitle',  selectedProject.title);  // שולח את הקובץ
+        formData.append('file',  file);
+        formData.append('projectTitle',  selectedProject.id);
 
         try {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/upload/addFile`, {

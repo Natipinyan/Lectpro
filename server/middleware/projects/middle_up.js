@@ -23,9 +23,9 @@ const handleFileUpload = async (req, res, next) => {
         }
 
         const oldPath = req.file.path;
-        const userId = req.user.id;
 
         const projectTitle = req.body.projectTitle || 'unnamed_project';
+        //console.log("Project Title:", projectTitle);
         const ext = path.extname(req.file.originalname);
 
         const cleanProjectTitle = projectTitle.replace(/[^a-zA-Z0-9א-ת_-]/g, '_');

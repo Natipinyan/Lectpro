@@ -18,7 +18,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
                 `${process.env.REACT_APP_BASE_URL}/students/login/check`,
                 { userName, password },
                 { withCredentials: true }
-            );
+        );
 
             if (response.data.loggedIn) {
                 onLoginSuccess();
