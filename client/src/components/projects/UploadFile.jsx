@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from '../../css/projects/upFile.module.css'; // יבוא CSS Modules
+import styles from '../../css/projects/upFile.module.css';
 
 const UploadFile = () => {
     const [file, setFile] = useState(null);

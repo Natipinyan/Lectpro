@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+    margin: 0;
+    background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+    color: #333;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    direction: rtl;
+}
+
+.sidebar {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    bottom: 28px;
+    width: 80px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: width 0.6s ease-in-out;
+}
+
+.sidebar button {
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.left,
+.right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transition: 0.6s ease-in-out;
+    border-radius: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.left {
+    z-index: 1;
+    right: 0;
+    width: 80px;
+    background: #7494ec;
+}
+
+.left h2 {
+    margin: 10px 0;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.left button {
+    background: #f5f5f5;
+    color: #5e7cd9;
+    cursor: default;
+    width: 48px;
+    height: 48px;
+}
+
+.left button:hover {
+    background: #f5f5f5;
+}
+
+.right {
+    right: 80px;
+    width: 220px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    box-sizing: border-box;
+    align-items: flex-start;
+    overflow-y: auto;
+}
+
+.right h1 {
+    margin: 10px 0;
+    color: #333;
+    text-align: center;
+    width: 100%;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.spacer {
+    height: 36px;
+}
+
+.right button {
+    background: #7494ec;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: calc(50% - 4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin: 0;
+}
+
+.right button:hover {
+    background: #5e7cd9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.right button span {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sidebar:hover {
+    width: 300px;
+}
+
+.sidebar:hover .left {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.sidebar:hover .right {
+    translate: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}

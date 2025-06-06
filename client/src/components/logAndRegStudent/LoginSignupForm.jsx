@@ -98,7 +98,6 @@ const LoginSignupForm = () => {
     return (
         <div className={"bodyLogReg"} >
             <div className={`container ${isActive ? 'active' : ''}`}>
-                {/* טופס התחברות */}
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
                         <h1>כניסה</h1>
@@ -137,7 +136,6 @@ const LoginSignupForm = () => {
                     </form>
                 </div>
 
-                {/* טופס הרשמה */}
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
                         <h1>הרשמה - סטודנטים</h1>
@@ -207,7 +205,7 @@ const LoginSignupForm = () => {
                     </form>
                 </div>
 
-                {/* פאנל מעבר בין התחברות להרשמה */}
+
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
                         <h1>Hello, Welcome!</h1>
@@ -225,7 +223,7 @@ const LoginSignupForm = () => {
                     </div>
                 </div>
 
-                {/* הצגת התראות */}
+
                 {error && (
                     <NotificationPopup
                         message={error}

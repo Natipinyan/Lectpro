@@ -17,12 +17,15 @@ import ForgotPassword from "./components/logAndRegStudent/ForgotPassword";
 import MyProjects from "./components/projects/MyProjects";
 import ProjectDetails from "./components/projects/ProjectDetails";
 import LoginSignupForm from "./components/logAndRegStudent/LoginSignupForm";
+import Sidebar  from "./layout/Sidebar";
+import SidebarLayout from "./layout/SidebarLayout ";
 export {
     createBrowserRouter,
     RouterProvider,
     PrivateRouteStudents,
     PrivateRouteInstructor,
     LoginSignupForm,
+    SidebarLayout,
     LoginStudents,
     RegisterStudent,
     RegisterInstructor,
@@ -37,5 +40,6 @@ export {
     Profile,
     ForgotPassword,
     MyProjects,
-    ProjectDetails
+    ProjectDetails,
+    Sidebar,
 };

@@ -128,7 +128,7 @@
     outline-offset: 2px;
 }
 
-/* רספונסיביות */
+
 @media screen and (max-width: 650px) {
     .form-section {
         margin-bottom: 15px;

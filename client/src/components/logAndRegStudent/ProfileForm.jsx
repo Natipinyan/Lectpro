@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import "../../css/logAndReg/profileFrome.css";
 
 const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
