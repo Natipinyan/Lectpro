@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserData, updateUserData } from "../../services/api";
 import ProfileForm from "./ProfileForm";
+import "../../css/logAndReg/profile.css";
 
 export default function Profile() {
     const [userData, setUserData] = useState(null);
@@ -64,29 +65,31 @@ export default function Profile() {
     };
 
     if (loading) {
-        return <div>טעינה...</div>;
+        return <div className="loading">טעינה...</div>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <div className="error">{error}</div>;
     }
 
     return (
-        <div style={{ direction: "rtl", textAlign: "right", fontFamily: "Arial, sans-serif" }}>
-            <h1>פרופיל משתמש</h1>
-            {userData && userData.length > 0 ? (
-                <ProfileForm
-                    userData={userData[0]}
-                    formData={formData}
-                    setFormData={setFormData}
-                    isEditing={isEditing}
-                    setIsEditing={setIsEditing}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                />
-            ) : (
-                <div>לא נמצאו נתונים עבור המשתמש.</div>
-            )}
+        <div className="profile-wrapper">
+            <div className="profile-container">
+                <h1 className="profile-title">פרופיל משתמש</h1>
+                {userData && userData.length > 0 ? (
+                    <ProfileForm
+                        userData={userData[0]}
+                        formData={formData}
+                        setFormData={setFormData}
+                        isEditing={isEditing}
+                        setIsEditing={setIsEditing}
+                        onSave={handleSave}
+                        onCancel={handleCancel}
+                    />
+                ) : (
+                    <div className="error">לא נמצאו נתונים עבור המשתמש.</div>
+                )}
+            </div>
         </div>
     );
 }

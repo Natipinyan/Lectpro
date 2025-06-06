@@ -1,63 +1,280 @@
-.upload-wrapper {
-    max-width: 400px;
-    margin: 40px auto;
-    padding: 20px;
+/* src/css/projects/upFile.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    text-decoration: none;
+    list-style: none;
+    direction: rtl;
 }
 
-.upload-container {
+.upload-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* גובה מלא של המסך */
+    background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+    padding: 20px;
+    overflow: hidden; /* מונע גלילה */
+}
+
+.main-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.upload-section, .project-section {
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 1.5em;
-    width: 100%;
-    border: 2px dashed #ccc;
-    border-radius: 12px;
     padding: 20px;
-    cursor: pointer;
+}
+
+.formLabel {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 10px 0;
     text-align: center;
 }
 
-.upload-submit-btn {
-    background-color: #0077b6;
-    color: white;
-    border: none;
-    padding: 14px;
+.upload-container {
     width: 100%;
+    max-width: 400px;
+    height: 150px; /* גובה קבוע זהה לקוביות הפרויקטים */
+    background: #fff;
     border-radius: 12px;
-    font-size: 17px;
-    font-weight: bold;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0, 119, 182, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
+    transition: all 0.3s ease-in-out;
 }
 
-.upload-submit-btn:hover {
-    background-color: #005b8e;
+.upload-container:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
+.upload-icon {
+    font-size: 40px;
+    color: #7494ec;
+    margin-bottom: 15px;
+    transition: all 0.3s ease-in-out;
+}
+
+.upload-container:hover .upload-icon {
+    transform: scale(1.1);
+}
+
+.upload-text {
+    font-size: 16px;
+    color: #888;
+    font-weight: 400;
+    text-align: center;
+}
+
+.projects-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+    flex-grow: 1;
+    align-content: flex-start; /* ממקם את הקוביות בחלק העליון */
+}
+
 .project-item {
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease-in-out;
+    width: calc(50% - 15px); /* שתי קוביות בשורה */
+    height: 150px; /* גובה קבוע זהה ל-upload-container */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
 }
 
 .project-item:hover {
-    background-color: #f0f0f0;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .project-item.selected {
-    background-color: #e6f3ff;
-    border-color: #0077b6;
-    box-shadow: 0 2px 4px rgba(0, 119, 182, 0.2);
+    border: 2px solid #7494ec;
+    background: #e6ecff;
+    transform: scale(1.02);
+}
+
+.project-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.project-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.project-description {
+    font-size: 13px;
+    color: #888;
+}
+
+.footer-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
 }
 
 .selected-project {
-    margin: 10px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+}
+
+.selected-project strong {
+    color: #7494ec;
+}
+
+.upload-submit-btn {
+    width: 100%;
+    max-width: 200px;
+    height: 45px;
+    background: #7494ec;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+}
+
+.upload-submit-btn:hover {
+    background: #5e7cd9;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.upload-submit-btn:focus {
+    outline: 2px solid #5e7cd9;
+    outline-offset: 2px;
+}
+
+.loading, .error, .no-projects {
     font-size: 16px;
     color: #333;
     text-align: center;
+    margin: 20px 0;
+}
+
+.error {
+    color: #e74c3c;
+}
+
+@media screen and (max-width: 900px) {
+    .content-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .upload-section, .project-section {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+
+    .upload-container {
+        max-width: 100%;
+        height: 120px;
+    }
+
+    .project-item {
+        width: 100%; /* קוביה אחת בשורה במסכים קטנים */
+        height: 120px;
+    }
+
+    .main-title {
+        font-size: 28px;
+    }
+
+    .formLabel {
+        font-size: 22px;
+    }
+
+    .footer-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .upload-container {
+        height: 100px;
+    }
+
+    .project-item {
+        height: 100px;
+    }
+
+    .main-title {
+        font-size: 24px;
+    }
+
+    .formLabel {
+        font-size: 18px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+    }
+
+    .selected-project {
+        font-size: 14px;
+    }
+
+    .upload-submit-btn {
+        max-width: 160px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .project-name {
+        font-size: 15px;
+    }
+
+    .project-description {
+        font-size: 12px;
+    }
 }

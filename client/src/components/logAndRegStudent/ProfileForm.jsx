@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import "../../css/logAndReg/profileFrome.css";
+
 const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -26,76 +28,99 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
         <div>
             {isEditing ? (
                 <div>
-                    <p>
-                        <strong>שם משתמש:</strong>
+                    <div className="form-section">
+                        <label className="form-label">שם משתמש:</label>
                         <input
+                            className="text-input"
                             type="text"
                             name="user_name"
                             value={formData.user_name}
                             onChange={handleInputChange}
                         />
-                    </p>
-                    <p>
-                        <strong>שם פרטי:</strong>
+                    </div>
+                    <div className="form-section">
+                        <label className="form-label">שם פרטי:</label>
                         <input
+                            className="text-input"
                             type="text"
                             name="first_name"
                             value={formData.first_name}
                             onChange={handleInputChange}
                         />
-                    </p>
-                    <p>
-                        <strong>שם משפחה:</strong>
+                    </div>
+                    <div className="form-section">
+                        <label className="form-label">שם משפחה:</label>
                         <input
+                            className="text-input"
                             type="text"
                             name="last_name"
                             value={formData.last_name}
                             onChange={handleInputChange}
                         />
-                    </p>
-                    <p>
-                        <strong>אימייל:</strong>
+                    </div>
+                    <div className="form-section">
+                        <label className="form-label">אימייל:</label>
                         <input
+                            className="text-input"
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
                         />
-                    </p>
-                    <p>
-                        <strong>טלפון:</strong>
+                    </div>
+                    <div className="form-section">
+                        <label className="form-label">טלפון:</label>
                         <input
+                            className="text-input"
                             type="text"
                             name="phone"
                             value={formData.phone}
                             onChange={handleInputChange}
                         />
-                    </p>
-                    <p>
-                        <strong>סיסמה:</strong>
+                    </div>
+                    <div className="form-section">
+                        <label className="form-label">סיסמה:</label>
                         <input
+                            className="text-input"
                             type="password"
                             name="pass"
                             value={formData.pass}
                             onChange={handleInputChange}
                         />
-                    </p>
+                    </div>
 
-                    {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-                    <button onClick={handleSave}>שמור</button>
-                    <button onClick={onCancel} style={{ marginRight: "10px" }}>
-                        ביטול
-                    </button>
+                    <div className="button-container">
+                        <button className="primary-button" onClick={handleSave}>שמור</button>
+                        <button className="secondary-button" onClick={onCancel}>ביטול</button>
+                    </div>
                 </div>
             ) : (
                 <div>
-                    <p><strong>שם משתמש:</strong> {userData.user_name || "לא זמין"}</p>
-                    <p><strong>שם פרטי:</strong> {userData.first_name || "לא זמין"}</p>
-                    <p><strong>שם משפחה:</strong> {userData.last_name || "לא זמין"}</p>
-                    <p><strong>אימייל:</strong> {userData.email || "לא זמין"}</p>
-                    <p><strong>טלפון:</strong> {userData.phone || "לא זמין"}</p>
-                    <button onClick={() => setIsEditing(true)}>עריכה</button>
+                    <div className="form-section">
+                        <span className="form-label">שם משתמש:</span>
+                        <span className="form-value">{userData.user_name || "לא זמין"}</span>
+                    </div>
+                    <div className="form-section">
+                        <span className="form-label">שם פרטי:</span>
+                        <span className="form-value">{userData.first_name || "לא זמין"}</span>
+                    </div>
+                    <div className="form-section">
+                        <span className="form-label">שם משפחה:</span>
+                        <span className="form-value">{userData.last_name || "לא זמין"}</span>
+                    </div>
+                    <div className="form-section">
+                        <span className="form-label">אימייל:</span>
+                        <span className="form-value">{userData.email || "לא זמין"}</span>
+                    </div>
+                    <div className="form-section">
+                        <span className="form-label">טלפון:</span>
+                        <span className="form-value">{userData.phone || "לא זמין"}</span>
+                    </div>
+                    <div className="button-container">
+                        <button className="edit-button" onClick={() => setIsEditing(true)}>עריכה</button>
+                    </div>
                 </div>
             )}
         </div>

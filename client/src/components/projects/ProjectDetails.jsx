@@ -44,7 +44,7 @@ const ProjectDetails = () => {
                     throw new Error("שגיאה בטעינת קובץ ה-PDF");
                 }
 
-                setProject({ ...dataProject, technologies: techData });
+                setProject({ ...dataProject, technologies: techData, notes: dataProject.notes || "אין הערות" });
                 setPdfUrl(newPdfUrl);
                 setLoading(false);
             } catch (err) {
@@ -65,54 +65,90 @@ const ProjectDetails = () => {
         };
     }, [pdfUrl]);
 
-    if (loading) return <div className="loading">טוען פרטי פרויקט...</div>;
-    if (error) return <div className="error">{error}</div>;
-    if (!project) return <div className="no-project">לא נמצא פרויקט</div>;
+    if (loading) {
+        return (
+            <div className="project-details-wrapper">
+                <h2 className="formLabel">פרטי הפרויקט</h2>
+                <div className="content-wrapper">
+                    <div className="loading">טוען פרטי פרויקט...</div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="project-details-wrapper">
+                <h2 className="formLabel">פרטי הפרויקט</h2>
+                <div className="content-wrapper">
+                    <div className="error">{error}</div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!project) {
+        return (
+            <div className="project-details-wrapper">
+                <h2 className="formLabel">פרטי הפרויקט</h2>
+                <div className="content-wrapper">
+                    <div className="no-project">לא נמצא פרויקט</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="project-details-wrapper">
-            <div className="project-details-container">
-                <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
-                <div className="project-title">{project.title}</div>
-                <div className="project-description">{project.description}</div>
-                <div className="project-github">
-                    <div>קישור לגיטהאב</div>
-                    {project.link_to_github != null ? (
-                            <span>
-                                <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
-                                    {project.link_to_github}
-                                </a>
-                            </span>
+            <h2 className="formLabel">פרטי הפרויקט</h2>
+            <div className="content-wrapper">
+                <div className="right-column">
+                    <div className="project-details-container">
+                        <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
+                        <div className="project-title">{project.title}</div>
+                        <div className="project-description">{project.description}</div>
+                        <div className="project-github">
+                            <div>קישור לגיטהאב</div>
+                            {project.link_to_github ? (
+                                <span>
+                                    <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                                        {project.link_to_github}
+                                    </a>
+                                </span>
+                            ) : (
+                                <span>לא הוזן קישור לגיטהאב</span>
+                            )}
+                        </div>
+                        {project.technologies && project.technologies.length > 0 && (
+                            <div className="project-technologies">
+                                <h4>טכנולוגיות בפרויקט:</h4>
+                                <ul>
+                                    {project.technologies.map(tech => (
+                                        <li key={tech.id}>
+                                            {tech.title} {tech.language && `(${tech.language})`}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                    <div className="notes-container">
+                        <h4>הערות</h4>
+                        <div className="notes-content">{project.notes || "אין הערות"}</div>
+                    </div>
+                </div>
+                <div className="pdfView">
+                    {pdfUrl ? (
+                        <iframe
+                            src={pdfUrl}
+                            title="Project PDF"
+                            className="pdf-iframe"
+                        />
                     ) : (
-                        <span>לא הוזן קישור לגיטהאב</span>
+                        <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
                     )}
                 </div>
-
-                {project.technologies && project.technologies.length > 0 && (
-                    <div className="project-technologies">
-                        <h4>טכנולוגיות בפרויקט:</h4>
-                        <ul>
-                            {project.technologies.map(tech => (
-                                <li key={tech.id}>
-                                    {tech.title} {tech.language && (`${tech.language}`)}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
             </div>
-            <div className="pdfView">
-                {pdfUrl ? (
-                    <iframe
-                        src={pdfUrl}
-                        title="Project PDF"
-                        style={{ width: "100%", height: "500px", border: "none" }}
-                    />
-                ) : (
-                    <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
-                )}
-            </div>
-
         </div>
     );
 };

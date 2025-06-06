@@ -46,8 +46,8 @@ const UploadFile = () => {
         }
 
         const formData = new FormData();
-        formData.append('file',  file);
-        formData.append('projectTitle',  selectedProject.id);
+        formData.append('file', file);
+        formData.append('projectTitle', selectedProject.id);
 
         try {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/upload/addFile`, {
@@ -96,32 +96,36 @@ const UploadFile = () => {
     }, []);
 
     return (
-        <>
-            <h2 className="formLabel">:העלאת מסמך הפרוייקט</h2>
-            <div className="upload-wrapper">
-                <div
-                    className="upload-container"
-                    id="upload-container"
-                    onDragOver={handleDragOver}
-                    onClick={handleClick}
-                >
-                    <input
-                        type="file"
-                        name=  "file"
-                        id="file-input"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                    />
-                    <div className="upload-icon"></div>
-                    <div className="upload-text" id="upload-text">
-                        {fileName}
+        <div className="upload-page-wrapper">
+            <h1 className="main-title">העלאת מסמך הפרויקט</h1>
+            <div className="content-wrapper">
+                <div className="upload-section">
+                    <h2 className="formLabel">בחירת מסמך</h2>
+                    <div
+                        className="upload-container"
+                        id="upload-container"
+                        onDragOver={handleDragOver}
+                        onClick={handleClick}
+                    >
+                        <input
+                            type="file"
+                            name="file"
+                            id="file-input"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            accept=".pdf"
+                            onChange={handleFileChange}
+                        />
+                        <div className="upload-icon">
+                            <i className="fas fa-upload"></i>
+                        </div>
+                        <div className="upload-text" id="upload-text">
+                            {fileName}
+                        </div>
                     </div>
                 </div>
-
-                <h2 className="formLabel">בחר לאיזה פרויקט תרצה לשייך את המסמך שלך</h2>
-                <div className="projects-wrapper">
+                <div className="project-section">
+                    <h2 className="formLabel">בחר לאיזה פרויקט לשייך את המסמך</h2>
                     {loading ? (
                         <div className="loading">טוען...</div>
                     ) : error ? (
@@ -151,18 +155,18 @@ const UploadFile = () => {
                         </div>
                     )}
                 </div>
-
+            </div>
+            <div className="footer-wrapper">
                 {selectedProject && (
                     <div className="selected-project">
                         פרויקט נבחר: <strong>{selectedProject.title}</strong>
                     </div>
                 )}
-
                 <button onClick={handleUpload} className="upload-submit-btn">
                     שלח קובץ
                 </button>
             </div>
-        </>
+        </div>
     );
 };
 
