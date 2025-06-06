@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../css/projects/ProjectList.css";
+import styles from "../../css/projects/ProjectList.module.css";
 
 const ProjectList = () => {
     const [projects, setProjects] = useState([]);
@@ -34,57 +34,59 @@ const ProjectList = () => {
     }, []);
 
     const handleProjectClick = (projectId) => {
-        navigate(`/students/project/${projectId}`)
+        navigate(`/students/project/${projectId}`);
     };
 
     if (loading) {
         return (
-            <div className="projects-wrapper">
-                <h2 className="formLabel">רשימת הפרויקטים שלך</h2>
-                <div className="loading">טוען...</div>
+            <div className={styles['page-wrapper']}>
+                <h2 className={styles['formLabel']}>רשימת הפרויקטים שלך</h2>
+                <div className={styles['projects-container']}>
+                    <div className={styles['loading']}>טוען...</div>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="projects-wrapper">
-                <h2 className="formLabel">רשימת הפרויקטים שלך</h2>
-                <div className="error">{error}</div>
+            <div className={styles['page-wrapper']}>
+                <h2 className={styles['formLabel']}>רשימת הפרויקטים שלך</h2>
+                <div className={styles['projects-container']}>
+                    <div className={styles['error']}>{error}</div>
+                </div>
             </div>
         );
     }
 
     return (
-        <>
-            <h2 className="formLabel">רשימת הפרויקטים שלך</h2>
-            <div className="projects-wrapper">
-                <div className="projects-container">
-                    {projects.length === 0 ? (
-                        <div className="no-projects">לא נמצאו פרויקטים</div>
-                    ) : (
-                        projects.map((project) => (
-                            <div key={project.id} className="project-item">
-                                <div className="project-text">
-                                    <div className="project-name">
-                                        {project.title || "פרויקט ללא שם"}
-                                    </div>
-                                    <div className="project-description">
-                                        {project.description || "ללא תיאור"}
-                                    </div>
+        <div className={styles['page-wrapper']}>
+            <h2 className={styles['formLabel']}>רשימת הפרויקטים שלך</h2>
+            <div className={styles['projects-container']}>
+                {projects.length === 0 ? (
+                    <div className={styles['no-projects']}>לא נמצאו פרויקטים</div>
+                ) : (
+                    projects.map((project) => (
+                        <div key={project.id} className={styles['project-item']}>
+                            <div className={styles['project-text']}>
+                                <div className={styles['project-name']}>
+                                    {project.title || "פרויקט ללא שם"}
                                 </div>
-                                <button
-                                    className="project-button"
-                                    onClick={() => handleProjectClick(project.id)}
-                                >
-                                    {project.title || "צפה בפרויקט"}
-                                </button>
+                                <div className={styles['project-description']}>
+                                    {project.description || "ללא תיאור"}
+                                </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                            <button
+                                className={styles['project-button']}
+                                onClick={() => handleProjectClick(project.id)}
+                            >
+                                {project.title || "צפה בפרויקט"}
+                            </button>
+                        </div>
+                    ))
+                )}
             </div>
-        </>
+        </div>
     );
 };
 

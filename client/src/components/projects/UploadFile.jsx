@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import '../../css/projects/upFile.css';
+import styles from '../../css/projects/upFile.module.css'; // יבוא CSS Modules
 
 const UploadFile = () => {
     const [file, setFile] = useState(null);
@@ -96,13 +96,13 @@ const UploadFile = () => {
     }, []);
 
     return (
-        <div className="upload-page-wrapper">
-            <h1 className="main-title">העלאת מסמך הפרויקט</h1>
-            <div className="content-wrapper">
-                <div className="upload-section">
-                    <h2 className="formLabel">בחירת מסמך</h2>
+        <div className={styles['upload-page-wrapper']}>
+            <h1 className={styles['main-title']}>העלאת מסמך הפרויקט</h1>
+            <div className={styles['content-wrapper']}>
+                <div className={styles['upload-section']}>
+                    <h2 className={styles['formLabel']}>בחירת מסמך</h2>
                     <div
-                        className="upload-container"
+                        className={styles['upload-container']}
                         id="upload-container"
                         onDragOver={handleDragOver}
                         onClick={handleClick}
@@ -116,36 +116,36 @@ const UploadFile = () => {
                             accept=".pdf"
                             onChange={handleFileChange}
                         />
-                        <div className="upload-icon">
+                        <div className={styles['upload-icon']}>
                             <i className="fas fa-upload"></i>
                         </div>
-                        <div className="upload-text" id="upload-text">
+                        <div className={styles['upload-text']} id="upload-text">
                             {fileName}
                         </div>
                     </div>
                 </div>
-                <div className="project-section">
-                    <h2 className="formLabel">בחר לאיזה פרויקט לשייך את המסמך</h2>
+                <div className={styles['project-section']}>
+                    <h2 className={styles['formLabel']}>בחר לאיזה פרויקט לשייך את המסמך</h2>
                     {loading ? (
-                        <div className="loading">טוען...</div>
+                        <div className={styles['loading']}>טוען...</div>
                     ) : error ? (
-                        <div className="error">{error}</div>
+                        <div className={styles['error']}>{error}</div>
                     ) : (
-                        <div className="projects-container">
+                        <div className={styles['projects-container']}>
                             {projects.length === 0 ? (
-                                <div className="no-projects">לא נמצאו פרויקטים</div>
+                                <div className={styles['no-projects']}>לא נמצאו פרויקטים</div>
                             ) : (
                                 projects.map((project) => (
                                     <div
                                         key={project.id}
-                                        className={`project-item ${selectedProject?.id === project.id ? 'selected' : ''}`}
+                                        className={`${styles['project-item']} ${selectedProject?.id === project.id ? styles['selected'] : ''}`}
                                         onClick={() => handleProjectSelect(project)}
                                     >
-                                        <div className="project-text">
-                                            <div className="project-name">
+                                        <div className={styles['project-text']}>
+                                            <div className={styles['project-name']}>
                                                 {project.title || "פרויקט ללא שם"}
                                             </div>
-                                            <div className="project-description">
+                                            <div className={styles['project-description']}>
                                                 {project.description || "ללא תיאור"}
                                             </div>
                                         </div>
@@ -156,13 +156,13 @@ const UploadFile = () => {
                     )}
                 </div>
             </div>
-            <div className="footer-wrapper">
+            <div className={styles['footer-wrapper']}>
                 {selectedProject && (
-                    <div className="selected-project">
+                    <div className={styles['selected-project']}>
                         פרויקט נבחר: <strong>{selectedProject.title}</strong>
                     </div>
                 )}
-                <button onClick={handleUpload} className="upload-submit-btn">
+                <button onClick={handleUpload} className={styles['upload-submit-btn']}>
                     שלח קובץ
                 </button>
             </div>
