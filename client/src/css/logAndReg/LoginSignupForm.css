@@ -61,12 +61,12 @@ form{ width: 100%; }
 .form-box.register{ visibility: hidden; }
 .container.active .form-box.register{ visibility: visible; }
 
-.input-box{
+.input-box {
     position: relative;
     margin: 10px 0;
 }
 
-.input-box input{
+.input-box input {
     width: 100%;
     padding: 13px 50px 13px 20px;
     background: #eee;
@@ -78,17 +78,30 @@ form{ width: 100%; }
     font-weight: 500;
 }
 
-.input-box input::placeholder{
+
+.input-box input::placeholder {
     color: #888;
     font-weight: 400;
 }
-
 .input-box i{
     position: absolute;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
+}
+.input-box .input-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #333;
+    transition: color 0.3s ease-in-out;
+}
+
+.input-box:hover .input-icon {
+    color: #7494ec;
 }
 
 .forgot-link {
@@ -212,7 +225,16 @@ form{ width: 100%; }
     border: 2px solid #fff;
     box-shadow: none;
 }
+.toggle-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: #fff;
+    transition: transform 0.3s ease-in-out;
+}
 
+.toggle-panel:hover .toggle-icon {
+    transform: scale(1.2);
+}
 /*@media screen and (max-width: 650px){
     .container{ height: calc(100vh - 40px); }
 

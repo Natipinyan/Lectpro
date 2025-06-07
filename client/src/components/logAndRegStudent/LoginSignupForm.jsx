@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import '../../css/logAndReg/LoginSignupForm.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import NotificationPopup from "../projects/NotificationPopup";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faSignInAlt, faUser, faEnvelope, faLock, faPhone} from '@fortawesome/free-solid-svg-icons';
 
 const LoginSignupForm = () => {
     const [isActive, setIsActive] = useState(false);
@@ -61,8 +63,8 @@ const LoginSignupForm = () => {
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/students/login/check`,
-                { userName, password },
-                { withCredentials: true }
+                {userName, password},
+                {withCredentials: true}
             );
 
             if (response.data.loggedIn) {
@@ -96,7 +98,7 @@ const LoginSignupForm = () => {
     };
 
     return (
-        <div className={"bodyLogReg"} >
+        <div className="bodyLogReg">
             <div className={`container ${isActive ? 'active' : ''}`}>
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
@@ -110,7 +112,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם משתמש"
                                 required
                             />
-                            <i className="bx bxs-user"></i>
+                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -121,13 +123,13 @@ const LoginSignupForm = () => {
                                 placeholder="סיסמה"
                                 required
                             />
-                            <i className="bx bxs-lock-alt"></i>
+                            <FontAwesomeIcon icon={faLock} className="input-icon"/>
                         </div>
                         <button type="submit" className="btn">
                             כניסה
                         </button>
                         <div className="forgot-link">
-                            <button className="btnF" >
+                            <button className="btnF">
                                 <a href="#" onClick={() => navigate('/students/forgot-password')}>
                                     שכחת סיסמה?
                                 </a>
@@ -147,7 +149,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם פרטי"
                                 required
                             />
-                            <i className="bx bxs-user"></i>
+                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -157,7 +159,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם משפחה"
                                 required
                             />
-                            <i className="bx bxs-user"></i>
+                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -167,7 +169,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם משתמש"
                                 required
                             />
-                            <i className="bx bxs-user"></i>
+                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -177,7 +179,7 @@ const LoginSignupForm = () => {
                                 placeholder="כתובת אימייל"
                                 required
                             />
-                            <i className="bx bxs-envelope"></i>
+                            <FontAwesomeIcon icon={faEnvelope} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -187,7 +189,7 @@ const LoginSignupForm = () => {
                                 placeholder="מספר טלפון"
                                 required
                             />
-                            <i className="bx bxs-user"></i>
+                            <FontAwesomeIcon icon={faPhone} className="input-icon"/>
                         </div>
                         <div className="input-box">
                             <input
@@ -197,7 +199,7 @@ const LoginSignupForm = () => {
                                 placeholder="סיסמה"
                                 required
                             />
-                            <i className="bx bxs-lock-alt"></i>
+                            <FontAwesomeIcon icon={faLock} className="input-icon"/>
                         </div>
                         <button type="submit" className="btn">
                             הרשמה
@@ -205,9 +207,9 @@ const LoginSignupForm = () => {
                     </form>
                 </div>
 
-
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
+                        <FontAwesomeIcon icon={faUser} className="toggle-icon"/>
                         <h1>Hello, Welcome!</h1>
                         <p>אין לך חשבון?</p>
                         <button className="btn register-btn" onClick={handleRegisterClick}>
@@ -215,6 +217,7 @@ const LoginSignupForm = () => {
                         </button>
                     </div>
                     <div className="toggle-panel toggle-right">
+                        <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon"/>
                         <h1>Welcome Back!</h1>
                         <p>יש לך חשבון?</p>
                         <button className="btn login-btn" onClick={handleLoginClick}>
@@ -222,7 +225,6 @@ const LoginSignupForm = () => {
                         </button>
                     </div>
                 </div>
-
 
                 {error && (
                     <NotificationPopup
@@ -235,5 +237,6 @@ const LoginSignupForm = () => {
         </div>
     );
 };
+
 
 export default LoginSignupForm;

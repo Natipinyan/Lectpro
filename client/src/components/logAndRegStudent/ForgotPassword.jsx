@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../css/logAndReg/forgotPassword.css";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
@@ -31,13 +32,16 @@ const ForgotPassword = () => {
         <div className="forgot-password-container">
             <h2>איפוס סיסמה</h2>
             <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="הכנס כתובת מייל"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
+                <div className="input-box">
+                    <input
+                        type="email"
+                        placeholder="הכנס כתובת מייל"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+                </div>
                 <button type="submit">שלח קוד איפוס</button>
             </form>
             {message && <p className="success">{message}</p>}
