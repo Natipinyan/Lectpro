@@ -38,9 +38,13 @@ const OpenProject = ({
     }, [showNotification]);
 
     const addTechnologyField = () => {
-        updateProjectData({
-            selectedTechs: [...projectData.selectedTechs, { id: "", techType: "" }],
-        });
+        if (projectData.selectedTechs.length < technologies.length) {
+            updateProjectData({
+                selectedTechs: [...projectData.selectedTechs, { id: "", techType: "" }],
+            });
+        } else {
+            showNotification("לא ניתן להוסיף טכנולוגיות נוספות", "error");
+        }
     };
 
     const removeTechnologyField = (index) => {
@@ -114,114 +118,119 @@ const OpenProject = ({
     };
 
     return (
-        <div className="form-container">
-            <h1 className="form-title">יצירת פרויקט חדש</h1>
-            <form id="openPro-form" onSubmit={handleSubmit}>
-                <div className="form-section">
-                    <label className="form-label">שם הפרויקט</label>
-                    <input
-                        className="text-input"
-                        value={projectData.projectName}
-                        onChange={(e) => updateProjectData({ projectName: e.target.value })}
-                        required
-                    />
-                </div>
-
-                <div className="form-section">
-                    <label className="form-label">תיאור הפרויקט</label>
-                    <textarea
-                        className="text-area"
-                        rows="4"
-                        value={projectData.projectDesc}
-                        onChange={(e) => updateProjectData({ projectDesc: e.target.value })}
-                        required
-                    />
-                </div>
-
-                <div className="form-section">
-                    <label className="form-label">קישור ל-GitHub</label>
-                    <label className="form-label form-hint">
-                        אל דאגה, גם אם עדיין אין לך ריפו תמיד תוכל לעדכן אחר כך את הקישור :)
-                    </label>
-                    <input
-                        className="text-input"
-                        type="url"
-                        value={projectData.linkToGithub}
-                        onChange={(e) => updateProjectData({ linkToGithub: e.target.value })}
-                        placeholder="https://github.com/example/repo"
-                    />
-                </div>
-
-                {projectData.selectedTechs.map((tech, index) => (
-                    <div className="form-section" key={index}>
-                        <label className="form-label">בחר טכנולוגיה {index + 1}</label>
-                        <select
-                            className="form-select"
-                            value={tech.id}
-                            onChange={(e) => handleTechnologyChange(index, e.target.value)}
+        <div className="open-pro-wrapper">
+            <form  className="form-container" onSubmit={handleSubmit}>
+                <div className={"secLeft"} >
+                    <div className="form-section">
+                        <label className="form-label">שם הפרויקט</label>
+                        <input
+                            className="text-input"
+                            value={projectData.projectName}
+                            onChange={(e) => updateProjectData({ projectName: e.target.value })}
                             required
-                        >
-                            <option value="">בחר טכנולוגיה</option>
-                            {technologies
-                                .filter(
-                                    (t) =>
-                                        !projectData.selectedTechs.some(
-                                            (selected, i) => selected.id === String(t.id) && i !== index
-                                        )
-                                )
-                                .map((t) => (
-                                    <option key={t.id} value={t.id}>
-                                        {t.language}
-                                    </option>
-                                ))}
-                        </select>
-                        {tech.techType && (
-                            <div className="form-section">
-                                <label className="form-label">סוג טכנולוגיה</label>
-                                <p className="tech-type">{tech.techType}</p>
-                            </div>
-                        )}
-                        {projectData.selectedTechs.length > 1 && (
-                            <button
-                                type="button"
-                                className="remove-tech-button"
-                                onClick={() => removeTechnologyField(index)}
-                            >
-                                הסר
-                            </button>
-                        )}
+                        />
                     </div>
-                ))}
 
-                <div className="form-section">
-                    <button
-                        type="button"
-                        className="add-tech-button"
-                        onClick={addTechnologyField}
-                    >
-                        הוסף טכנולוגיה
-                    </button>
+                    <div className="form-section">
+                        <label className="form-label">תיאור הפרויקט</label>
+                        <textarea
+                            className="text-area"
+                            rows="4"
+                            value={projectData.projectDesc}
+                            onChange={(e) => updateProjectData({ projectDesc: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-section">
+                        <label className="form-label">קישור ל-GitHub</label>
+                        <label className="form-label form-hint">
+                            אל דאגה, גם אם עדיין אין לך ריפו תמיד תוכל לעדכן אחר כך את הקישור :)
+                        </label>
+                        <input
+                            className="text-input"
+                            type="url"
+                            value={projectData.linkToGithub}
+                            onChange={(e) => updateProjectData({ linkToGithub: e.target.value })}
+                            placeholder="https://github.com/example/repo"
+                        />
+                    </div>
+
+
                 </div>
+                <div className={"secRight"}>
+                    {projectData.selectedTechs.map((tech, index) => (
+                        <div className="form-section" key={index}>
+                            <label className="form-label">בחר טכנולוגיה {index + 1}</label>
+                            <select
+                                className="form-select"
+                                value={tech.id}
+                                onChange={(e) => handleTechnologyChange(index, e.target.value)}
+                                required
+                            >
+                                <option value="">בחר טכנולוגיה</option>
+                                {technologies
+                                    .filter(
+                                        (t) =>
+                                            !projectData.selectedTechs.some(
+                                                (selected, i) => selected.id === String(t.id) && i !== index
+                                            )
+                                    )
+                                    .map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.language}
+                                        </option>
+                                    ))}
+                            </select>
+                            {tech.techType && (
+                                <div className="form-section">
+                                    <label className="form-label">סוג טכנולוגיה</label>
+                                    <p className="tech-type">{tech.techType}</p>
+                                </div>
+                            )}
+                            {projectData.selectedTechs.length > 1 && (
+                                <button
+                                    type="button"
+                                    className="remove-tech-button"
+                                    onClick={() => removeTechnologyField(index)}
+                                >
+                                    הסר
+                                </button>
+                            )}
+                        </div>
+                    ))}
 
-                <div className="form-section">
-                    <h2 className="form-subtitle">
-                        משתמש בטכנולוגיה שלא עובדה במערכת?
-                    </h2>
-                    <button
-                        type="button"
-                        className="add-tech-link"
-                        onClick={onSwitchToAddTechnology}
-                    >
-                        הוסף טכנולוגיה חדשה
-                    </button>
-                </div>
+                    <div className="form-section">
+                        <button
+                            type="button"
+                            className="add-tech-button"
+                            onClick={addTechnologyField}
+                        >
+                            הוסף טכנולוגיה
+                        </button>
+                    </div>
 
-                <div className="button-container">
-                    <button className="primary-button" type="submit">
-                        צור פרויקט
-                    </button>
+                    <div className="form-section">
+                        <h2 className="form-subtitle">
+                            משתמש בטכנולוגיה שלא עובדה במערכת?
+                        </h2>
+                        <button
+                            type="button"
+                            className="add-tech-link"
+                            onClick={onSwitchToAddTechnology}
+                        >
+                            הוסף טכנולוגיה חדשה
+                        </button>
+                    </div>
+
+                    <div className="button-container">
+                        <button className="primary-button" type="submit">
+                            צור פרויקט
+                        </button>
+                    </div>
                 </div>
             </form>
+
         </div>
     );
 };
