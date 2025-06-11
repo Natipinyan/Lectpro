@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../css/projects/openPro.css";
 
 const OpenProject = ({
@@ -9,6 +10,7 @@ const OpenProject = ({
                          resetProjectData,
                      }) => {
     const [technologies, setTechnologies] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTechnologies = async () => {
@@ -97,8 +99,11 @@ const OpenProject = ({
 
             const data = await response.json();
             if (response.ok) {
-                showNotification("הפרויקט נוסף בהצלחה!", "success");
+                showNotification("הפרויקט נוסף בהצלחה! מעביר אותך לדף העלאת מסמך", "success");
                 resetProjectData();
+                setTimeout(() => {
+                    navigate("/students/UpFile");
+                }, 3000);
             } else {
                 showNotification(data.message || "אירעה שגיאה", "error");
             }
@@ -160,14 +165,15 @@ const OpenProject = ({
                             {technologies
                                 .filter(
                                     (t) =>
-                                        !projectData.selectedTechs.some((selected, i) => selected.id === String(t.id) && i !== index)
+                                        !projectData.selectedTechs.some(
+                                            (selected, i) => selected.id === String(t.id) && i !== index
+                                        )
                                 )
                                 .map((t) => (
                                     <option key={t.id} value={t.id}>
                                         {t.language}
                                     </option>
                                 ))}
-
                         </select>
                         {tech.techType && (
                             <div className="form-section">
@@ -199,7 +205,7 @@ const OpenProject = ({
 
                 <div className="form-section">
                     <h2 className="form-subtitle">
-                        משתמש בטכנולוגיה שלא עודכנה במערכת?
+                        משתמש בטכנולוגיה שלא עובדה במערכת?
                     </h2>
                     <button
                         type="button"

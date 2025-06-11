@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserData, updateUserData } from "../../services/api";
 import ProfileForm from "./ProfileForm";
+import NotificationPopup from "../projects/NotificationPopup";
 import "../../css/logAndReg/profile.css";
 
 export default function Profile() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [notification, setNotification] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
@@ -16,9 +17,18 @@ export default function Profile() {
                 const data = await fetchUserData();
                 setUserData(data);
                 setLoading(false);
+                if (!data || data.length === 0) {
+                    setNotification({
+                        message: "לא נמצאו נתונים עבור המשתמש.",
+                        type: "error"
+                    });
+                }
             } catch (error) {
                 console.error("Error fetching user data:", error.message);
-                setError("שגיאה בטעינת נתוני המשתמש");
+                setNotification({
+                    message: "שגיאה בטעינת נתוני המשתמש",
+                    type: "error"
+                });
                 setLoading(false);
             }
         };
@@ -45,10 +55,16 @@ export default function Profile() {
             const updatedData = await fetchUserData();
             setUserData(updatedData);
             setIsEditing(false);
-            alert("הנתונים עודכנו בהצלחה!");
+            setNotification({
+                message: "הנתונים עודכנו בהצלחה!",
+                type: "success"
+            });
         } catch (error) {
             console.error("Error updating user data:", error.message);
-            setError("שגיאה בעדכון הנתונים");
+            setNotification({
+                message: "שגיאה בעדכון הנתונים",
+                type: "error"
+            });
         }
     };
 
@@ -65,17 +81,27 @@ export default function Profile() {
     };
 
     if (loading) {
-        return <div className="loading">טעינה...</div>;
-    }
-
-    if (error) {
-        return <div className="error">{error}</div>;
+        return (
+            <div className="profile-wrapper">
+                <div className="profile-container">
+                    <h1 className="profile-title">פרופיל משתמש</h1>
+                    <div className="loading">טעינה...</div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="profile-wrapper">
             <div className="profile-container">
                 <h1 className="profile-title">פרופיל משתמש</h1>
+                {notification && (
+                    <NotificationPopup
+                        message={notification.message}
+                        type={notification.type}
+                        onClose={() => setNotification(null)}
+                    />
+                )}
                 {userData && userData.length > 0 ? (
                     <ProfileForm
                         userData={userData[0]}
@@ -86,9 +112,7 @@ export default function Profile() {
                         onSave={handleSave}
                         onCancel={handleCancel}
                     />
-                ) : (
-                    <div className="error">לא נמצאו נתונים עבור המשתמש.</div>
-                )}
+                ) : null}
             </div>
         </div>
     );

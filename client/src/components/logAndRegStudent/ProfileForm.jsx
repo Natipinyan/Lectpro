@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import "../../css/logAndReg/profileFrome.css";
+import NotificationPopup from "../projects/NotificationPopup";
 
 const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
-    const [errorMessage, setErrorMessage] = useState('');
+    const [notification, setNotification] = useState(null);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -14,17 +15,26 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
 
         if (!passwordRegex.test(password)) {
-            setErrorMessage('הסיסמה חייבת לכלול לפחות 8 תווים, אות קטנה, אות גדולה, מספר ותו מיוחד. אנגלית בלבד.');
-            setTimeout(() => setErrorMessage(''), 5000);
+            setNotification({
+                message: 'הסיסמה חייבת לכלול לפחות 8 תווים, אות קטנה, אות גדולה, מספר ותו מיוחד. אנגלית בלבד.',
+                type: 'error'
+            });
             return;
         }
 
-        setErrorMessage('');
-        onSave();
+        onSave(); // לא מציגים הודעת הצלחה כאן, כי היא מטופלת ב-Profile
     };
 
     return (
         <div>
+            {notification && (
+                <NotificationPopup
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+
             {isEditing ? (
                 <div>
                     <div className="form-section">
@@ -87,8 +97,6 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
                             onChange={handleInputChange}
                         />
                     </div>
-
-                    {errorMessage && <p className="error-message">{errorMessage}</p>}
 
                     <div className="button-container">
                         <button className="primary-button" onClick={handleSave}>שמור</button>

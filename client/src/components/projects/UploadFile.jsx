@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from '../../css/projects/upFile.module.css';
+import styles from "../../css/projects/upFile.module.css";
+import NotificationPopup from "./NotificationPopup";
 
 const UploadFile = () => {
     const [file, setFile] = useState(null);
@@ -7,8 +8,16 @@ const UploadFile = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [notification, setNotification] = useState(null);
     const fileInputRef = useRef(null);
+
+    const showNotification = (message, type) => {
+        setNotification({ message, type });
+    };
+
+    const handleCloseNotification = () => {
+        setNotification(null);
+    };
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -23,7 +32,7 @@ const UploadFile = () => {
         if (!selectedFile) return;
 
         if (selectedFile.type !== "application/pdf") {
-            alert("אנא בחר קובץ PDF בלבד.");
+            showNotification("אנא בחר קובץ PDF בלבד.", "error");
             return;
         }
 
@@ -37,36 +46,36 @@ const UploadFile = () => {
 
     const handleUpload = async () => {
         if (!file) {
-            alert("אנא בחר קובץ לפני השליחה.");
+            showNotification("אנא בחר קובץ לפני השליחה.", "error");
             return;
         }
         if (!selectedProject) {
-            alert("אנא בחר פרויקט לפני השליחה.");
+            showNotification("אנא בחר פרויקט לפני השליחה.", "error");
             return;
         }
 
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('projectTitle', selectedProject.id);
+        formData.append("file", file);
+        formData.append("projectTitle", selectedProject.id);
 
         try {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/upload/addFile`, {
                 method: "POST",
                 body: formData,
-                credentials: 'include',
+                credentials: "include",
             });
 
             if (response.ok) {
-                alert("הקובץ נשלח בהצלחה!");
+                showNotification("הקובץ נשלח בהצלחה!", "success");
                 setFile(null);
                 setFileName("גרור קובץ לכאן או לחץ לבחירה");
                 setSelectedProject(null);
             } else {
-                alert("אירעה שגיאה בשליחת הקובץ.");
+                showNotification("אירעה שגיאה בשליחת הקובץ.", "error");
             }
         } catch (err) {
             console.error("שגיאת רשת:", err);
-            alert("שגיאת רשת בשליחת הקובץ.");
+            showNotification("שגיאת רשת בשליחת הקובץ.", "error");
         }
     };
 
@@ -75,7 +84,7 @@ const UploadFile = () => {
             try {
                 const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/list`, {
                     method: "GET",
-                    credentials: 'include',
+                    credentials: "include",
                 });
 
                 if (!response.ok) {
@@ -85,9 +94,12 @@ const UploadFile = () => {
                 const data = await response.json();
                 setProjects(data || []);
                 setLoading(false);
+                if (!data || data.length === 0) {
+                    showNotification("לא נמצאו פרויקטים", "info");
+                }
             } catch (err) {
                 console.error("שגיאה:", err);
-                setError("אירעה שגיאה בטעינת הפרויקטים");
+                showNotification("אירעה שגיאה בטעינת הפרויקטים", "error");
                 setLoading(false);
             }
         };
@@ -96,13 +108,13 @@ const UploadFile = () => {
     }, []);
 
     return (
-        <div className={styles['upload-page-wrapper']}>
-            <h1 className={styles['main-title']}>העלאת מסמך הפרויקט</h1>
-            <div className={styles['content-wrapper']}>
-                <div className={styles['upload-section']}>
-                    <h2 className={styles['formLabel']}>בחירת מסמך</h2>
+        <div className={styles["upload-page-wrapper"]}>
+            <h1 className={styles["main-title"]}>העלאת מסמך הפרויקט</h1>
+            <div className={styles["content-wrapper"]}>
+                <div className={styles["upload-section"]}>
+                    <h2 className={styles["formLabel"]}>בחירת מסמך</h2>
                     <div
-                        className={styles['upload-container']}
+                        className={styles["upload-container"]}
                         id="upload-container"
                         onDragOver={handleDragOver}
                         onClick={handleClick}
@@ -116,56 +128,57 @@ const UploadFile = () => {
                             accept=".pdf"
                             onChange={handleFileChange}
                         />
-                        <div className={styles['upload-icon']}>
+                        <div className={styles["upload-icon"]}>
                             <i className="fas fa-upload"></i>
                         </div>
-                        <div className={styles['upload-text']} id="upload-text">
+                        <div className={styles["upload-text"]} id="upload-text">
                             {fileName}
                         </div>
                     </div>
                 </div>
-                <div className={styles['project-section']}>
-                    <h2 className={styles['formLabel']}>בחר לאיזה פרויקט לשייך את המסמך</h2>
+                <div className={styles["project-section"]}>
+                    <h2 className={styles["formLabel"]}>בחר לאיזה פרויקט לשייך את המסמך</h2>
                     {loading ? (
-                        <div className={styles['loading']}>טוען...</div>
-                    ) : error ? (
-                        <div className={styles['error']}>{error}</div>
+                        <div className={styles["loading"]}>טוען...</div>
                     ) : (
-                        <div className={styles['projects-container']}>
-                            {projects.length === 0 ? (
-                                <div className={styles['no-projects']}>לא נמצאו פרויקטים</div>
-                            ) : (
-                                projects.map((project) => (
-                                    <div
-                                        key={project.id}
-                                        className={`${styles['project-item']} ${selectedProject?.id === project.id ? styles['selected'] : ''}`}
-                                        onClick={() => handleProjectSelect(project)}
-                                    >
-                                        <div className={styles['project-text']}>
-                                            <div className={styles['project-name']}>
-                                                {project.title || "פרויקט ללא שם"}
-                                            </div>
-                                            <div className={styles['project-description']}>
-                                                {project.description || "ללא תיאור"}
-                                            </div>
+                        <div className={styles["projects-container"]}>
+                            {projects.map((project) => (
+                                <div
+                                    key={project.id}
+                                    className={`${styles["project-item"]} ${selectedProject?.id === project.id ? styles["selected"] : ""}`}
+                                    onClick={() => handleProjectSelect(project)}
+                                >
+                                    <div className={styles["project-text"]}>
+                                        <div className={styles["project-name"]}>
+                                            {project.title || "פרויקט ללא שם"}
+                                        </div>
+                                        <div className={styles["project-description"]}>
+                                            {project.description || "ללא תיאור"}
                                         </div>
                                     </div>
-                                ))
-                            )}
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
             </div>
-            <div className={styles['footer-wrapper']}>
+            <div className={styles["footer-wrapper"]}>
                 {selectedProject && (
-                    <div className={styles['selected-project']}>
+                    <div className={styles["selected-project"]}>
                         פרויקט נבחר: <strong>{selectedProject.title}</strong>
                     </div>
                 )}
-                <button onClick={handleUpload} className={styles['upload-submit-btn']}>
+                <button onClick={handleUpload} className={styles["upload-submit-btn"]}>
                     שלח קובץ
                 </button>
             </div>
+            {notification && (
+                <NotificationPopup
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={handleCloseNotification}
+                />
+            )}
         </div>
     );
 };
