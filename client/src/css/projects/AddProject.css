@@ -54,6 +54,35 @@
     display: block;
 }
 
+.form-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    outline: none;
+    background: #f9f9f9;
+    text-align: right;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* חץ מותאם אישית */
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    padding-left: 30px;
+}
+
+.form-select:focus {
+    border-color: #7494ec;
+    box-shadow: 0 0 8px rgba(116, 148, 236, 0.2);
+}
+
+.form-select option {
+    text-align: right;
+    background: #f9f9f9;
+    color: #333;
+}
+
 .form-hint {
     font-size: 14px;
     color: #888;
