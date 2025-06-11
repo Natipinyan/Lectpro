@@ -208,6 +208,64 @@ const editProject = (req, res, next) => {
     });
 };
 
+const deleteProject = (req, res, next) => {
+    const projectId = req.params.projectId;
+    const studentId = req.user.id;
+
+    if (!projectId || isNaN(projectId)) {
+        return res.status(400).json({ message: "מזהה פרויקט לא תקין" });
+    }
+
+    const queryCheckProject = `SELECT id FROM projects WHERE id = ? AND student_id1 = ?`;
+    db_pool.query(queryCheckProject, [projectId, studentId], (err, results) => {
+        if (err) {
+            console.error("DB Error (check project):", err);
+            return res.status(500).json({ message: "שגיאה בבדיקת הפרויקט" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "הפרויקט לא נמצא או שאין לך הרשאה למחוק אותו" });
+        }
+
+        const queryUpdateStudent = `UPDATE students SET project_id = NULL WHERE id = ? AND project_id = ?`;
+        db_pool.query(queryUpdateStudent, [studentId, projectId], (err) => {
+            if (err) {
+                console.error("DB Error (update student):", err);
+                return res.status(500).json({ message: "שגיאה בעדכון פרטי הסטודנט" });
+            }
+
+            const queryDeleteTechnologies = `DELETE FROM projects_technologies WHERE project_id = ?`;
+            db_pool.query(queryDeleteTechnologies, [projectId], (err) => {
+                if (err) {
+                    console.error("DB Error (delete technologies):", err);
+                    return res.status(500).json({ message: "שגיאה במחיקת טכנולוגיות הפרויקט" });
+                }
+
+                const queryDeleteProject = `DELETE FROM projects WHERE id = ?`;
+                db_pool.query(queryDeleteProject, [projectId], (err) => {
+                    if (err) {
+                        console.error("DB Error (delete project):", err);
+                        return res.status(500).json({ message: "שגיאה במחיקת הפרויקט" });
+                    }
+
+                    const fileName = `${projectId}.pdf`;
+                    const filePath = path.join(__dirname, '..', '..', 'filesApp', fileName);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlink(filePath, (err) => {
+                            if (err) {
+                                console.error("Error deleting PDF file:", err);
+                            }
+                            next();
+                        });
+                    } else {
+                        next();
+                    }
+                });
+            });
+        });
+    });
+};
+
 const getProjectFile = (req, res, next) => {
     const projectId = req.params.projectId;
 
@@ -232,4 +290,5 @@ module.exports = {
     getProjectTechnologies,
     getProjectFile,
     editProject,
+    deleteProject,
 };

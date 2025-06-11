@@ -32,6 +32,9 @@ router.get('/file/:projectId', middleLog.authenticateToken, middlePro.getProject
     });
 });
 
+router.delete('/deleteproject/:projectId', middleLog.authenticateToken, middlePro.deleteProject, (req, res) => {
+    return res.status(200).json({ message: "הפרויקט נמחק בהצלחה!" });
+});
 
 
 module.exports = router;

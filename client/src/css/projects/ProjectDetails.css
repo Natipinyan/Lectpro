@@ -175,6 +175,13 @@
     content: none;
 }
 
+.button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
 .back-button {
     width: 160px;
     height: 48px;
@@ -187,7 +194,6 @@
     color: #fff;
     font-weight: 600;
     transition: all 0.3s ease;
-    margin-bottom: 20px;
 }
 
 .back-button:hover {
@@ -198,6 +204,56 @@
 
 .back-button:focus {
     outline: 2px solid #5e7cd9;
+    outline-offset: 2px;
+}
+
+.edit-button {
+    width: 160px;
+    height: 48px;
+    background: #28a745;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+    background: #218838;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.edit-button:focus {
+    outline: 2px solid #28a745;
+    outline-offset: 2px;
+}
+
+.delete-button {
+    width: 160px;
+    height: 48px;
+    background: #ff4d4f;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.delete-button:hover {
+    background: #d9363e;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.delete-button:focus {
+    outline: 2px solid #ff7875;
     outline-offset: 2px;
 }
 
@@ -260,8 +316,10 @@
         font-size: 14px;
     }
 
-    .back-button {
-        width: 100%;
+    .back-button,
+    .edit-button,
+    .delete-button {
+        width: 140px;
         height: 42px;
         font-size: 14px;
     }
@@ -288,6 +346,19 @@
     }
 
     .project-technologies li {
+        font-size: 13px;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .back-button,
+    .edit-button,
+    .delete-button {
+        width: 120px;
+        height: 38px;
         font-size: 13px;
     }
 }

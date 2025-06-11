@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import NotificationPopup from "../projects/NotificationPopup";
 import "../../css/projects/ProjectDetails.css";
 
 const ProjectDetails = () => {
@@ -8,6 +9,7 @@ const ProjectDetails = () => {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [notification, setNotification] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -69,6 +71,40 @@ const ProjectDetails = () => {
         navigate(`/students/editproject/${projectId}`);
     };
 
+    const handleDeleteClick = async () => {
+        // הוספת הודעת אישור
+        if (!window.confirm("האם אתה בטוח שברצונך למחוק את הפרויקט? פעולה זו אינה ניתנת לביטול.")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/deleteproject/${projectId}`, {
+                method: "DELETE",
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "שגיאה במחיקת הפרויקט");
+            }
+
+            setNotification({
+                message: "הפרויקט נמחק בהצלחה!",
+                type: "success",
+            });
+
+            setTimeout(() => {
+                navigate("/students/MyProjects");
+            }, 3000);
+        } catch (err) {
+            console.error("שגיאה במחיקה:", err);
+            setNotification({
+                message: err.message || "אירעה שגיאה במחיקת הפרויקט",
+                type: "error",
+            });
+        }
+    };
+
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -104,6 +140,13 @@ const ProjectDetails = () => {
 
     return (
         <div className="project-details-wrapper">
+            {notification && (
+                <NotificationPopup
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification(null)}
+                />
+            )}
             <h2 className="formLabel">פרטי הפרויקט</h2>
             <div className="content-wrapper">
                 <div className="right-column">
@@ -111,6 +154,7 @@ const ProjectDetails = () => {
                         <div className="button-container">
                             <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
                             <button className="edit-button" onClick={handleEditClick}>עריכה</button>
+                            <button className="delete-button" onClick={handleDeleteClick}>מחיקה</button>
                         </div>
                         <div className="project-title">{project.title}</div>
                         <div className="project-description">{project.description}</div>
