@@ -116,8 +116,23 @@ function authenticateToken(req, res, next) {
     }
 }
 
+function logout(req, res) {
+    res.clearCookie("students", {
+        httpOnly: true,
+        secure: false, // שנה ל-true בפרודקשן
+        sameSite: "Lax",
+    });
+
+    res.status(200).json({
+        loggedOut: true,
+        message: "התנתקת בהצלחה",
+    });
+}
+
+
 module.exports = {
     check_login,
     EncWithSalt,
     authenticateToken,
+    logout,
 };

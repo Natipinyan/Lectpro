@@ -9,10 +9,10 @@ export default function BaseRouter() {
         {
             path: "/students",
             children: [
-                { index: true, element: <Imports.LoginSignupForm /> },
+                { index: true, element: <Imports.PublicRouteStudents element={Imports.LoginSignupForm} /> },
                 { path: "forgot-password", element: <Imports.ForgotPassword /> },
                 {
-                    element: <Imports.SidebarLayout />, // הוספת ה-Layout עם ה-Sidebar
+                    element: <Imports.SidebarLayout />,
                     children: [
                         { path: "HomeStudent", element: <Imports.PrivateRouteStudents element={Imports.HomeStudent} /> },
                         { path: "pageOne", element: <Imports.PrivateRouteStudents element={Imports.PageOne} /> },

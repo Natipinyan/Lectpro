@@ -14,7 +14,6 @@ export default function SidebarLayout() {
             <div style={{ display: "flex", flexDirection: "row-reverse", minHeight: "100vh", width: "100vw" }}>
 
             <div style={{
-                    maxWidth: "95%",
                     width: "100%",
                     boxSizing: "border-box",
                 }}>

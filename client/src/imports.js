@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PrivateRouteStudents from "./services/PrivateRouteStudents";
+import PublicRouteStudents from "./services/PublicRouteStudents";
 import PrivateRouteInstructor from "./services/PrivateRouteInstructor";
 import LoginStudents from "./components/logAndRegStudent/Login";
 import RegisterStudent from "./components/logAndRegStudent/Register";
@@ -23,6 +24,7 @@ export {
     createBrowserRouter,
     RouterProvider,
     PrivateRouteStudents,
+    PublicRouteStudents,
     PrivateRouteInstructor,
     LoginSignupForm,
     SidebarLayout,
