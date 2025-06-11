@@ -65,6 +65,10 @@ const ProjectDetails = () => {
         };
     }, [pdfUrl]);
 
+    const handleEditClick = () => {
+        navigate(`/students/editproject/${projectId}`);
+    };
+
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -104,7 +108,10 @@ const ProjectDetails = () => {
             <div className="content-wrapper">
                 <div className="right-column">
                     <div className="project-details-container">
-                        <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
+                        <div className="button-container">
+                            <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
+                            <button className="edit-button" onClick={handleEditClick}>עריכה</button>
+                        </div>
                         <div className="project-title">{project.title}</div>
                         <div className="project-description">{project.description}</div>
                         <div className="project-github">
@@ -125,7 +132,7 @@ const ProjectDetails = () => {
                                 <ul>
                                     {project.technologies.map(tech => (
                                         <li key={tech.id}>
-                                            {tech.title} {tech.language && `(${tech.language})`}
+                                            {tech.language} {tech.language && `(${tech.title})`}
                                         </li>
                                     ))}
                                 </ul>

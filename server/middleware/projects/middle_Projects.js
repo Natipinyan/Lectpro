@@ -124,6 +124,90 @@ async function getProjectTechnologies(req, res, next) {
     }
 }
 
+const editProject = (req, res, next) => {
+    const { projectId, projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
+    const studentId = req.user.id;
+
+    if (
+        !projectId ||
+        !projectName ||
+        !projectDesc ||
+        !studentId ||
+        !selectedTechnologies ||
+        !Array.isArray(selectedTechnologies) ||
+        selectedTechnologies.length === 0 ||
+        selectedTechnologies.some(tech => !tech.id)
+    ) {
+        return res.status(400).json({ message: "חסרים פרטי פרויקט, טכנולוגיות, זיהוי משתמש או מזהה פרויקט" });
+    }
+
+    if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
+        return res.status(400).json({ message: "נא להזין קישור תקין ל-GitHub" });
+    }
+
+    const queryCheckProject = `SELECT id FROM projects WHERE id = ? AND student_id1 = ?`;
+    db_pool.query(queryCheckProject, [projectId, studentId], (err, results) => {
+        if (err) {
+            console.error("DB Error (check project):", err);
+            return res.status(500).json({ message: "שגיאה בבדיקת הפרויקט" });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "הפרויקט לא נמצא או שאין לך הרשאה לערוך אותו" });
+        }
+
+        const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ? AND id != ?`;
+        db_pool.query(queryCheckDuplicate, [projectName, projectId], (err, results) => {
+            if (err) {
+                console.error("DB Error (check duplicate):", err);
+                return res.status(500).json({ message: "שגיאה בבדיקת שם הפרויקט" });
+            }
+
+            if (results.length > 0) {
+                return res.status(409).json({ message: "כבר קיים פרויקט בשם זה. אנא בחר שם אחר." });
+            }
+
+            const queryUpdateProject = `UPDATE projects SET title = ?, description = ?, link_to_github = ? WHERE id = ?`;
+            db_pool.query(queryUpdateProject, [projectName, projectDesc, linkToGithub || null, projectId], (err) => {
+                if (err) {
+                    console.error("DB Error (update project):", err);
+                    return res.status(500).json({ message: "שגיאה בעדכון פרטי הפרויקט" });
+                }
+
+                const queryDeleteTechnologies = `DELETE FROM projects_technologies WHERE project_id = ?`;
+                db_pool.query(queryDeleteTechnologies, [projectId], (err) => {
+                    if (err) {
+                        console.error("DB Error (delete technologies):", err);
+                        return res.status(500).json({ message: "שגיאה במחיקת הטכנולוגיות הקיימות" });
+                    }
+
+                    const technologyPromises = selectedTechnologies.map(({ id }) => {
+                        const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
+                        return new Promise((resolve, reject) => {
+                            db_pool.query(queryTechnology, [projectId, id], (err3) => {
+                                if (err3) {
+                                    console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
+                                    return reject({ message: `שגיאה בהוספת טכנולוגיה ID ${id}: ${err3.message}` });
+                                }
+                                resolve();
+                            });
+                        });
+                    });
+
+                    Promise.all(technologyPromises)
+                        .then(() => {
+                            return res.status(200).json({ message: "הפרויקט עודכן בהצלחה" });
+                        })
+                        .catch(error => {
+                            console.error("טעות בהוספת טכנולוגיות:", error);
+                            return res.status(500).json(error);
+                        });
+                });
+            });
+        });
+    });
+};
+
 const getProjectFile = (req, res, next) => {
     const projectId = req.params.projectId;
 
@@ -147,4 +231,5 @@ module.exports = {
     getOneProject,
     getProjectTechnologies,
     getProjectFile,
+    editProject,
 };

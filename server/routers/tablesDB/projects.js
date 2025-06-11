@@ -19,6 +19,10 @@ router.get('/getProjectTechnologies/:projectId', middleLog.authenticateToken, mi
     res.status(200).json(res.technologies);
 });
 
+router.put('/editproject', middleLog.authenticateToken, middlePro.editProject, (req, res) => {
+    return res.status(200).json({ message: "הפרויקט עודכן בהצלחה!" });
+});
+
 router.get('/file/:projectId', middleLog.authenticateToken, middlePro.getProjectFile, (req, res) => {
     res.sendFile(res.filePath, (err) => {
         if (err) {

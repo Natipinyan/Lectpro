@@ -20,6 +20,7 @@ import ProjectDetails from "./components/projects/ProjectDetails";
 import LoginSignupForm from "./components/logAndRegStudent/LoginSignupForm";
 import Sidebar  from "./layout/Sidebar";
 import SidebarLayout from "./layout/SidebarLayout ";
+import EditProject from "./components/projects/EditPtoject";
 export {
     createBrowserRouter,
     RouterProvider,
@@ -44,4 +45,5 @@ export {
     MyProjects,
     ProjectDetails,
     Sidebar,
+    EditProject,
 };

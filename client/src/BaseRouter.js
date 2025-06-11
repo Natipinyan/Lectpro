@@ -22,6 +22,7 @@ export default function BaseRouter() {
                         { path: "Profile", element: <Imports.PrivateRouteStudents element={Imports.Profile} /> },
                         { path: "MyProjects", element: <Imports.PrivateRouteStudents element={Imports.MyProjects} /> },
                         { path: "project/:projectId", element: <Imports.PrivateRouteStudents element={Imports.ProjectDetails} /> },
+                        { path: "EditProject/:projectId", element: <Imports.PrivateRouteStudents element={Imports.EditProject} /> }
                     ],
                 },
             ],
@@ -32,7 +33,7 @@ export default function BaseRouter() {
                 { index: true, element: <Imports.LoginInstructor onLoginSuccess={onLoginSuccess} /> },
                 { path: "register", element: <Imports.RegisterInstructor /> },
                 {
-                    element: <Imports.SidebarLayout />, // הוספת ה-Layout עם ה-Sidebar
+                    element: <Imports.SidebarLayout />,
                     children: [
                         { path: "HomeInstructor", element: <Imports.PrivateRouteInstructor element={Imports.HomeInstructor} /> },
                     ],
