@@ -31,10 +31,9 @@ const Sidebar = () => {
     };
 
     const buttons = [
-        { icon: faBars, label: 'תפריט', page: '/menu' },
         { icon: faHouse, label: 'בית', page: '/students/HomeStudent' },
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
-        { icon: faUser, label: 'אזור אישי', page: '/students/profile' },
+        { icon: faUser, label: 'פרופיל', page: '/students/profile' },
         { icon: faPlusCircle, label: 'הוסף פרויקט', page: '/students/upload' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/students/MyProjects' },
         { icon: faUpload, label: 'העלה קובץ', page: '/students/UpFile' },
@@ -49,24 +48,20 @@ const Sidebar = () => {
             <div className="left">
                 <h2>תפריט</h2>
                 <div className="spacer"></div>
-                {buttons.map((btn, index) => (
-                    <button key={index} onClick={btn.onClick || (() => handleNavigate(btn.page))}>
-                        <FontAwesomeIcon icon={btn.icon} />
-                    </button>
-                ))}
+                <button disabled>
+                    <FontAwesomeIcon icon={faBars} />
+                </button>
             </div>
 
             <div className="right">
                 <h1>lectpro</h1>
                 <nav className="buttons">
-                    {buttons
-                        .filter((btn) => btn.icon !== faBars)
-                        .map((btn, index) => (
-                            <button key={index} onClick={btn.onClick || (() => handleNavigate(btn.page))}>
-                                <FontAwesomeIcon icon={btn.icon} />
-                                <span>{btn.label}</span>
-                            </button>
-                        ))}
+                    {buttons.map((btn, index) => (
+                        <button key={index} onClick={btn.onClick || (() => handleNavigate(btn.page))}>
+                            <FontAwesomeIcon icon={btn.icon} />
+                            <span>{btn.label}</span>
+                        </button>
+                    ))}
                 </nav>
             </div>
 

@@ -22,7 +22,7 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
             return;
         }
 
-        onSave(); // לא מציגים הודעת הצלחה כאן, כי היא מטופלת ב-Profile
+        onSave();
     };
 
     return (
@@ -126,7 +126,7 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
                         <span className="form-value">{userData.phone || "לא זמין"}</span>
                     </div>
                     <div className="button-container">
-                        <button className="edit-button" onClick={() => setIsEditing(true)}>עריכה</button>
+                        <button className="edit-button-profil" onClick={() => setIsEditing(true)}>עריכה</button>
                     </div>
                 </div>
             )}

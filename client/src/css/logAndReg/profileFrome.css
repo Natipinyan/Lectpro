@@ -62,7 +62,7 @@
 
 .primary-button,
 .secondary-button,
-.edit-button {
+.edit-button-profil{
     height: 48px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -108,7 +108,7 @@
     outline-offset: 2px;
 }
 
-.edit-button {
+.edit-button-profil{
     background: #7494ec;
     color: #fff;
     width: 100%;
@@ -117,13 +117,13 @@
     display: block;
 }
 
-.edit-button:hover {
+.edit-button-profil:hover {
     background: #5e7cd9;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
-.edit-button:focus {
+.edit-button-profil:focus {
     outline: 2px solid #5e7cd9;
     outline-offset: 2px;
 }
@@ -146,7 +146,7 @@
 
     .primary-button,
     .secondary-button,
-    .edit-button {
+    .edit-button-profil{
         height: 42px;
         font-size: 14px;
         padding: 0 15px;

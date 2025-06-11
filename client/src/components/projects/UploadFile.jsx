@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../../css/projects/upFile.module.css";
 import NotificationPopup from "./NotificationPopup";
 
@@ -10,6 +11,7 @@ const UploadFile = () => {
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(null);
     const fileInputRef = useRef(null);
+    const navigate = useNavigate(); // ניווט לדף הבית
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -66,10 +68,14 @@ const UploadFile = () => {
             });
 
             if (response.ok) {
-                showNotification("הקובץ נשלח בהצלחה!", "success");
+                showNotification("הקובץ נשלח בהצלחה! הנך מועבר לדף הבית", "success");
                 setFile(null);
                 setFileName("גרור קובץ לכאן או לחץ לבחירה");
                 setSelectedProject(null);
+
+                setTimeout(() => {
+                    navigate("/students/HomeStudent");
+                }, 2000);
             } else {
                 showNotification("אירעה שגיאה בשליחת הקובץ.", "error");
             }

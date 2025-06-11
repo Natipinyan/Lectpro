@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import '../../css/logAndReg/LoginSignupForm.css';
 import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NotificationPopup from "../projects/NotificationPopup";
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faSignInAlt, faUser, faEnvelope, faLock, faPhone} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignInAlt, faUser, faEnvelope, faLock, faPhone, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const LoginSignupForm = () => {
     const [isActive, setIsActive] = useState(false);
@@ -17,6 +17,8 @@ const LoginSignupForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [notificationType, setNotificationType] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // מצב להצגת סיסמה בלוגין
+    const [showRegisterPassword, setShowRegisterPassword] = useState(false); // מצב להצגת סיסמה בהרשמה
     const navigate = useNavigate();
 
     const handleRegisterClick = () => {
@@ -63,8 +65,8 @@ const LoginSignupForm = () => {
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/students/login/check`,
-                {userName, password},
-                {withCredentials: true}
+                { userName, password },
+                { withCredentials: true }
             );
 
             if (response.data.loggedIn) {
@@ -112,18 +114,23 @@ const LoginSignupForm = () => {
                                 placeholder="שם משתמש"
                                 required
                             />
-                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
+                            <FontAwesomeIcon icon={faUser} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 name="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="סיסמה"
                                 required
                             />
-                            <FontAwesomeIcon icon={faLock} className="input-icon"/>
+                            <FontAwesomeIcon icon={faLock} className="input-icon" />
+                            <FontAwesomeIcon
+                                icon={showPassword ? faEyeSlash : faEye}
+                                className="toggle-password"
+                                onClick={() => setShowPassword(!showPassword)}
+                            />
                         </div>
                         <button type="submit" className="btn">
                             כניסה
@@ -149,7 +156,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם פרטי"
                                 required
                             />
-                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
+                            <FontAwesomeIcon icon={faUser} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
@@ -159,7 +166,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם משפחה"
                                 required
                             />
-                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
+                            <FontAwesomeIcon icon={faUser} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
@@ -169,7 +176,7 @@ const LoginSignupForm = () => {
                                 placeholder="שם משתמש"
                                 required
                             />
-                            <FontAwesomeIcon icon={faUser} className="input-icon"/>
+                            <FontAwesomeIcon icon={faUser} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
@@ -179,27 +186,38 @@ const LoginSignupForm = () => {
                                 placeholder="כתובת אימייל"
                                 required
                             />
-                            <FontAwesomeIcon icon={faEnvelope} className="input-icon"/>
+                            <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
                                 type="text"
                                 value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
+                                onChange={(e) => {
+                                    const onlyDigits = e.target.value.replace(/\D/g, ''); // מסיר כל תו שאינו ספרה
+                                    setPhone(onlyDigits);
+                                }}
                                 placeholder="מספר טלפון"
                                 required
                             />
-                            <FontAwesomeIcon icon={faPhone} className="input-icon"/>
+                            <FontAwesomeIcon icon={faPhone} className="input-icon" />
                         </div>
                         <div className="input-box">
                             <input
-                                type="password"
+                                type={showRegisterPassword ? 'text' : 'password'}
                                 value={pass}
                                 onChange={(e) => setPass(e.target.value)}
                                 placeholder="סיסמה"
                                 required
                             />
-                            <FontAwesomeIcon icon={faLock} className="input-icon"/>
+                            <FontAwesomeIcon icon={faLock} className="input-icon" />
+                            <FontAwesomeIcon
+                                icon={showRegisterPassword ? faEyeSlash : faEye}
+                                className="toggle-password"
+                                onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            />
+                        </div>
+                        <div>
+                            הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד
                         </div>
                         <button type="submit" className="btn">
                             הרשמה
@@ -209,7 +227,7 @@ const LoginSignupForm = () => {
 
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
-                        <FontAwesomeIcon icon={faUser} className="toggle-icon"/>
+                        <FontAwesomeIcon icon={faUser} className="toggle-icon" />
                         <h1>Hello, Welcome!</h1>
                         <p>אין לך חשבון?</p>
                         <button className="btn register-btn" onClick={handleRegisterClick}>
@@ -217,7 +235,7 @@ const LoginSignupForm = () => {
                         </button>
                     </div>
                     <div className="toggle-panel toggle-right">
-                        <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon"/>
+                        <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon" />
                         <h1>Welcome Back!</h1>
                         <p>יש לך חשבון?</p>
                         <button className="btn login-btn" onClick={handleLoginClick}>
@@ -237,6 +255,5 @@ const LoginSignupForm = () => {
         </div>
     );
 };
-
 
 export default LoginSignupForm;
