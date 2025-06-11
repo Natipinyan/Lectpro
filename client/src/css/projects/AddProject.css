@@ -14,9 +14,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 100vh;
     background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
-    padding: 20px;
 }
 
 .form-container {
@@ -35,6 +33,7 @@
     margin: 0 auto;
     margin-top: 5vh;
     gap: 40px;
+    z-index: 1;
 }
 
 .secRight,
@@ -42,9 +41,6 @@
     flex: 1;
     min-width: 300px;
 }
-
-
-
 
 .form-section {
     margin-bottom: 20px;
@@ -75,8 +71,7 @@
 }
 
 .text-input,
-.text-area,
-.form-select {
+.text-area {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -90,8 +85,7 @@
 }
 
 .text-input:focus,
-.text-area:focus,
-.form-select:focus {
+.text-area:focus {
     border-color: #7494ec;
     box-shadow: 0 0 8px rgba(116, 148, 236, 0.2);
 }
@@ -101,24 +95,52 @@
     min-height: 100px;
 }
 
-.form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: left 10px center;
-    background-size: 20px;
-    padding-left: 40px;
+.tech-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-.tech-type {
+.tech-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    background: #f9f9f9;
+    color: #333;
     font-size: 14px;
-    color: #888;
-    margin-top: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.tech-chip:hover {
+    background: #e0e0e0;
+    border-color: #d0d0d0;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.tech-chip.selected {
+    background: #7494ec;
+    border-color: #7494ec;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(116, 148, 236, 0.3);
+}
+
+.tech-chip.selected:hover {
+    background: #5e7cd9;
+    border-color: #5e7cd9;
+}
+
+.tech-chip:focus {
+    outline: 2px solid #7494ec;
+    outline-offset: 2px;
 }
 
 .primary-button,
-.add-tech-button,
-.remove-tech-button,
 .add-tech-link {
     height: 48px;
     border-radius: 8px;
@@ -131,46 +153,19 @@
     padding: 0 20px;
 }
 
-.primary-button,
-.add-tech-button {
+.primary-button {
     background: #7494ec;
     color: #fff;
 }
 
-.primary-button:hover,
-.add-tech-button:hover {
+.primary-button:hover {
     background: #5e7cd9;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
-.primary-button:focus,
-.add-tech-button:focus {
+.primary-button:focus {
     outline: 2px solid #5e7cd9;
-    outline-offset: 2px;
-}
-
-.add-tech-button {
-    margin-top: 10px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.remove-tech-button {
-    background: #ff4d4d;
-    color: #fff;
-    margin-top: 10px;
-}
-
-.remove-tech-button:hover {
-    background: #e63939;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-}
-
-.remove-tech-button:focus {
-    outline: 2px solid #e63939;
     outline-offset: 2px;
 }
 
@@ -194,4 +189,3 @@
     text-align: center;
     margin-top: 20px;
 }
-

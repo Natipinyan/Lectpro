@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../css/projects/openPro.css";
+import "../../css/projects/AddProject.css";
 
-const OpenProject = ({
+const AddProject = ({
                          onSwitchToAddTechnology,
                          showNotification,
                          projectData,
@@ -37,29 +37,28 @@ const OpenProject = ({
         fetchTechnologies();
     }, [showNotification]);
 
-    const addTechnologyField = () => {
-        if (projectData.selectedTechs.length < technologies.length) {
-            updateProjectData({
-                selectedTechs: [...projectData.selectedTechs, { id: "", techType: "" }],
-            });
+    const toggleTechnology = (tech) => {
+        const isSelected = projectData.selectedTechs.some(
+            (selected) => selected.id === String(tech.id)
+        );
+        let updatedTechs;
+
+        if (isSelected) {
+            updatedTechs = projectData.selectedTechs.filter(
+                (selected) => selected.id !== String(tech.id)
+            );
         } else {
-            showNotification("לא ניתן להוסיף טכנולוגיות נוספות", "error");
+            updatedTechs = [
+                ...projectData.selectedTechs,
+                {
+                    id: String(tech.id),
+                    techType: tech.title,
+                    language: tech.language || "",
+                },
+            ];
         }
-    };
 
-    const removeTechnologyField = (index) => {
-        if (projectData.selectedTechs.length > 1) {
-            updateProjectData({
-                selectedTechs: projectData.selectedTechs.filter((_, i) => i !== index),
-            });
-        }
-    };
-
-    const handleTechnologyChange = (index, techId) => {
-        const selectedTech = technologies.find((tech) => tech.id === parseInt(techId));
-        const updated = [...projectData.selectedTechs];
-        updated[index] = { id: techId, techType: selectedTech?.title || "" };
-        updateProjectData({ selectedTechs: updated });
+        updateProjectData({ selectedTechs: updatedTechs });
     };
 
     const validateGithubLink = (link) => {
@@ -119,8 +118,8 @@ const OpenProject = ({
 
     return (
         <div className="open-pro-wrapper">
-            <form  className="form-container" onSubmit={handleSubmit}>
-                <div className={"secLeft"} >
+            <form className="form-container" onSubmit={handleSubmit}>
+                <div className="secLeft">
                     <div className="form-section">
                         <label className="form-label">שם הפרויקט</label>
                         <input
@@ -155,64 +154,31 @@ const OpenProject = ({
                             placeholder="https://github.com/example/repo"
                         />
                     </div>
-
-
                 </div>
-                <div className={"secRight"}>
-                    {projectData.selectedTechs.map((tech, index) => (
-                        <div className="form-section" key={index}>
-                            <label className="form-label">בחר טכנולוגיה {index + 1}</label>
-                            <select
-                                className="form-select"
-                                value={tech.id}
-                                onChange={(e) => handleTechnologyChange(index, e.target.value)}
-                                required
-                            >
-                                <option value="">בחר טכנולוגיה</option>
-                                {technologies
-                                    .filter(
-                                        (t) =>
-                                            !projectData.selectedTechs.some(
-                                                (selected, i) => selected.id === String(t.id) && i !== index
-                                            )
-                                    )
-                                    .map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.language}
-                                        </option>
-                                    ))}
-                            </select>
-                            {tech.techType && (
-                                <div className="form-section">
-                                    <label className="form-label">סוג טכנולוגיה</label>
-                                    <p className="tech-type">{tech.techType}</p>
-                                </div>
-                            )}
-                            {projectData.selectedTechs.length > 1 && (
-                                <button
-                                    type="button"
-                                    className="remove-tech-button"
-                                    onClick={() => removeTechnologyField(index)}
-                                >
-                                    הסר
-                                </button>
-                            )}
-                        </div>
-                    ))}
-
+                <div className="secRight">
                     <div className="form-section">
-                        <button
-                            type="button"
-                            className="add-tech-button"
-                            onClick={addTechnologyField}
-                        >
-                            הוסף טכנולוגיה
-                        </button>
+                        <label className="form-label">בחר טכנולוגיות</label>
+                        <div className="tech-chips-container">
+                            {technologies.map((tech) => {
+                                const isSelected = projectData.selectedTechs.some(
+                                    (selected) => selected.id === String(tech.id)
+                                );
+                                return (
+                                    <div
+                                        key={tech.id}
+                                        className={`tech-chip ${isSelected ? "selected" : ""}`}
+                                        onClick={() => toggleTechnology(tech)}
+                                    >
+                                        {tech.language}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     <div className="form-section">
                         <h2 className="form-subtitle">
-                            משתמש בטכנולוגיה שלא עובדה במערכת?
+                            משתמש בטכנולוגיה שלא קיימת במערכת?
                         </h2>
                         <button
                             type="button"
@@ -230,9 +196,8 @@ const OpenProject = ({
                     </div>
                 </div>
             </form>
-
         </div>
     );
 };
 
-export default OpenProject;
+export default AddProject;

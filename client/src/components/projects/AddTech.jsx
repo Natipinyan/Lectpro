@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../css/projects/openPro.css";
+import "../../css/projects/AddProject.css";
 
 const AddTechnology = ({ onBackToProject, showNotification }) => {
     const [name, setName] = useState("");
@@ -40,7 +40,6 @@ const AddTechnology = ({ onBackToProject, showNotification }) => {
 
     return (
         <div className="form-container">
-            <h1 className="form-title">יצירת טכנולוגיה חדשה</h1>
             <form id="openPro-form" onSubmit={handleSubmit}>
                 <div className="form-section">
                     <label className="form-label">שם הטכנולוגיה</label>

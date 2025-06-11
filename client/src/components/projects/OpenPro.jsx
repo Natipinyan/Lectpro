@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import OpenProject from "./AddProject";
+import AddProject from "./AddProject";
 import AddTechnology from "./AddTech";
 import NotificationPopup from "./NotificationPopup";
-
+import '../../css/projects/openProject.css'
 const OpenPro = () => {
     const [isAddingTech, setIsAddingTech] = useState(false);
     const [notification, setNotification] = useState({ message: "", type: "" });
@@ -44,18 +44,27 @@ const OpenPro = () => {
                 />
             )}
             {isAddingTech ? (
-                <AddTechnology
-                    onBackToProject={() => setIsAddingTech(false)}
-                    showNotification={showNotification}
-                />
+                <>
+                    <h1 className="form-title">יצירת טכנולוגיות</h1>
+
+                    <AddTechnology
+                        onBackToProject={() => setIsAddingTech(false)}
+                        showNotification={showNotification}
+                    />
+                </>
+
             ) : (
-                <OpenProject
-                    onSwitchToAddTechnology={() => setIsAddingTech(true)}
-                    showNotification={showNotification}
-                    projectData={projectData}
-                    updateProjectData={updateProjectData}
-                    resetProjectData={resetProjectData}
-                />
+                <>
+                    <h1 className="form-title">פתיחת פרוייקט</h1>
+                    <AddProject
+                        onSwitchToAddTechnology={() => setIsAddingTech(true)}
+                        showNotification={showNotification}
+                        projectData={projectData}
+                        updateProjectData={updateProjectData}
+                        resetProjectData={resetProjectData}
+                    />
+                </>
+
             )}
         </>
     );
