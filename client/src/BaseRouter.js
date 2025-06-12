@@ -11,10 +11,10 @@ export default function BaseRouter() {
             children: [
                 { index: true, element: <Imports.PublicRouteStudents element={Imports.LoginSignupForm} /> },
                 { path: "forgot-password", element: <Imports.ForgotPassword /> },
+                { path: "HomeStudent", element: <Imports.PrivateRouteStudents element={Imports.HomeStudent} /> },
                 {
                     element: <Imports.SidebarLayout />,
                     children: [
-                        { path: "HomeStudent", element: <Imports.PrivateRouteStudents element={Imports.HomeStudent} /> },
                         { path: "pageOne", element: <Imports.PrivateRouteStudents element={Imports.PageOne} /> },
                         { path: "pageTwo", element: <Imports.PrivateRouteStudents element={Imports.PageTwo} /> },
                         { path: "upload", element: <Imports.PrivateRouteStudents element={Imports.OpenPro} /> },
