@@ -10,8 +10,9 @@ const UploadFile = () => {
     const [selectedProject, setSelectedProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
-    const navigate = useNavigate(); // ניווט לדף הבית
+    const navigate = useNavigate();
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
@@ -23,6 +24,26 @@ const UploadFile = () => {
 
     const handleDragOver = (e) => {
         e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const selectedFile = e.dataTransfer.files[0];
+        if (!selectedFile) return;
+
+        if (selectedFile.type !== "application/pdf") {
+            showNotification("אנא בחר קובץ PDF בלבד.", "error");
+            return;
+        }
+
+        setFile(selectedFile);
+        setFileName(selectedFile.name);
     };
 
     const handleClick = () => {
@@ -120,9 +141,11 @@ const UploadFile = () => {
                 <div className={styles["upload-section"]}>
                     <h2 className={styles["formLabel"]}>בחירת מסמך</h2>
                     <div
-                        className={styles["upload-container"]}
+                        className={`${styles["upload-container"]} ${isDragging ? styles["dragging"] : ""}`}
                         id="upload-container"
                         onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                         onClick={handleClick}
                     >
                         <input
@@ -130,7 +153,7 @@ const UploadFile = () => {
                             name="file"
                             id="file-input"
                             ref={fileInputRef}
-                            style={{ display: "none" }}
+                            className={styles["file-input"]}
                             accept=".pdf"
                             onChange={handleFileChange}
                         />

@@ -83,9 +83,9 @@ const ProjectDetails = () => {
                 cancelButtonColor: '#7494ec',
                 confirmButtonText: 'כן, מחק',
                 cancelButtonText: 'בטל',
-                reverseButtons: true, // להציב את כפתור הביטול משמאל (מתאים לעברית)
+                reverseButtons: true,
                 customClass: {
-                    popup: 'swal2-rtl', // תמיכה בכיווניות ימין לשמאל
+                    popup: 'swal2-rtl',
                 },
             });
 

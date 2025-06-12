@@ -13,7 +13,7 @@
 .upload-page-wrapper {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
     padding: 20px;
 }
@@ -58,6 +58,7 @@
     max-width: 400px;
     height: 150px;
     background: #fff;
+    border: 2px dashed #7494ec;
     border-radius: 12px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -66,11 +67,17 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
+    position: relative;
 }
 
 .upload-container:hover {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+}
+
+.upload-container.dragging {
+    background: #e6ecff;
+    border-color: #5e7cd9;
 }
 
 .upload-icon {
@@ -89,6 +96,10 @@
     color: #888;
     font-weight: 400;
     text-align: center;
+}
+
+.file-input {
+    display: none;
 }
 
 .projects-container {
