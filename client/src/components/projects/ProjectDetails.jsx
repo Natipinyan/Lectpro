@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import "../../css/projects/ProjectDetails.css";
+import Swal from 'sweetalert2';
 
 const ProjectDetails = () => {
     const { projectId } = useParams();
@@ -72,39 +73,54 @@ const ProjectDetails = () => {
     };
 
     const handleDeleteClick = async () => {
-        // הוספת הודעת אישור
-        if (!window.confirm("האם אתה בטוח שברצונך למחוק את הפרויקט? פעולה זו אינה ניתנת לביטול.")) {
-            return;
-        }
-
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/deleteproject/${projectId}`, {
-                method: "DELETE",
-                credentials: 'include',
+            const result = await Swal.fire({
+                title: 'האם אתה בטוח?',
+                text: 'מחיקת הפרויקט היא פעולה בלתי הפיכה. האם ברצונך להמשיך?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4d4f',
+                cancelButtonColor: '#7494ec',
+                confirmButtonText: 'כן, מחק',
+                cancelButtonText: 'בטל',
+                reverseButtons: true, // להציב את כפתור הביטול משמאל (מתאים לעברית)
+                customClass: {
+                    popup: 'swal2-rtl', // תמיכה בכיווניות ימין לשמאל
+                },
             });
 
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || "שגיאה במחיקת הפרויקט");
+            if (result.isConfirmed) {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/deleteproject/${projectId}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'שגיאה במחיקת הפרויקט');
+                }
+
+                await Swal.fire({
+                    title: 'נמחק בהצלחה!',
+                    text: 'הפרויקט נמחק בהצלחה.',
+                    icon: 'success',
+                    confirmButtonText: 'אישור',
+                    confirmButtonColor: '#28a745',
+                });
+
+                navigate('/students/MyProjects');
             }
-
-            setNotification({
-                message: "הפרויקט נמחק בהצלחה!",
-                type: "success",
-            });
-
-            setTimeout(() => {
-                navigate("/students/MyProjects");
-            }, 3000);
         } catch (err) {
-            console.error("שגיאה במחיקה:", err);
-            setNotification({
-                message: err.message || "אירעה שגיאה במחיקת הפרויקט",
-                type: "error",
+            console.error('שגיאה במחיקה:', err);
+            await Swal.fire({
+                title: 'שגיאה!',
+                text: err.message || 'אירעה שגיאה במחיקת הפרויקט',
+                icon: 'error',
+                confirmButtonText: 'אישור',
+                confirmButtonColor: '#ff4d4f',
             });
         }
     };
-
     if (loading) {
         return (
             <div className="project-details-wrapper">
