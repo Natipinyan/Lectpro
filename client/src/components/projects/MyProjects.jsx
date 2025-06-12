@@ -72,15 +72,12 @@ const ProjectList = () => {
                                 <div className={styles['project-name']}>
                                     {project.title || "פרויקט ללא שם"}
                                 </div>
-                                <div className={styles['project-description']}>
-                                    {project.description || "ללא תיאור"}
-                                </div>
                             </div>
                             <button
                                 className={styles['project-button']}
                                 onClick={() => handleProjectClick(project.id)}
                             >
-                                {project.title || "צפה בפרויקט"}
+                                {"צפה בפרויקט"}
                             </button>
                         </div>
                     ))

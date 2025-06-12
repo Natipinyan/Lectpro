@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import "../../css/projects/AddProject.css";
 
 const AddProject = ({
-                         onSwitchToAddTechnology,
-                         showNotification,
-                         projectData,
-                         updateProjectData,
-                         resetProjectData,
-                     }) => {
+                        onSwitchToAddTechnology,
+                        showNotification,
+                        projectData,
+                        updateProjectData,
+                        resetProjectData,
+                    }) => {
     const [technologies, setTechnologies] = useState([]);
     const navigate = useNavigate();
 
@@ -73,6 +73,11 @@ const AddProject = ({
             return;
         }
 
+        if (projectData.projectName.length > 25) {
+            showNotification("שם הפרויקט לא יכול לעלות על 25 תווים", "error");
+            return;
+        }
+
         if (!validateGithubLink(projectData.linkToGithub)) {
             showNotification("נא להזין קישור תקין ל-GitHub", "error");
             return;
@@ -127,6 +132,7 @@ const AddProject = ({
                             value={projectData.projectName}
                             onChange={(e) => updateProjectData({ projectName: e.target.value })}
                             required
+                            maxLength="25"
                         />
                     </div>
 

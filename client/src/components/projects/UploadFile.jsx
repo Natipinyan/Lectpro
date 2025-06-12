@@ -158,9 +158,6 @@ const UploadFile = () => {
                                         <div className={styles["project-name"]}>
                                             {project.title || "פרויקט ללא שם"}
                                         </div>
-                                        <div className={styles["project-description"]}>
-                                            {project.description || "ללא תיאור"}
-                                        </div>
                                     </div>
                                 </div>
                             ))}

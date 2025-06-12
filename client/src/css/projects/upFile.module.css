@@ -140,11 +140,6 @@
     color: #333;
 }
 
-.project-description {
-    font-size: 13px;
-    color: #888;
-}
-
 .footer-wrapper {
     display: flex;
     justify-content: center;
@@ -270,9 +265,5 @@
 
     .project-name {
         font-size: 15px;
-    }
-
-    .project-description {
-        font-size: 12px;
     }
 }

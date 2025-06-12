@@ -17,6 +17,10 @@ const addProject = (req, res, next) => {
         return res.status(400).json({ message: "חסרים פרטי פרויקט, טכנולוגיות או זיהוי משתמש" });
     }
 
+    if (projectName.length > 25) {
+        return res.status(400).json({ message: "שם הפרויקט לא יכול לעלות על 25 תווים" });
+    }
+
     if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
         return res.status(400).json({ message: "נא להזין קישור תקין ל-GitHub" });
     }
@@ -63,7 +67,6 @@ const addProject = (req, res, next) => {
 
                 Promise.all(technologyPromises)
                     .then(() => {
-                        //console.log("הטכנולוגיות נוספו בהצלחה");
                         next();
                     })
                     .catch(error => {
@@ -283,6 +286,7 @@ const getProjectFile = (req, res, next) => {
     res.filePath = filePath;
     next();
 };
+
 module.exports = {
     addProject,
     getProjects,
