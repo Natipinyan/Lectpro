@@ -256,17 +256,18 @@
     outline-offset: 2px;
 }
 
-.swal2-rtl .swal2-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 24px;
-    color: #333;
-}
-
+.swal2-rtl .swal2-title,
 .swal2-rtl .swal2-html-container {
     font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    color: #888;
-    text-align: right;
+    text-align: center !important;
+    direction: rtl;
+}
+
+.swal2-rtl .swal2-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .swal2-rtl .swal2-confirm,
@@ -276,20 +277,20 @@
     font-weight: 600;
     border-radius: 8px;
     padding: 10px 20px;
+    margin: 0 10px;
 }
 
-.swal2-rtl .swal2-confirm {
-    background-color: #ff4d4f;
-}
-
-.swal2-rtl .swal2-cancel {
-    background-color: #7494ec;
+.swal2-rtl .swal2-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .swal2-rtl .swal2-popup {
     border-radius: 20px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
     background: #fff;
+    text-align: center;
 }
 
 .no-project,
