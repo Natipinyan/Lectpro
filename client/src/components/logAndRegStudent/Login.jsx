@@ -15,7 +15,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/students/login/check`,
+                `${process.env.REACT_APP_BASE_URL}/students/login/`,
                 { userName, password },
                 { withCredentials: true }
         );

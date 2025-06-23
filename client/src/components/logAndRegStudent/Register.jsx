@@ -25,7 +25,7 @@ const Register = () => {
 
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/Add`, {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/`, {
                 userName,
                 email,
                 first_name: firstName,

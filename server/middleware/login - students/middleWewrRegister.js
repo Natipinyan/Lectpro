@@ -171,7 +171,7 @@ async function forgot_password(req, res) {
                 return res.status(500).json({ message: "שגיאה בעדכון קוד" });
             }
 
-            const link = `${process.env.BASE_URL}/students/register/upPass?code=${resetCode}`;
+            const link = `${process.env.BASE_URL}/students/register/reset-password?code=${resetCode}`;
 
             const htmlContent = `
                 <p>לאיפוס הסיסמה לחץ על הקישור:</p>

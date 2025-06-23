@@ -1,5 +1,5 @@
 export const fetchUserData = async () => {
-    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/students/register/getUser`, {
+    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/students/register/me`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -15,8 +15,8 @@ export const fetchUserData = async () => {
 };
 
 export const updateUserData = async (formData) => {
-    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/students/register/Update`, {
-        method: "post",
+    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/students/register/me`, {
+        method: "put",
         headers: {
             "Content-Type": "application/json",
         },

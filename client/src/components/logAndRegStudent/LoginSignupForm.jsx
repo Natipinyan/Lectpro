@@ -41,7 +41,7 @@ const LoginSignupForm = () => {
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/Add`, {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/`, {
                 userName,
                 email,
                 first_name: firstName,
@@ -64,7 +64,7 @@ const LoginSignupForm = () => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/students/login/check`,
+                `${process.env.REACT_APP_BASE_URL}/students/login/`,
                 { userName, password },
                 { withCredentials: true }
             );
