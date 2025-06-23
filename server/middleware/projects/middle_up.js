@@ -23,7 +23,6 @@ const handleFileUpload = async (req, res, next) => {
         }
 
         const oldPath = req.file.path;
-
         const projectTitle = req.body.projectTitle || 'unnamed_project';
         const ext = path.extname(req.file.originalname);
 
@@ -34,12 +33,6 @@ const handleFileUpload = async (req, res, next) => {
         await fs.promises.rename(oldPath, newPath);
 
         const filePath = `/uploads/${newFileName}`;
-        const stageId = req.body.stage_id || null;
-
-        const Query = `INSERT INTO files (routing, stage_id) VALUES (?, ?)`;
-        const promisePool = db_pool.promise();
-
-        await promisePool.query(Query, [filePath, stageId]);
 
         req.uploadResult = {
             message: "הקובץ הועלה בהצלחה!",

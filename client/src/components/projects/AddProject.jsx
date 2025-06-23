@@ -16,7 +16,7 @@ const AddProject = ({
         const fetchTechnologies = async () => {
             try {
                 const response = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/technology/List`,
+                    `${process.env.REACT_APP_BASE_URL}/technology/`,
                     {
                         method: "GET",
                         headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ const AddProject = ({
 
         try {
             const response = await fetch(
-                `${process.env.REACT_APP_BASE_URL}/projects/addproject`,
+                `${process.env.REACT_APP_BASE_URL}/projects/`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

@@ -16,7 +16,7 @@ const ProjectDetails = () => {
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`, {
+                const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}`, {
                     method: "GET",
                     credentials: 'include',
                 });
@@ -25,7 +25,7 @@ const ProjectDetails = () => {
 
                 const dataProject = await resProject.json();
 
-                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/getProjectTechnologies/${projectId}`, {
+                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects//${projectId}/technologies`, {
                     method: "GET",
                     credentials: 'include',
                 });
@@ -35,7 +35,7 @@ const ProjectDetails = () => {
                 const techData = await resTech.json();
 
                 let newPdfUrl = null;
-                const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/file/${projectId}`, {
+                const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/file`, {
                     method: "GET",
                     credentials: 'include',
                 });

@@ -11,7 +11,7 @@ const ProjectList = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/list`, {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/`, {
                     method: "GET",
                     credentials: 'include',
                 });

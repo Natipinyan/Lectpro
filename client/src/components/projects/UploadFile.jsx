@@ -36,12 +36,10 @@ const UploadFile = () => {
         setIsDragging(false);
         const selectedFile = e.dataTransfer.files[0];
         if (!selectedFile) return;
-
         if (selectedFile.type !== "application/pdf") {
             showNotification("אנא בחר קובץ PDF בלבד.", "error");
             return;
         }
-
         setFile(selectedFile);
         setFileName(selectedFile.name);
     };
@@ -53,12 +51,10 @@ const UploadFile = () => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (!selectedFile) return;
-
         if (selectedFile.type !== "application/pdf") {
             showNotification("אנא בחר קובץ PDF בלבד.", "error");
             return;
         }
-
         setFile(selectedFile);
         setFileName(selectedFile.name);
     };
@@ -79,21 +75,25 @@ const UploadFile = () => {
 
         const formData = new FormData();
         formData.append("file", file);
+        // ממשיכים לשלוח projectTitle גם לראוטר החדש, כיוון שהמידלוור מצפה לזה ב-req.body
         formData.append("projectTitle", selectedProject.id);
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/upload/addFile`, {
-                method: "POST",
-                body: formData,
-                credentials: "include",
-            });
+            // שינוי ה-URL לראוטר ה-RESTful החדש
+            const response = await fetch(
+                `${process.env.REACT_APP_BASE_URL}/upload/${selectedProject.id}/file`,
+                {
+                    method: "POST",
+                    body: formData,
+                    credentials: "include",
+                }
+            );
 
             if (response.ok) {
                 showNotification("הקובץ נשלח בהצלחה! הנך מועבר לדף הבית", "success");
                 setFile(null);
                 setFileName("גרור קובץ לכאן או לחץ לבחירה");
                 setSelectedProject(null);
-
                 setTimeout(() => {
                     navigate("/students/HomeStudent");
                 }, 2000);
@@ -109,15 +109,13 @@ const UploadFile = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/list`, {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/`, {
                     method: "GET",
                     credentials: "include",
                 });
-
                 if (!response.ok) {
                     throw new Error("שגיאה בטעינת הפרויקטים");
                 }
-
                 const data = await response.json();
                 setProjects(data || []);
                 setLoading(false);
@@ -130,7 +128,6 @@ const UploadFile = () => {
                 setLoading(false);
             }
         };
-
         fetchProjects();
     }, []);
 
@@ -174,7 +171,9 @@ const UploadFile = () => {
                             {projects.map((project) => (
                                 <div
                                     key={project.id}
-                                    className={`${styles["project-item"]} ${selectedProject?.id === project.id ? styles["selected"] : ""}`}
+                                    className={`${styles["project-item"]} ${
+                                        selectedProject?.id === project.id ? styles["selected"] : ""
+                                    }`}
                                     onClick={() => handleProjectSelect(project)}
                                 >
                                     <div className={styles["project-text"]}>

@@ -21,7 +21,7 @@ const EditProject = () => {
         const fetchProjectData = async () => {
             try {
                 const projectResponse = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/projects/getOneProject/${projectId}`,
+                    `${process.env.REACT_APP_BASE_URL}/projects/${projectId}`,
                     {
                         method: "GET",
                         credentials: "include",
@@ -33,7 +33,7 @@ const EditProject = () => {
                 const projectData = await projectResponse.json();
 
                 const techResponse = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/technology/List`,
+                    `${process.env.REACT_APP_BASE_URL}/technology/`,
                     {
                         method: "GET",
                         credentials: "include",
@@ -45,7 +45,7 @@ const EditProject = () => {
                 const techData = await techResponse.json();
 
                 const projectTechResponse = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/projects/getProjectTechnologies/${projectId}`,
+                    `${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`,
                     {
                         method: "GET",
                         credentials: "include",
@@ -137,12 +137,11 @@ const EditProject = () => {
         }
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/editproject`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
-                    projectId,
                     projectName: projectData.projectName,
                     projectDesc: projectData.projectDesc,
                     linkToGithub: projectData.linkToGithub || null,

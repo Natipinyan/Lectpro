@@ -13,7 +13,7 @@ const AddTechnology = ({ onBackToProject, showNotification }) => {
         }
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/technology/Add`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/technology/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
