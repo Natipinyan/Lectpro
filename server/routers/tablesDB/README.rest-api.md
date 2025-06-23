@@ -12,6 +12,8 @@
 | DELETE | /students/register/me           | Delete current student             | -                           | { message }             |
 | POST   | /students/register/forgot-password | Request password reset         | { email }                   | { message }             |
 | GET    | /students/register/reset-password  | Reset password (via link)      | { code, newPassword }       | { message }             |
+| GET    | /students/auth/check-auth       | Check student authentication       | - (cookie)                  | { isAuthenticated, user }|
+| POST   | /students/auth/logout           | Student logout                     | -                           | { loggedOut, message }  |
 
 ## Projects
 
