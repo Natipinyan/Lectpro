@@ -2,18 +2,18 @@
 
 ## Student Authentication & Management
 
-| Method | Endpoint                        | Description                        | Request Body                | Response                |
-|--------|----------------------------------|------------------------------------|-----------------------------|-------------------------|
-| POST   | /students/login                 | Student login                      | { userName, password }      | { loggedIn, user, ... } |
-| GET    | /students/register              | Get all students (admin only)      | -                           | Array of students       |
-| POST   | /students/register              | Register new student               | { userName, ... }           | { message, user }       |
-| GET    | /students/register/me           | Get current student info           | - (cookie)                  | { user }                |
-| PUT    | /students/register/me           | Update current student             | { ...fields }               | { message, user }       |
-| DELETE | /students/register/me           | Delete current student             | -                           | { message }             |
+| Method | Endpoint                      | Description                        | Request Body                | Response                |
+|--------|--------------------------------|------------------------------------|-----------------------------|-------------------------|
+| POST   | /students/login               | Student login                      | { userName, password }      | { loggedIn, user, ... } |
+| GET    | /students/register            | Get all students (admin only)      | -                           | Array of students       |
+| POST   | /students/register            | Register new student               | { userName, ... }           | { message, user }       |
+| GET    | /students/register/me         | Get current student info           | - (cookie)                  | { user }                |
+| PUT    | /students/register/me         | Update current student             | { ...fields }               | { message, user }       |
+| DELETE | /students/register/me         | Delete current student             | -                           | { message }             |
 | POST   | /students/register/forgot-password | Request password reset         | { email }                   | { message }             |
-| GET    | /students/register/reset-password  | Reset password (via link)      | { code, newPassword }       | { message }             |
-| GET    | /students/auth/check-auth       | Check student authentication       | - (cookie)                  | { isAuthenticated, user }|
-| POST   | /students/auth/logout           | Student logout                     | -                           | { loggedOut, message }  |
+| GET    | /students/register/reset-password | Reset password (via link)      | { code, newPassword }       | { message }             |
+| GET    | /apiStudent/check-auth      | Check student authentication       | - (cookie)                  | { isAuthenticated, user }|
+| POST   | /apiStudent/logout          | Student logout                     | -                           | { loggedOut, message }  |
 
 ## Projects
 
