@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const middleMail = require('../../middleware/Email/Email');
+const { sendEmailFromApi } = require('../../middleware/Email/Email');
 
-//router.post('/', [middleMail], function (req, res, next) {
-//});
+// Send email (RESTful)
+router.post('/', sendEmailFromApi);
 
 module.exports = router;

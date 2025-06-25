@@ -20,19 +20,15 @@ const ProjectDetails = () => {
                     method: "GET",
                     credentials: 'include',
                 });
-
-                if (!resProject.ok) throw new Error("שגיאה בטעינת פרטי הפרויקט");
-
                 const dataProject = await resProject.json();
+                if (!resProject.ok || !dataProject.success) throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
 
-                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects//${projectId}/technologies`, {
+                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`, {
                     method: "GET",
                     credentials: 'include',
                 });
-
-                if (!resTech.ok) throw new Error("שגיאה בטעינת טכנולוגיות");
-
                 const techData = await resTech.json();
+                if (!resTech.ok || !techData.success) throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
 
                 let newPdfUrl = null;
                 const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/file`, {
@@ -47,12 +43,12 @@ const ProjectDetails = () => {
                     throw new Error("שגיאה בטעינת קובץ ה-PDF");
                 }
 
-                setProject({ ...dataProject, technologies: techData, notes: dataProject.notes || "אין הערות" });
+                setProject({ ...dataProject.data, technologies: techData.data, notes: dataProject.data.notes || "אין הערות" });
                 setPdfUrl(newPdfUrl);
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
-                setError("אירעה שגיאה בטעינת פרטי הפרויקט או ה-PDF");
+                setError(err.message || "אירעה שגיאה בטעינת פרטי הפרויקט או ה-PDF");
                 setLoading(false);
             }
         };
@@ -90,13 +86,12 @@ const ProjectDetails = () => {
             });
 
             if (result.isConfirmed) {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/deleteproject/${projectId}`, {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}`, {
                     method: 'DELETE',
                     credentials: 'include',
                 });
-
-                if (!response.ok) {
-                    const data = await response.json();
+                const data = await response.json();
+                if (!response.ok || !data.success) {
                     throw new Error(data.message || 'שגיאה במחיקת הפרויקט');
                 }
 

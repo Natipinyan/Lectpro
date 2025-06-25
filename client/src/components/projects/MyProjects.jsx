@@ -15,14 +15,14 @@ const ProjectList = () => {
                     method: "GET",
                     credentials: 'include',
                 });
-
-                if (!response.ok) {
-                    throw new Error("שגיאה בטעינת הפרויקטים");
-                }
-
                 const data = await response.json();
-                setProjects(data || []);
-                setLoading(false);
+                if (response.ok && data.success) {
+                    setProjects(data.data || []);
+                    setLoading(false);
+                } else {
+                    setError(data.message || "אירעה שגיאה בטעינת הפרויקטים");
+                    setLoading(false);
+                }
             } catch (err) {
                 console.error("שגיאה:", err);
                 setError("אירעה שגיאה בטעינת הפרויקטים");

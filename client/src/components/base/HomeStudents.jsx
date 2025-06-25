@@ -15,14 +15,14 @@ const HomeStudents = () => {
                 method: 'POST',
                 credentials: 'include',
             });
-
-            if (response.ok) {
-                setPopupMessage({ message: "התנתקת בהצלחה", type: "success" });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setPopupMessage({ message: data.message || "התנתקת בהצלחה", type: "success" });
                 setTimeout(() => {
                     navigate('/students');
                 }, 2000);
             } else {
-                setPopupMessage({ message: "שגיאה בהתנתקות", type: "error" });
+                setPopupMessage({ message: data.message || "שגיאה בהתנתקות", type: "error" });
             }
         } catch (error) {
             console.error('Logout failed:', error);

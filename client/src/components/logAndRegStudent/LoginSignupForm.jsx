@@ -49,8 +49,13 @@ const LoginSignupForm = () => {
                 phone,
                 pass,
             });
-            setError(response.data.message);
-            setNotificationType('success');
+            if (response.data.success) {
+                setError(response.data.message);
+                setNotificationType('success');
+            } else {
+                setError(response.data.message || 'שגיאה בהרשמה');
+                setNotificationType('error');
+            }
             setTimeout(() => setError(''), 3000);
         } catch (error) {
             setError(error.response?.data?.message || 'שגיאה בהרשמה');
@@ -68,8 +73,7 @@ const LoginSignupForm = () => {
                 { userName, password },
                 { withCredentials: true }
             );
-
-            if (response.data.loggedIn) {
+            if (response.data.success && response.data.loggedIn) {
                 if (response.data.mustChangePassword) {
                     setError('הסיסמה שלך חייבת להשתנות. מעביר אותך לדף שינוי סיסמה...');
                     setNotificationType('error');
@@ -79,10 +83,9 @@ const LoginSignupForm = () => {
                     }, 3000);
                     return;
                 }
-
                 navigate('/students/HomeStudent');
             } else {
-                setError(response.data.message);
+                setError(response.data.message || 'שגיאה בהתחברות');
                 setNotificationType('error');
                 setTimeout(() => setError(''), 3000);
             }
@@ -244,7 +247,7 @@ const LoginSignupForm = () => {
                     </div>
                 </div>
 
-                {error && (
+                {error && notificationType === 'error' && (
                     <NotificationPopup
                         message={error}
                         type={notificationType}

@@ -27,7 +27,7 @@ const Register = () => {
             setSuccessMessage(response.data.message);
             setErrorMessage('');
         } catch (error) {
-            setErrorMessage('Error registering user');
+            setErrorMessage('שגיאה בהרשמת מרצה');
             setSuccessMessage('');
         }
     };
@@ -41,7 +41,7 @@ const Register = () => {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Enter your first name"
+                        placeholder="הכנס שם פרטי"
                     />
                 </div>
                 <div>
@@ -49,7 +49,7 @@ const Register = () => {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Enter your last name"
+                        placeholder="הכנס שם משפחה"
                     />
                 </div>
                 <div>
@@ -57,7 +57,7 @@ const Register = () => {
                         type="text"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your username"
+                        placeholder="הכנס שם משתמש"
                     />
                 </div>
                 <div>
@@ -65,7 +65,7 @@ const Register = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
+                        placeholder="הכנס כתובת מייל"
                     />
                 </div>
                 <div>
@@ -73,7 +73,7 @@ const Register = () => {
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Enter your phone number"
+                        placeholder="הכנס מספר טלפון"
                     />
                 </div>
                 <div>
@@ -81,11 +81,11 @@ const Register = () => {
                         type="password"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
-                        placeholder="Enter your password"
+                        placeholder="הכנס סיסמה"
                     />
                 </div>
                 <div>
-                    <button className="submit" type="submit">Register</button>
+                    <button className="submit" type="submit">הרשמה</button>
                 </div>
             </form>
             {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}

@@ -14,12 +14,10 @@ const PrivateRouteStudents = ({ element: Component, ...rest }) => {
                 const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/apiStudent/check-auth`, {
                     withCredentials: true,
                 });
-                //console.log("Check-auth response:", response.data);
                 if (isMounted) {
-                    setIsAuthenticated(response.data.isAuthenticated);
+                    setIsAuthenticated(response.data.data?.isAuthenticated);
                 }
             } catch (err) {
-                console.error("Check-auth failed:", err.response?.data || err.message);
                 if (isMounted) {
                     setIsAuthenticated(false);
                 }

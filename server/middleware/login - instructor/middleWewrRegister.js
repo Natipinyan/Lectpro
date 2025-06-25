@@ -4,7 +4,7 @@ async function getList(req, res, next) {
     const query = `SELECT * FROM teachers`;
     db_pool.query(query, function (err, rows) {
         if (err) {
-            return res.status(500).json({ message: "Error fetching users" });
+            return res.status(500).json({ message: "שגיאה בשליפת משתמשים" });
         }
         res.studentsList = rows;
         next();
@@ -21,10 +21,10 @@ async function AddUser(req, res, next) {
 
     try {
         const [result] = await promisePool.query(query, [userName, encryptedPass, email, first_name, last_name, phone]);
-        res.status(200).json({ message: "Teacher added successfully", teacherId: result.insertId });
+        res.status(200).json({ message: "מרצה נוסף בהצלחה", teacherId: result.insertId });
     } catch (err) {
         console.error("Error adding teacher:", err);
-        res.status(500).json({ message: "Error adding teacher", error: err.message });
+        res.status(500).json({ message: "שגיאה בהוספת מרצה", error: err.message });
     }
 }
 
@@ -38,13 +38,13 @@ async function UpdateUser(req, res, next) {
     try {
         const [result] = await promisePool.query(query, [first_name, last_name, userName, encryptedPass, email, phone, id]);
         if (result.affectedRows === 0) {
-            res.status(404).json({ message: "Teacher not found" });
+            res.status(404).json({ message: "מרצה לא נמצא" });
         } else {
-            res.status(200).json({ message: "Teacher updated successfully" });
+            res.status(200).json({ message: "פרטי המרצה עודכנו בהצלחה" });
         }
     } catch (err) {
         console.error("Error updating teacher:", err);
-        res.status(500).json({ message: "Error updating teacher", error: err.message });
+        res.status(500).json({ message: "שגיאה בעדכון פרטי מרצה", error: err.message });
     }
 }
 
@@ -56,13 +56,13 @@ async function delUser(req, res, next) {
     try {
         const [result] = await promisePool.query(query, [id]);
         if (result.affectedRows === 0) {
-            res.status(404).json({ message: "Teacher not found" });
+            res.status(404).json({ message: "מרצה לא נמצא" });
         } else {
-            res.status(200).json({ message: "Teacher deleted successfully" });
+            res.status(200).json({ message: "מרצה נמחק בהצלחה" });
         }
     } catch (err) {
         console.error("Error deleting teacher:", err);
-        res.status(500).json({ message: "Error deleting teacher", error: err.message });
+        res.status(500).json({ message: "שגיאה במחיקת מרצה", error: err.message });
     }
 }
 

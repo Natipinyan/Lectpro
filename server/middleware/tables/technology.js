@@ -2,7 +2,7 @@ async function getTechnologies(req, res, next) {
     const q = `SELECT * FROM technology_in_use`;
     db_pool.query(q, function (err, rows) {
         if (err) {
-            return res.status(500).json({ message: "Error fetching technologies" });
+            return res.status(500).json({ message: "שגיאה בקבלת טכנולוגיות" });
         }
         res.technologyList = rows;
         next();
@@ -38,7 +38,7 @@ async function addTechnology(req, res, next) {
             db_pool.query(insertQuery, [technologyTitle, technologyName], (err, result) => {
                 if (err) {
                     res.addStatus = 500;
-                    res.addMessage = "שגיאה בהוספת הטכנולוגיה";
+                    res.addMessage = "שגיאה בהוספת טכנולוגיה";
                 } else {
                     res.addStatus = 200;
                     res.addMessage = "הטכנולוגיה נוספה בהצלחה";
@@ -48,7 +48,7 @@ async function addTechnology(req, res, next) {
         });
     } catch (error) {
         res.addStatus = 500;
-        res.addMessage = "שגיאה בחיבור לשרת";
+        res.addMessage = "שגיאה כללית בהוספת טכנולוגיה";
         next();
     }
 }
@@ -63,7 +63,7 @@ async function updateTechnology(req, res, next) {
     db_pool.query(selectQuery, [currentLanguage], function (err, results) {
         if (err || results.length === 0) {
             res.updateStatus = 404;
-            res.updateMessage = "Technology with the specified language not found";
+            res.updateMessage = "לא נמצאה טכנולוגיה עם השפה שצוינה";
             return next();
         }
 
@@ -74,10 +74,10 @@ async function updateTechnology(req, res, next) {
         db_pool.query(updateQuery, [newLanguage, techId], function (err2, result) {
             if (err2) {
                 res.updateStatus = 500;
-                res.updateMessage = "Error updating technology";
+                res.updateMessage = "שגיאה בעדכון טכנולוגיה";
             } else {
                 res.updateStatus = 200;
-                res.updateMessage = "Technology updated successfully";
+                res.updateMessage = "הטכנולוגיה עודכנה בהצלחה";
             }
             next();
         });
@@ -91,7 +91,7 @@ async function deleteTechnology(req, res, next) {
     db_pool.query(selectQuery, [currentLanguage], function (err, results) {
         if (err || results.length === 0) {
             res.deleteStatus = 404;
-            res.deleteMessage = "Technology with the specified language not found";
+            res.deleteMessage = "לא נמצאה טכנולוגיה עם השפה שצוינה";
             return next();
         }
 
@@ -102,10 +102,10 @@ async function deleteTechnology(req, res, next) {
         db_pool.query(deleteQuery, [techId], function (err2, result) {
             if (err2) {
                 res.deleteStatus = 500;
-                res.deleteMessage = "Error deleting technology";
+                res.deleteMessage = "שגיאה במחיקת טכנולוגיה";
             } else {
                 res.deleteStatus = 200;
-                res.deleteMessage = "Technology deleted successfully";
+                res.deleteMessage = "הטכנולוגיה נמחקה בהצלחה";
             }
             next();
         });

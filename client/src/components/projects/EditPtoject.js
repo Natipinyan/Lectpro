@@ -27,10 +27,10 @@ const EditProject = () => {
                         credentials: "include",
                     }
                 );
-                if (!projectResponse.ok) {
-                    throw new Error("שגיאה בטעינת פרטי הפרויקט");
-                }
                 const projectData = await projectResponse.json();
+                if (!projectResponse.ok || !projectData.success) {
+                    throw new Error(projectData.message || "שגיאה בטעינת פרטי הפרויקט");
+                }
 
                 const techResponse = await fetch(
                     `${process.env.REACT_APP_BASE_URL}/technology/`,
@@ -39,10 +39,10 @@ const EditProject = () => {
                         credentials: "include",
                     }
                 );
-                if (!techResponse.ok) {
-                    throw new Error("שגיאה בטעינת הטכנולוגיות");
-                }
                 const techData = await techResponse.json();
+                if (!techResponse.ok || !techData.success) {
+                    throw new Error(techData.message || "שגיאה בטעינת הטכנולוגיות");
+                }
 
                 const projectTechResponse = await fetch(
                     `${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`,
@@ -51,25 +51,25 @@ const EditProject = () => {
                         credentials: "include",
                     }
                 );
-                if (!projectTechResponse.ok) {
-                    throw new Error("שגיאה בטעינת טכנולוגיות הפרויקט");
-                }
                 const projectTechData = await projectTechResponse.json();
+                if (!projectTechResponse.ok || !projectTechData.success) {
+                    throw new Error(projectTechData.message || "שגיאה בטעינת טכנולוגיות הפרויקט");
+                }
 
                 setProjectData({
-                    projectName: projectData.title || "",
-                    projectDesc: projectData.description || "",
-                    linkToGithub: projectData.link_to_github || "",
-                    selectedTechs: projectTechData.map((tech) => ({
+                    projectName: projectData.data.title || "",
+                    projectDesc: projectData.data.description || "",
+                    linkToGithub: projectData.data.link_to_github || "",
+                    selectedTechs: projectTechData.data.map((tech) => ({
                         id: String(tech.id),
                         techType: tech.title,
                     })),
                 });
-                setTechnologies(techData);
+                setTechnologies(techData.data);
                 setLoading(false);
             } catch (err) {
                 console.error("שגיאה:", err);
-                setError("אירעה שגיאה בטעינת נתוני הפרויקט");
+                setError(err.message || "אירעה שגיאה בטעינת נתוני הפרויקט");
                 setLoading(false);
             }
         };
@@ -150,7 +150,7 @@ const EditProject = () => {
             });
 
             const data = await response.json();
-            if (response.ok) {
+            if (response.ok && data.success) {
                 setNotification({
                     message: "הפרויקט עודכן בהצלחה!",
                     type: "success",

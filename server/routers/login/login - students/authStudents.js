@@ -4,21 +4,28 @@ const middleLog = require("../../../middleware/login - students/middleWareLogin"
 
 // Check student authentication (RESTful)
 router.get('/check-auth', middleLog.authenticateToken, (req, res) => {
-    res.status(200).json({ isAuthenticated: true, user: req.user });
+    try {
+        res.status(200).json({ success: true, data: { isAuthenticated: true, user: req.user } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בבדיקת אימות' });
+    }
 });
 
 // Student logout (RESTful)
 router.post('/logout', middleLog.authenticateToken, (req, res) => {
-    res.clearCookie("students", {
-        httpOnly: true,
-        secure: false, // change to true in production
-        sameSite: "Lax",
-    });
-
-    res.status(200).json({
-        loggedOut: true,
-        message: "התנתקת בהצלחה",
-    });
+    try {
+        res.clearCookie("students", {
+            httpOnly: true,
+            secure: false, // change to true in production
+            sameSite: "Lax",
+        });
+        res.status(200).json({
+            success: true,
+            message: "התנתקת בהצלחה",
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה ביציאה מהמערכת' });
+    }
 });
 
 

@@ -23,7 +23,6 @@ const Register = () => {
             return;
         }
 
-
         try {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/`, {
                 userName,
@@ -33,9 +32,17 @@ const Register = () => {
                 phone,
                 pass
             });
-            setSuccessMessage(response.data.message);
-            setErrorMessage('');
-            setTimeout(() => setSuccessMessage(''), 1500);
+            if (response.data.success) {
+                setSuccessMessage(response.data.message);
+                setErrorMessage('');
+            } else {
+                setErrorMessage(response.data.message || 'שגיאה בהרשמה');
+                setSuccessMessage('');
+            }
+            setTimeout(() => {
+                setSuccessMessage('');
+                setErrorMessage('');
+            }, 1500);
         } catch (error) {
             setErrorMessage(error.response?.data?.message || 'שגיאה בהרשמה');
             setSuccessMessage('');

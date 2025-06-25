@@ -22,7 +22,11 @@ const ForgotPassword = () => {
                 { email },
                 { withCredentials: true }
             );
-            setMessage(response.data.message);
+            if (response.data.success) {
+                setMessage(response.data.message);
+            } else {
+                setError(response.data.message || "אירעה שגיאה בשליחת הבקשה");
+            }
         } catch (err) {
             setError(err.response?.data?.message || "אירעה שגיאה בשליחת הבקשה");
         }

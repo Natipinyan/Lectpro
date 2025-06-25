@@ -7,37 +7,65 @@ const middleLog = require("../../../middleware/login - students/middleWareLogin"
 
 // Get all students (RESTful)
 router.get('/', middleLog.authenticateToken, middleReg.getList, (req, res) => {
-    res.status(200).json(res.studentsList);
+    try {
+        res.status(200).json({ success: true, data: res.studentsList });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת סטודנטים' });
+    }
 });
 
 // Register new student (RESTful)
 router.post('/', middleReg.Adduser, (req, res) => {
-    res.status(res.addStatus).json({ message: res.addMessage });
+    try {
+        res.status(res.addStatus).json({ success: res.addStatus === 201, message: res.addMessage });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בהרשמת סטודנט' });
+    }
 });
 
 // Update current student (RESTful)
 router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) => {
-    res.status(res.updateStatus || 200).json({ message: res.updateMessage });
+    try {
+        res.status(res.updateStatus || 200).json({ success: res.updateStatus === 200, message: res.updateMessage });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון סטודנט' });
+    }
 });
 
 // Delete current student (RESTful)
 router.delete('/me', middleLog.authenticateToken, middleReg.delUser, (req, res) => {
-    res.status(res.deleteStatus || 200).json({ message: res.deleteMessage });
+    try {
+        res.status(res.deleteStatus || 200).json({ success: res.deleteStatus === 200, message: res.deleteMessage });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה במחיקת סטודנט' });
+    }
 });
 
 // Get current student (RESTful)
 router.get('/me', middleLog.authenticateToken, middleReg.getUser, (req, res) => {
-    res.status(200).json(res.student);
+    try {
+        res.status(200).json({ success: true, data: res.student });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת סטודנט' });
+    }
 });
 
 // // Forgot password (RESTful)
 router.post('/forgot-password', middleReg.forgot_password, (req, res) => {
-    res.status(200).json();
+    try {
+        res.status(200).json({ success: true, message: 'אימייל לאיפוס סיסמה נשלח' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בשליחת אימייל איפוס סיסמה' });
+    }
  });
 
 // Reset password (RESTful)
 router.get('/reset-password', middleReg.resetPassword, (req, res) => {
-    res.status(200).json();
+    try {
+        res.status(200).json({ success: true, message: 'הסיסמה אופסה בהצלחה' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה באיפוס סיסמה' });
+    }
 });
 
 ;

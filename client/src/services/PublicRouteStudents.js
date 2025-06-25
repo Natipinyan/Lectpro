@@ -11,7 +11,7 @@ const PublicRouteStudents = ({ element: Component }) => {
                 const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/apiStudent/check-auth`, {
                     withCredentials: true,
                 });
-                setIsAuthenticated(response.data.isAuthenticated);
+                setIsAuthenticated(response.data.data?.isAuthenticated);
             } catch (err) {
                 setIsAuthenticated(false);
             }

@@ -6,13 +6,13 @@ router.post("/check", middleLog.check_login, (req, res) => {
     if (res.loggedEn) {
         res.status(200).json({
             loggedIn: true,
-            message: "Login successful",
+            message: "התחברת בהצלחה",
             user: { id: req.user.id, userName: req.user.user_name },
         });
     } else {
         res.status(401).json({
             loggedIn: false,
-            message: res.message || "Invalid credentials",
+            message: res.message || "שם משתמש או סיסמה שגויים",
         });
     }
 });

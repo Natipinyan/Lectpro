@@ -5,32 +5,56 @@ const middlePro = require("../../middleware/projects/middle_Projects");
 
 // RESTful: Get all projects
 router.get('/', middleLog.authenticateToken, middlePro.getProjects, (req, res) => {
-    res.status(200).json(res.projectsList);
+    try {
+        res.status(200).json({ success: true, data: res.projectsList });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת פרויקטים' });
+    }
 });
 
 // RESTful: Get one project by ID
 router.get('/:projectId', middleLog.authenticateToken, middlePro.getOneProject, (req, res) => {
-    res.status(200).json(res.project);
+    try {
+        res.status(200).json({ success: true, data: res.project });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת פרויקט' });
+    }
 });
 
 // RESTful: Create a new project
 router.post('/', middleLog.authenticateToken, middlePro.addProject, (req, res) => {
-    return res.status(201).json({ message: "Project created successfully!" });
+    try {
+        res.status(201).json({ success: true, message: "הפרויקט נוצר בהצלחה!" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה ביצירת פרויקט' });
+    }
 });
 
 // RESTful: Update a project by ID
 router.put('/:projectId', middleLog.authenticateToken, middlePro.editProject, (req, res) => {
-    return res.status(200).json({ message: "Project updated successfully!" });
+    try {
+        res.status(200).json({ success: true, message: "הפרויקט עודכן בהצלחה!" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון פרויקט' });
+    }
 });
 
 // RESTful: Delete a project by ID
 router.delete('/:projectId', middleLog.authenticateToken, middlePro.deleteProject, (req, res) => {
-    return res.status(200).json({ message: "Project deleted successfully!" });
+    try {
+        res.status(200).json({ success: true, message: "הפרויקט נמחק בהצלחה!" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה במחיקת פרויקט' });
+    }
 });
 
 // RESTful: Get technologies for a project
 router.get('/:projectId/technologies', middleLog.authenticateToken, middlePro.getProjectTechnologies, (req, res) => {
-    res.status(200).json(res.technologies);
+    try {
+        res.status(200).json({ success: true, data: res.technologies });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות' });
+    }
 });
 
 // RESTful: Get file for a project
@@ -38,7 +62,7 @@ router.get('/:projectId/file', middleLog.authenticateToken, middlePro.getProject
     res.sendFile(res.filePath, (err) => {
         if (err) {
             console.error('Error sending file:', err);
-            return res.status(500).json({ message: 'Error sending file' });
+            return res.status(500).json({ success: false, message: 'שגיאה בשליחת קובץ' });
         }
     });
 });

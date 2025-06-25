@@ -18,12 +18,11 @@ const LoginStudents = ({ onLoginSuccess }) => {
                 `${process.env.REACT_APP_BASE_URL}/students/login/`,
                 { userName, password },
                 { withCredentials: true }
-        );
-
-            if (response.data.loggedIn) {
+            );
+            if (response.data.success && response.data.data?.loggedIn) {
                 onLoginSuccess();
 
-                if (response.data.mustChangePassword) {
+                if (response.data.data.mustChangePassword) {
                     setMustChangePassword(true);
                     setTimeout(() => {
                         navigate("/students/Profile");
@@ -33,7 +32,7 @@ const LoginStudents = ({ onLoginSuccess }) => {
 
                 navigate("/students/HomeStudent");
             } else {
-                setError(response.data.message);
+                setError(response.data.message || "שגיאה בהתחברות");
                 setTimeout(() => setError(""), 2000);
             }
         } catch (err) {

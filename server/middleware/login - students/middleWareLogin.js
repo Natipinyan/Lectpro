@@ -70,7 +70,7 @@ async function check_login(req, res, next) {
 
         res.cookie("students", token, {
             httpOnly: true,
-            secure: false,// // change to true in production
+            secure: false,// change to true in production
             maxAge: 86400000,
             sameSite: "Lax",
         });
@@ -78,7 +78,7 @@ async function check_login(req, res, next) {
         res.statusCodeToSend = 200;
         res.responseData = {
             loggedIn: true,
-            message: "Login successful",
+            message: "התחברת בהצלחה",
             mustChangePassword: rows[0].must_change_password === 1,
             user: {
                 id: rows[0].id,
@@ -92,7 +92,7 @@ async function check_login(req, res, next) {
         res.statusCodeToSend = 500;
         res.responseData = {
             loggedIn: false,
-            message: "Database error",
+            message: "שגיאה במסד הנתונים",
             error: err.message,
         };
         return next();
@@ -103,7 +103,7 @@ function authenticateToken(req, res, next) {
     const token = req.cookies.students;
     //console.log("Received token in check-auth:", token);
     if (!token) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: "נדרש להתחבר למערכת" });
     }
 
     try {
@@ -112,14 +112,14 @@ function authenticateToken(req, res, next) {
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
-        return res.status(403).json({ message: "Invalid or expired token" });
+        return res.status(403).json({ message: "טוקן לא תקין או שפג תוקפו" });
     }
 }
 
 function logout(req, res) {
     res.clearCookie("students", {
         httpOnly: true,
-        secure: false, // שנה ל-true בפרודקשן
+        secure: false, // change to true in production
         sameSite: "Lax",
     });
 

@@ -3,7 +3,7 @@ require('dotenv').config();
 
 async function sendEmail({ to, subject, message, isHtml = false }) {
     if (!to || !subject || !message) {
-        throw new Error('Missing email fields: to, subject or message');
+        throw new Error('חסרים שדות חובה לשליחת מייל');
     }
 
     const transporter = nodemailer.createTransport({

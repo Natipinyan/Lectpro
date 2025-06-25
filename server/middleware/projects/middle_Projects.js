@@ -18,33 +18,33 @@ const addProject = (req, res) => {
         selectedTechnologies.length === 0 ||
         selectedTechnologies.some(tech => !tech.id)
     ) {
-        return res.status(400).json({ message: "Missing project details, technologies, or user ID" });
+        return res.status(400).json({ success: false, message: "חסרים פרטי פרויקט, טכנולוגיות או מזהה משתמש" });
     }
 
     if (projectName.length > 25) {
-        return res.status(400).json({ message: "Project name cannot exceed 25 characters" });
+        return res.status(400).json({ success: false, message: "שם הפרויקט לא יכול להיות ארוך מ-25 תווים" });
     }
 
     if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
-        return res.status(400).json({ message: "Please provide a valid GitHub link" });
+        return res.status(400).json({ success: false, message: "יש להזין קישור תקין ל-GitHub" });
     }
 
     const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ?`;
     db_pool.query(queryCheckDuplicate, [projectName], (err, results) => {
         if (err) {
             console.error("DB Error (check duplicate):", err);
-            return res.status(500).json({ message: "Error checking project name" });
+            return res.status(500).json({ success: false, message: "שגיאה בבדיקת שם פרויקט" });
         }
 
         if (results.length > 0) {
-            return res.status(409).json({ message: "A project with this name already exists. Please choose another name." });
+            return res.status(409).json({ success: false, message: "פרויקט בשם זה כבר קיים. אנא בחר שם אחר." });
         }
 
         const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github) VALUES (?, ?, ?, ?)`;
         db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null], (err, result) => {
             if (err) {
                 console.error("DB Error (projects):", err);
-                return res.status(500).json({ message: "Error adding project" });
+                return res.status(500).json({ success: false, message: "שגיאה בהוספת פרויקט" });
             }
 
             const projectId = result.insertId;
@@ -53,7 +53,7 @@ const addProject = (req, res) => {
             db_pool.query(queryUpdateStudent, [projectId, studentId], (err2) => {
                 if (err2) {
                     console.error("DB Error (students update):", err2);
-                    return res.status(500).json({ message: "Error updating student" });
+                    return res.status(500).json({ success: false, message: "שגיאה בעדכון סטודנט" });
                 }
 
                 const technologyPromises = selectedTechnologies.map(({ id }) => {
@@ -62,7 +62,7 @@ const addProject = (req, res) => {
                         db_pool.query(queryTechnology, [projectId, id], (err3) => {
                             if (err3) {
                                 console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
-                                return reject({ message: `Error adding technology ID ${id}: ${err3.message}` });
+                                return reject({ message: `שגיאה בהוספת טכנולוגיה מזהה ${id}: ${err3.message}` });
                             }
                             resolve();
                         });
@@ -75,14 +75,14 @@ const addProject = (req, res) => {
                         const getProjectQuery = `SELECT * FROM projects WHERE id = ?`;
                         db_pool.query(getProjectQuery, [projectId], (err, rows) => {
                             if (err || !rows || rows.length === 0) {
-                                return res.status(201).json({ message: "Project created, but could not fetch project details" });
+                                return res.status(201).json({ success: true, message: "הפרויקט נוצר, אך לא ניתן היה לקבל את פרטי הפרויקט", data: null });
                             }
-                            return res.status(201).json(rows[0]);
+                            return res.status(201).json({ success: true, message: "הפרויקט נוצר בהצלחה!", data: rows[0] });
                         });
                     })
                     .catch(error => {
                         console.error("Error adding technologies:", error);
-                        return res.status(500).json(error);
+                        return res.status(500).json({ success: false, message: error.message || "שגיאה בהוספת טכנולוגיות" });
                     });
             });
         });
@@ -94,9 +94,9 @@ const getProjects = (req, res) => {
     const q = `SELECT * FROM \`projects\` WHERE student_id1 = ?;`;
     db_pool.query(q, [studentId], function (err, rows) {
         if (err) {
-            return res.status(500).json({ message: "Error fetching projects" });
+            return res.status(500).json({ success: false, message: "שגיאה בקבלת פרויקטים" });
         }
-        return res.status(200).json(rows);
+        return res.status(200).json({ success: true, data: rows });
     });
 };
 
@@ -107,12 +107,12 @@ const getOneProject = (req, res) => {
     db_pool.query(q, [projectId, studentId], function (err, rows) {
         if (err) {
             console.error("Error fetching project:", err);
-            return res.status(500).json({ message: "Error fetching project" });
+            return res.status(500).json({ success: false, message: "שגיאה בקבלת פרויקט" });
         }
         if (!rows || rows.length === 0) {
-            return res.status(404).json({ message: "Project not found" });
+            return res.status(404).json({ success: false, message: "הפרויקט לא נמצא" });
         }
-        return res.status(200).json(rows[0]);
+        return res.status(200).json({ success: true, data: rows[0] });
     });
 };
 
@@ -122,9 +122,9 @@ const getProjectTechnologies = (req, res) => {
     db_pool.query(q, [projectId], (err, rows) => {
         if (err) {
             console.error("Error fetching project technologies:", err);
-            return res.status(500).json({ message: 'Error fetching project technologies' });
+            return res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות לפרויקט' });
         }
-        return res.status(200).json(rows);
+        return res.status(200).json({ success: true, data: rows });
     });
 };
 
@@ -143,47 +143,47 @@ const editProject = (req, res) => {
         selectedTechnologies.length === 0 ||
         selectedTechnologies.some(tech => !tech.id)
     ) {
-        return res.status(400).json({ message: "Missing project details, technologies, user ID, or project ID" });
+        return res.status(400).json({ success: false, message: "חסרים פרטי פרויקט, טכנולוגיות, מזהה משתמש או מזהה פרויקט" });
     }
 
     if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
-        return res.status(400).json({ message: "Please provide a valid GitHub link" });
+        return res.status(400).json({ success: false, message: "יש להזין קישור תקין ל-GitHub" });
     }
 
     const queryCheckProject = `SELECT id FROM projects WHERE id = ? AND student_id1 = ?`;
     db_pool.query(queryCheckProject, [projectId, studentId], (err, results) => {
         if (err) {
             console.error("DB Error (check project):", err);
-            return res.status(500).json({ message: "Error checking project" });
+            return res.status(500).json({ success: false, message: "שגיאה בבדיקת פרויקט" });
         }
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Project not found or you do not have permission to edit it" });
+            return res.status(404).json({ success: false, message: "הפרויקט לא נמצא או שאין לך הרשאה לערוך אותו" });
         }
 
         const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ? AND id != ?`;
         db_pool.query(queryCheckDuplicate, [projectName, projectId], (err, results) => {
             if (err) {
                 console.error("DB Error (check duplicate):", err);
-                return res.status(500).json({ message: "Error checking project name" });
+                return res.status(500).json({ success: false, message: "שגיאה בבדיקת שם פרויקט" });
             }
 
             if (results.length > 0) {
-                return res.status(409).json({ message: "A project with this name already exists. Please choose another name." });
+                return res.status(409).json({ success: false, message: "פרויקט בשם זה כבר קיים. אנא בחר שם אחר." });
             }
 
             const queryUpdateProject = `UPDATE projects SET title = ?, description = ?, link_to_github = ? WHERE id = ?`;
             db_pool.query(queryUpdateProject, [projectName, projectDesc, linkToGithub || null, projectId], (err) => {
                 if (err) {
                     console.error("DB Error (update project):", err);
-                    return res.status(500).json({ message: "Error updating project details" });
+                    return res.status(500).json({ success: false, message: "שגיאה בעדכון פרטי פרויקט" });
                 }
 
                 const queryDeleteTechnologies = `DELETE FROM projects_technologies WHERE project_id = ?`;
                 db_pool.query(queryDeleteTechnologies, [projectId], (err) => {
                     if (err) {
                         console.error("DB Error (delete technologies):", err);
-                        return res.status(500).json({ message: "Error deleting existing technologies" });
+                        return res.status(500).json({ success: false, message: "שגיאה במחיקת טכנולוגיות קיימות" });
                     }
 
                     const technologyPromises = selectedTechnologies.map(({ id }) => {
@@ -192,7 +192,7 @@ const editProject = (req, res) => {
                             db_pool.query(queryTechnology, [projectId, id], (err3) => {
                                 if (err3) {
                                     console.error(`DB Error (projects_technologies) for technology ID ${id}:`, err3);
-                                    return reject({ message: `Error adding technology ID ${id}: ${err3.message}` });
+                                    return reject({ message: `שגיאה בהוספת טכנולוגיה מזהה ${id}: ${err3.message}` });
                                 }
                                 resolve();
                             });
@@ -205,14 +205,14 @@ const editProject = (req, res) => {
                             const getProjectQuery = `SELECT * FROM projects WHERE id = ?`;
                             db_pool.query(getProjectQuery, [projectId], (err, rows) => {
                                 if (err || !rows || rows.length === 0) {
-                                    return res.status(200).json({ message: "Project updated, but could not fetch project details" });
+                                    return res.status(200).json({ success: true, message: "הפרויקט עודכן, אך לא ניתן היה לקבל את פרטי הפרויקט", data: null });
                                 }
-                                return res.status(200).json(rows[0]);
+                                return res.status(200).json({ success: true, message: "הפרויקט עודכן בהצלחה!", data: rows[0] });
                             });
                         })
                         .catch(error => {
                             console.error("Error adding technologies:", error);
-                            return res.status(500).json(error);
+                            return res.status(500).json({ success: false, message: error.message || "שגיאה בהוספת טכנולוגיות" });
                         });
                 });
             });
@@ -225,42 +225,42 @@ const deleteProject = (req, res) => {
     const studentId = req.user.id;
 
     if (!projectId || isNaN(projectId)) {
-        return res.status(400).json({ message: "Invalid projectId" });
+        return res.status(400).json({ message: 'מזהה פרויקט לא תקין' });
     }
 
     const queryCheckProject = `SELECT id FROM projects WHERE id = ? AND student_id1 = ?`;
     db_pool.query(queryCheckProject, [projectId, studentId], (err, results) => {
         if (err) {
             console.error("DB Error (check project):", err);
-            return res.status(500).json({ message: "Error checking project" });
+            return res.status(500).json({ success: false, message: "שגיאה בבדיקת פרויקט" });
         }
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Project not found or you do not have permission to delete it" });
+            return res.status(404).json({ success: false, message: "הפרויקט לא נמצא או שאין לך הרשאה למחוק אותו" });
         }
 
         const queryUpdateStudent = `UPDATE students SET project_id = NULL WHERE id = ? AND project_id = ?`;
         db_pool.query(queryUpdateStudent, [studentId, projectId], (err) => {
             if (err) {
                 console.error("DB Error (update student):", err);
-                return res.status(500).json({ message: "Error updating student details" });
+                return res.status(500).json({ success: false, message: "שגיאה בעדכון סטודנט" });
             }
 
             const queryDeleteTechnologies = `DELETE FROM projects_technologies WHERE project_id = ?`;
             db_pool.query(queryDeleteTechnologies, [projectId], (err) => {
                 if (err) {
                     console.error("DB Error (delete technologies):", err);
-                    return res.status(500).json({ message: "Error deleting project technologies" });
+                    return res.status(500).json({ success: false, message: "שגיאה במחיקת טכנולוגיות" });
                 }
 
                 const queryDeleteProject = `DELETE FROM projects WHERE id = ?`;
                 db_pool.query(queryDeleteProject, [projectId], (err) => {
                     if (err) {
                         console.error("DB Error (delete project):", err);
-                        return res.status(500).json({ message: "Error deleting project" });
+                        return res.status(500).json({ success: false, message: "שגיאה במחיקת פרויקט" });
                     }
-                    // Success: return 204 No Content
-                    return res.status(204).send();
+                    // Success: return 200 OK with message
+                    return res.status(200).json({ success: true, message: "הפרויקט נמחק בהצלחה!" });
                 });
             });
         });
@@ -270,17 +270,17 @@ const deleteProject = (req, res) => {
 const getProjectFile = (req, res) => {
     const projectId = req.params.projectId;
     if (!projectId || isNaN(projectId)) {
-        return res.status(400).json({ message: 'Invalid projectId' });
+        return res.status(400).json({ message: 'מזהה פרויקט לא תקין' });
     }
     const fileName = `${projectId}.pdf`;
     const filePath = path.join(__dirname, '..', '..', 'filesApp', fileName);
     if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: `PDF file not found for projectId: ${fileName}` });
+        return res.status(404).json({ message: `לא נמצא קובץ PDF עבור מזהה פרויקט: ${fileName}` });
     }
     return res.sendFile(filePath, (err) => {
         if (err) {
             console.error('Error sending file:', err);
-            return res.status(500).json({ message: 'Error sending file' });
+            return res.status(500).json({ message: 'שגיאה בשליחת קובץ' });
         }
     });
 };

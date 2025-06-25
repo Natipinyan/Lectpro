@@ -4,7 +4,14 @@ const middleLog = require("../../../middleware/login - students/middleWareLogin"
 
 // Student login (RESTful)
 router.post('/', middleLog.check_login, (req, res) => {
-    res.status(res.statusCodeToSend).json(res.responseData);
+    try {
+        res.status(res.statusCodeToSend).json({
+            success: res.statusCodeToSend === 200,
+            ...res.responseData
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בהתחברות' });
+    }
 });
 
 

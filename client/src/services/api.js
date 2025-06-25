@@ -7,11 +7,12 @@ export const fetchUserData = async () => {
         credentials: "include",
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    return data.data;
 };
 
 export const updateUserData = async (formData) => {
@@ -24,9 +25,10 @@ export const updateUserData = async (formData) => {
         body: JSON.stringify(formData),
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    return data.data;
 };

@@ -24,10 +24,10 @@ const AddProject = ({
                     }
                 );
                 const data = await response.json();
-                if (response.ok) {
-                    setTechnologies(data);
+                if (response.ok && data.success) {
+                    setTechnologies(data.data);
                 } else {
-                    showNotification("אירעה שגיאה בטעינת הטכנולוגיות", "error");
+                    showNotification(data.message || "אירעה שגיאה בטעינת הטכנולוגיות", "error");
                 }
             } catch (error) {
                 console.error("Error:", error);
@@ -106,7 +106,7 @@ const AddProject = ({
             );
 
             const data = await response.json();
-            if (response.ok) {
+            if (response.ok && data.success) {
                 showNotification("הפרויקט נוסף בהצלחה! מעביר אותך לדף העלאת מסמך", "success");
                 resetProjectData();
                 setTimeout(() => {

@@ -75,11 +75,9 @@ const UploadFile = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        // ממשיכים לשלוח projectTitle גם לראוטר החדש, כיוון שהמידלוור מצפה לזה ב-req.body
         formData.append("projectTitle", selectedProject.id);
 
         try {
-            // שינוי ה-URL לראוטר ה-RESTful החדש
             const response = await fetch(
                 `${process.env.REACT_APP_BASE_URL}/upload/${selectedProject.id}/file`,
                 {
@@ -88,8 +86,8 @@ const UploadFile = () => {
                     credentials: "include",
                 }
             );
-
-            if (response.ok) {
+            const data = await response.json();
+            if (response.ok && data.success) {
                 showNotification("הקובץ נשלח בהצלחה! הנך מועבר לדף הבית", "success");
                 setFile(null);
                 setFileName("גרור קובץ לכאן או לחץ לבחירה");
@@ -98,7 +96,7 @@ const UploadFile = () => {
                     navigate("/students/HomeStudent");
                 }, 2000);
             } else {
-                showNotification("אירעה שגיאה בשליחת הקובץ.", "error");
+                showNotification(data.message || "אירעה שגיאה בשליחת הקובץ.", "error");
             }
         } catch (err) {
             console.error("שגיאת רשת:", err);
@@ -113,14 +111,16 @@ const UploadFile = () => {
                     method: "GET",
                     credentials: "include",
                 });
-                if (!response.ok) {
-                    throw new Error("שגיאה בטעינת הפרויקטים");
-                }
                 const data = await response.json();
-                setProjects(data || []);
-                setLoading(false);
-                if (!data || data.length === 0) {
-                    showNotification("לא נמצאו פרויקטים", "info");
+                if (response.ok && data.success) {
+                    setProjects(data.data || []);
+                    setLoading(false);
+                    if (!data.data || data.data.length === 0) {
+                        showNotification("לא נמצאו פרויקטים", "info");
+                    }
+                } else {
+                    showNotification(data.message || "אירעה שגיאה בטעינת הפרויקטים", "error");
+                    setLoading(false);
                 }
             } catch (err) {
                 console.error("שגיאה:", err);

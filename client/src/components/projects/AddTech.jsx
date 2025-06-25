@@ -24,7 +24,7 @@ const AddTechnology = ({ onBackToProject, showNotification }) => {
             });
 
             const data = await response.json();
-            if (response.ok) {
+            if (response.ok && data.success) {
                 showNotification("הטכנולוגיה נוספה בהצלחה,אנא המשך למלא שאר השדות בפרוייקט!", "success");
                 setName("");
                 setTechType("");

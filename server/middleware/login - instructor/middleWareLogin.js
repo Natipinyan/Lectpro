@@ -28,7 +28,7 @@ async function check_login(req, res, next) {
 
     if (points <= 0) {
         res.loggedEn = false;
-        res.message = "Too many requests. Try again later.";
+        res.message = "בוצעו יותר מדי ניסיונות. נסה שוב מאוחר יותר.";
         return next();
     }
 
@@ -60,13 +60,13 @@ async function check_login(req, res, next) {
             req.user = rows[0];
             //console.log("Cookie set:", token);
         } else {
-            res.message = "Invalid credentials";
+            res.message = "שם משתמש או סיסמה שגויים";
         }
 
         return next();
     } catch (err) {
         console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error", error: err.message });
+        return res.status(500).json({ message: "שגיאה במסד הנתונים", error: err.message });
     }
 }
 
@@ -75,7 +75,7 @@ function authenticateToken(req, res, next) {
     console.log("Received token in check-auth:", token);
 
     if (!token) {
-        return res.status(401).json({ message: "Authentication required" });
+        return res.status(401).json({ message: "נדרש להתחבר למערכת" });
     }
 
     try {
@@ -84,7 +84,7 @@ function authenticateToken(req, res, next) {
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
-        return res.status(403).json({ message: "Invalid or expired token" });
+        return res.status(403).json({ message: "טוקן לא תקין או שפג תוקפו" });
     }
 }
 

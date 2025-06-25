@@ -4,7 +4,7 @@ async function getList(req, res, next) {
     const q = `SELECT * FROM students`;
     db_pool.query(q, function (err, rows) {
         if (err) {
-            return res.status(500).json({ message: "Error fetching users" });
+            return res.status(500).json({ message: "שגיאה בקבלת משתמשים" });
         }
         res.studentsList = rows;
         next();
@@ -112,10 +112,10 @@ async function UpdateUser(req, res, next) {
             if (err) {
                 console.error("Update error:", err);
                 res.updateStatus = 500;
-                res.updateMessage = "Error updating user";
+                res.updateMessage = "שגיאה בעדכון משתמש";
             } else {
                 res.updateStatus = 200;
-                res.updateMessage = "User updated successfully";
+                res.updateMessage = "משתמש עדכן בהצלחה";
             }
             next();
         }
@@ -129,10 +129,10 @@ async function delUser(req, res, next) {
     db_pool.query(query, [id], function (err, result) {
         if (err) {
             res.deleteStatus = 500;
-            res.deleteMessage = "Error deleting user";
+            res.deleteMessage = "שגיאה במחיקת משתמש";
         } else {
             res.deleteStatus = 200;
-            res.deleteMessage = "User deleted successfully";
+            res.deleteMessage = "משתמש מחק בהצלחה";
         }
         next();
     });
@@ -145,7 +145,7 @@ async function getUser(req, res, next) {
 
     db_pool.query(query, function (err, result) {
         if (err) {
-            return res.status(500).json({ message: "Error fetching user" });
+            return res.status(500).json({ message: "שגיאה בקבלת משתמש" });
         } else {
             res.student = result;
         }
