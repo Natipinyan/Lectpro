@@ -11,6 +11,15 @@ router.get('/check-auth', middleLog.authenticateToken, (req, res) => {
     }
 });
 
+// Check authentication for external access (e.g., homepage)
+router.get('/external-check-auth', middleLog.externalAuthenticate, (req, res) => {
+    try {
+        res.status(200).json({ success: true, data: { isAuthenticated: true, user: req.user } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Failed to check authentication' });
+    }
+});
+
 // Student logout (RESTful)
 router.post('/logout', middleLog.authenticateToken, (req, res) => {
     try {

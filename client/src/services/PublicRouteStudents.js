@@ -8,7 +8,7 @@ const PublicRouteStudents = ({ element: Component }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/apiStudent/check-auth`, {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/apiStudent/external-check-auth`, {
                     withCredentials: true,
                 });
                 setIsAuthenticated(response.data.data?.isAuthenticated);

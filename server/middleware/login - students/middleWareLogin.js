@@ -116,6 +116,23 @@ function authenticateToken(req, res, next) {
     }
 }
 
+
+function externalAuthenticate(req, res, next) {
+    const token = req.cookies.students;
+
+    if (!token) {
+        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = {id: decoded.id, userName: decoded.userName, email: decoded.Email};
+        next();
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+    }
+}
 function logout(req, res) {
     res.clearCookie("students", {
         httpOnly: true,
@@ -134,5 +151,6 @@ module.exports = {
     check_login,
     EncWithSalt,
     authenticateToken,
+    externalAuthenticate,
     logout,
 };
