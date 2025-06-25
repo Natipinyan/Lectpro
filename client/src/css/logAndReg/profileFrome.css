@@ -128,6 +128,31 @@
     outline-offset: 2px;
 }
 
+.input-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #333;
+    pointer-events: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.toggle-password {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.toggle-password:hover {
+    color: #7494ec;
+}
 
 @media screen and (max-width: 650px) {
     .form-section {

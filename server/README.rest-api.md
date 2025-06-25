@@ -1,4 +1,4 @@
-# RESTful API Documentation
+# REST API Documentation
 
 ## Student Authentication & Management
 
@@ -41,10 +41,10 @@
 | Method | Endpoint                              | Description                        | Request Body         | Response                |
 |--------|----------------------------------------|------------------------------------|----------------------|-------------------------|
 | POST   | /upload/addFile                       | Upload a file for a project (old)  | Multipart/form-data (file, projectTitle) | Success message, path   |
-| POST   | /upload/:projectId/file               | Upload a file for a project (RESTful, currently also expects projectTitle in formData) | Multipart/form-data (file, projectTitle) | Success message, path   |
+| POST   | /upload/:projectId/file               | Upload a file for a project (REST, currently also expects projectTitle in formData) | Multipart/form-data (file, projectTitle) | Success message, path   |
 
 ---
 
 - All routes require authentication (authenticateToken)
 - Old routes remain available in parallel
-- Update the client to use the new RESTful routes as needed 
+- Update the client to use the new REST routes as needed 

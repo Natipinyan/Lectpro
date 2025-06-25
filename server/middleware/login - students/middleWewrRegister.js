@@ -90,24 +90,40 @@ async function UpdateUser(req, res, next) {
         return next();
     }
 
-    const encryptedPass = pass ? middleLog.EncWithSalt(pass) : null;
-
-    const query = `
-        UPDATE students
-        SET
-            first_name = ?,
-            last_name = ?,
-            user_name = ?,
-            pass = ?,
-            email = ?,
-            phone = ?,
-            must_change_password = 0
-        WHERE id = ?
-    `;
+    let query, params;
+    if (pass) {
+        const encryptedPass = middleLog.EncWithSalt(pass);
+        query = `
+            UPDATE students
+            SET
+                first_name = ?,
+                last_name = ?,
+                user_name = ?,
+                pass = ?,
+                email = ?,
+                phone = ?,
+                must_change_password = 0
+            WHERE id = ?
+        `;
+        params = [first_name, last_name, user_name, encryptedPass, email, phone, id];
+    } else {
+        query = `
+            UPDATE students
+            SET
+                first_name = ?,
+                last_name = ?,
+                user_name = ?,
+                email = ?,
+                phone = ?,
+                must_change_password = 0
+            WHERE id = ?
+        `;
+        params = [first_name, last_name, user_name, email, phone, id];
+    }
 
     db_pool.query(
         query,
-        [first_name, last_name, user_name, encryptedPass || pass, email, phone, id],
+        params,
         function (err, result) {
             if (err) {
                 console.error("Update error:", err);

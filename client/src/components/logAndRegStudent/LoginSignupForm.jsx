@@ -17,8 +17,8 @@ const LoginSignupForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [notificationType, setNotificationType] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // מצב להצגת סיסמה בלוגין
-    const [showRegisterPassword, setShowRegisterPassword] = useState(false); // מצב להצגת סיסמה בהרשמה
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleRegisterClick = () => {
@@ -75,7 +75,7 @@ const LoginSignupForm = () => {
             );
             if (response.data.success && response.data.loggedIn) {
                 if (response.data.mustChangePassword) {
-                    setError('הסיסמה שלך חייבת להשתנות. מעביר אותך לדף שינוי סיסמה...');
+                    setError('השתמשת בסיסמה חד פעמית לאחר איפוס סיסמתך, יש לשנות את הסיסמה. מעביר אותך לדף שינוי סיסמה');
                     setNotificationType('error');
                     setTimeout(() => {
                         navigate('/students/Profile');
@@ -196,7 +196,7 @@ const LoginSignupForm = () => {
                                 type="text"
                                 value={phone}
                                 onChange={(e) => {
-                                    const onlyDigits = e.target.value.replace(/\D/g, ''); // מסיר כל תו שאינו ספרה
+                                    const onlyDigits = e.target.value.replace(/\D/g, '');
                                     setPhone(onlyDigits);
                                 }}
                                 placeholder="מספר טלפון"

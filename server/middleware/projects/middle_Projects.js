@@ -1,9 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 
-// =====================
-// RESTful Middleware - Fully RESTful Implementation
-// =====================
 
 const addProject = (req, res) => {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
@@ -71,7 +68,6 @@ const addProject = (req, res) => {
 
                 Promise.all(technologyPromises)
                     .then(() => {
-                        // Return the created project object
                         const getProjectQuery = `SELECT * FROM projects WHERE id = ?`;
                         db_pool.query(getProjectQuery, [projectId], (err, rows) => {
                             if (err || !rows || rows.length === 0) {

@@ -3,7 +3,7 @@ const router = express.Router();
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 const middlePro = require("../../middleware/projects/middle_Projects");
 
-// RESTful: Get all projects
+// REST: Get all projects
 router.get('/', middleLog.authenticateToken, middlePro.getProjects, (req, res) => {
     try {
         res.status(200).json({ success: true, data: res.projectsList });
@@ -12,7 +12,7 @@ router.get('/', middleLog.authenticateToken, middlePro.getProjects, (req, res) =
     }
 });
 
-// RESTful: Get one project by ID
+// REST: Get one project by ID
 router.get('/:projectId', middleLog.authenticateToken, middlePro.getOneProject, (req, res) => {
     try {
         res.status(200).json({ success: true, data: res.project });
@@ -21,7 +21,7 @@ router.get('/:projectId', middleLog.authenticateToken, middlePro.getOneProject, 
     }
 });
 
-// RESTful: Create a new project
+// REST: Create a new project
 router.post('/', middleLog.authenticateToken, middlePro.addProject, (req, res) => {
     try {
         res.status(201).json({ success: true, message: "הפרויקט נוצר בהצלחה!" });
@@ -30,7 +30,7 @@ router.post('/', middleLog.authenticateToken, middlePro.addProject, (req, res) =
     }
 });
 
-// RESTful: Update a project by ID
+// REST: Update a project by ID
 router.put('/:projectId', middleLog.authenticateToken, middlePro.editProject, (req, res) => {
     try {
         res.status(200).json({ success: true, message: "הפרויקט עודכן בהצלחה!" });
@@ -39,7 +39,7 @@ router.put('/:projectId', middleLog.authenticateToken, middlePro.editProject, (r
     }
 });
 
-// RESTful: Delete a project by ID
+// REST: Delete a project by ID
 router.delete('/:projectId', middleLog.authenticateToken, middlePro.deleteProject, (req, res) => {
     try {
         res.status(200).json({ success: true, message: "הפרויקט נמחק בהצלחה!" });
@@ -48,7 +48,7 @@ router.delete('/:projectId', middleLog.authenticateToken, middlePro.deleteProjec
     }
 });
 
-// RESTful: Get technologies for a project
+// REST: Get technologies for a project
 router.get('/:projectId/technologies', middleLog.authenticateToken, middlePro.getProjectTechnologies, (req, res) => {
     try {
         res.status(200).json({ success: true, data: res.technologies });
@@ -57,7 +57,7 @@ router.get('/:projectId/technologies', middleLog.authenticateToken, middlePro.ge
     }
 });
 
-// RESTful: Get file for a project
+// REST: Get file for a project
 router.get('/:projectId/file', middleLog.authenticateToken, middlePro.getProjectFile, (req, res) => {
     res.sendFile(res.filePath, (err) => {
         if (err) {

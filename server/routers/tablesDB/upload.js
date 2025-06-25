@@ -3,7 +3,7 @@ const router = express.Router();
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 const { upload, handleFileUpload } = require("../../middleware/projects/middle_up");
 
-// Upload a file for a project (RESTful)
+// REST: Upload a file for a project
 router.post('/:projectId/file', middleLog.authenticateToken, upload.single('file'), handleFileUpload, (req, res) => {
     try {
         return res.status(201).json({

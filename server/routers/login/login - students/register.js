@@ -5,7 +5,7 @@ module.exports = router;
 const middleReg = require("../../../middleware/login - students/middleWewrRegister");
 const middleLog = require("../../../middleware/login - students/middleWareLogin");
 
-// Get all students (RESTful)
+// REST: Get all students
 router.get('/', middleLog.authenticateToken, middleReg.getList, (req, res) => {
     try {
         res.status(200).json({ success: true, data: res.studentsList });
@@ -14,7 +14,7 @@ router.get('/', middleLog.authenticateToken, middleReg.getList, (req, res) => {
     }
 });
 
-// Register new student (RESTful)
+// REST: Register new student
 router.post('/', middleReg.Adduser, (req, res) => {
     try {
         res.status(res.addStatus).json({ success: res.addStatus === 201, message: res.addMessage });
@@ -23,7 +23,7 @@ router.post('/', middleReg.Adduser, (req, res) => {
     }
 });
 
-// Update current student (RESTful)
+// REST: Update current student
 router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) => {
     try {
         res.status(res.updateStatus || 200).json({ success: res.updateStatus === 200, message: res.updateMessage });
@@ -32,7 +32,7 @@ router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) 
     }
 });
 
-// Delete current student (RESTful)
+// REST: Delete current student
 router.delete('/me', middleLog.authenticateToken, middleReg.delUser, (req, res) => {
     try {
         res.status(res.deleteStatus || 200).json({ success: res.deleteStatus === 200, message: res.deleteMessage });
@@ -41,7 +41,7 @@ router.delete('/me', middleLog.authenticateToken, middleReg.delUser, (req, res) 
     }
 });
 
-// Get current student (RESTful)
+// REST: Get current student
 router.get('/me', middleLog.authenticateToken, middleReg.getUser, (req, res) => {
     try {
         res.status(200).json({ success: true, data: res.student });
@@ -50,7 +50,7 @@ router.get('/me', middleLog.authenticateToken, middleReg.getUser, (req, res) => 
     }
 });
 
-// // Forgot password (RESTful)
+// REST: Forgot password
 router.post('/forgot-password', middleReg.forgot_password, (req, res) => {
     try {
         res.status(200).json({ success: true, message: 'אימייל לאיפוס סיסמה נשלח' });
@@ -59,7 +59,7 @@ router.post('/forgot-password', middleReg.forgot_password, (req, res) => {
     }
  });
 
-// Reset password (RESTful)
+// REST: Reset password
 router.get('/reset-password', middleReg.resetPassword, (req, res) => {
     try {
         res.status(200).json({ success: true, message: 'הסיסמה אופסה בהצלחה' });

@@ -47,7 +47,7 @@ const ForgotPassword = () => {
         if (showNotification && notificationType === "success") {
             const timer = setTimeout(() => {
                 navigate("/students");
-            }, 3000); // Navigate after 3 seconds
+            }, 3000);
             return () => clearTimeout(timer);
         }
     }, [showNotification, notificationType, navigate]);

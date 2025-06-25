@@ -51,7 +51,11 @@ export default function Profile() {
 
     const handleSave = async () => {
         try {
-            await updateUserData(formData);
+            const dataToSend = { ...formData };
+            if (!formData.pass) {
+                delete dataToSend.pass;
+            }
+            await updateUserData(dataToSend);
             const updatedData = await fetchUserData();
             setUserData(updatedData);
             setIsEditing(false);

@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import "../../css/logAndReg/profileFrome.css";
 import NotificationPopup from "../projects/NotificationPopup";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
     const [notification, setNotification] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordInput, setShowPasswordInput] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -11,17 +15,19 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
     };
 
     const handleSave = () => {
-        const password = formData.pass;
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
-
-        if (!passwordRegex.test(password)) {
-            setNotification({
-                message: 'הסיסמה חייבת לכלול לפחות 8 תווים, אות קטנה, אות גדולה, מספר ותו מיוחד. אנגלית בלבד.',
-                type: 'error'
-            });
-            return;
+        if (showPasswordInput) {
+            const password = formData.pass;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                setNotification({
+                    message: 'הסיסמה חייבת לכלול לפחות 8 תווים, אות קטנה, אות גדולה, מספר ותו מיוחד. אנגלית בלבד.',
+                    type: 'error'
+                });
+                return;
+            }
+        } else {
+            setFormData((prev) => ({ ...prev, pass: '' }));
         }
-
         onSave();
     };
 
@@ -87,16 +93,32 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
                             onChange={handleInputChange}
                         />
                     </div>
-                    <div className="form-section">
-                        <label className="form-label">סיסמה:</label>
-                        <input
-                            className="text-input"
-                            type="password"
-                            name="pass"
-                            value={formData.pass}
-                            onChange={handleInputChange}
-                        />
+                    <div className="form-section" style={{ display: 'flex', justifyContent: 'center' }}>
+                        <button type="button" className="secondary-button" onClick={() => setShowPasswordInput((v) => !v)}>
+                            {showPasswordInput ? 'ביטול שינוי סיסמה' : 'שנה סיסמה'}
+                        </button>
                     </div>
+                    {showPasswordInput && (
+                        <div className="form-section">
+                            <label className="form-label">סיסמה חדשה:</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    className="text-input"
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="pass"
+                                    value={formData.pass}
+                                    onChange={handleInputChange}
+                                    style={{ paddingRight: '10px', paddingLeft: '35px' }}
+                                />
+                                <FontAwesomeIcon
+                                    icon={showPassword ? faEyeSlash : faEye}
+                                    className="toggle-password"
+                                    style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}
+                                    onClick={() => setShowPassword(!showPassword)}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="button-container">
                         <button className="primary-button" onClick={handleSave}>שמור</button>
