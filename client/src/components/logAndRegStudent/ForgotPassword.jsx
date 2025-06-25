@@ -1,20 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../css/logAndReg/forgotPassword.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import NotificationPopup from "../projects/NotificationPopup";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationType, setNotificationType] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
         setError("");
+        setShowNotification(false);
 
         try {
             const response = await axios.post(
@@ -22,15 +26,31 @@ const ForgotPassword = () => {
                 { email },
                 { withCredentials: true }
             );
-            if (response.data.success) {
-                setMessage(response.data.message);
+
+            if (response.status === 200) {
+                setMessage(response.data.message || "נשלח קישור לאיפוס סיסמה");
+                setNotificationType("success");
+                setShowNotification(true);
             } else {
                 setError(response.data.message || "אירעה שגיאה בשליחת הבקשה");
+                setNotificationType("error");
+                setShowNotification(true);
             }
         } catch (err) {
             setError(err.response?.data?.message || "אירעה שגיאה בשליחת הבקשה");
+            setNotificationType("error");
+            setShowNotification(true);
         }
     };
+
+    useEffect(() => {
+        if (showNotification && notificationType === "success") {
+            const timer = setTimeout(() => {
+                navigate("/students");
+            }, 3000); // Navigate after 3 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [showNotification, notificationType, navigate]);
 
     return (
         <div className="forgot-password-container">
@@ -48,8 +68,13 @@ const ForgotPassword = () => {
                 </div>
                 <button type="submit">שלח קוד איפוס</button>
             </form>
-            {message && <p className="success">{message}</p>}
-            {error && <p className="error">{error}</p>}
+            {showNotification && (
+                <NotificationPopup
+                    message={notificationType === "success" ? message : error}
+                    type={notificationType}
+                    onClose={() => setShowNotification(false)}
+                />
+            )}
             <button onClick={() => navigate("/students")}>חזרה להתחברות</button>
         </div>
     );
