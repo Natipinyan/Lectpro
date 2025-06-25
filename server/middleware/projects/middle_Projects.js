@@ -201,7 +201,6 @@ const editProject = (req, res) => {
 
                     Promise.all(technologyPromises)
                         .then(() => {
-                            // Return the updated project object
                             const getProjectQuery = `SELECT * FROM projects WHERE id = ?`;
                             db_pool.query(getProjectQuery, [projectId], (err, rows) => {
                                 if (err || !rows || rows.length === 0) {
@@ -259,8 +258,14 @@ const deleteProject = (req, res) => {
                         console.error("DB Error (delete project):", err);
                         return res.status(500).json({ success: false, message: "שגיאה במחיקת פרויקט" });
                     }
-                    // Success: return 200 OK with message
-                    return res.status(200).json({ success: true, message: "הפרויקט נמחק בהצלחה!" });
+                    const filePath = path.join(__dirname, '..', '..', 'filesApp', `${projectId}.pdf`);
+                    fs.unlink(filePath, (err) => {
+                        if (err && err.code !== 'ENOENT') {
+                            console.error("שגיאה במחיקת קובץ הפרויקט:", err);
+                            return res.status(500).json({ success: false, message: "הפרויקט נמחק, אך שגיאה במחיקת קובץ הפרויקט" });
+                        }
+                        return res.status(200).json({ success: true, message: "הפרויקט נמחק בהצלחה!" });
+                    });
                 });
             });
         });
@@ -284,10 +289,6 @@ const getProjectFile = (req, res) => {
         }
     });
 };
-
-// =====================
-// Export
-// =====================
 
 module.exports = {
     addProject,

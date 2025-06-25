@@ -132,7 +132,7 @@ async function delUser(req, res, next) {
             res.deleteMessage = "שגיאה במחיקת משתמש";
         } else {
             res.deleteStatus = 200;
-            res.deleteMessage = "משתמש מחק בהצלחה";
+            res.deleteMessage = "משתמש נמחק בהצלחה";
         }
         next();
     });
