@@ -6,7 +6,7 @@ import NotificationPopup from "../projects/NotificationPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faUser, faEnvelope, faLock, faPhone, faEye, faEyeSlash, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
 
-const LoginSignupForm = () => {
+const LoginSignupFormINS = () => {
     const [isActive, setIsActive] = useState(false);
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
@@ -34,14 +34,14 @@ const LoginSignupForm = () => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
 
         if (!passwordRegex.test(pass)) {
-            setError('הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.');
+            setError('הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנא בדוק.');
             setNotificationType('error');
             setTimeout(() => setError(''), 5000);
             return;
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/`, {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/instructor/register/`, {
                 userName,
                 email,
                 first_name: firstName,
@@ -69,21 +69,21 @@ const LoginSignupForm = () => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/students/login/`,
+                `${process.env.REACT_APP_BASE_URL}/instructor/login/`,
                 { userName, password },
                 { withCredentials: true }
             );
             if (response.data.success && response.data.loggedIn) {
                 if (response.data.mustChangePassword) {
-                    setError('השתמשת בסיסמה חד פעמית לאחר איפוס סיסמתך, יש לשנות את הסיסמה. מעביר אותך לדף שינוי סיסמה');
+                    setError('השתמשת בסיסמה חד פעמית לאיפוס סיסמתך, יש לשנות את הסיסמה. מעביר אותך לדף שינוי סיסמה');
                     setNotificationType('error');
                     setTimeout(() => {
-                        navigate('/students/Profile');
+                        navigate('/instructor/Profile');
                         setError('');
                     }, 3000);
                     return;
                 }
-                navigate('/students/HomeStudent');
+                navigate('/instructor/HomeInstructor');
             } else {
                 setError(response.data.message || 'שגיאה בהתחברות');
                 setNotificationType('error');
@@ -102,8 +102,8 @@ const LoginSignupForm = () => {
         setNotificationType('');
     };
 
-    const handleTeacherSectionClick = () => {
-        navigate('/instructor');
+    const handleStudentSectionClick = () => {
+        navigate('/students');
     };
 
     return (
@@ -144,7 +144,7 @@ const LoginSignupForm = () => {
                         </button>
                         <div className="forgot-link">
                             <button className="btnF">
-                                <a href="#" onClick={() => navigate('/students/forgot-password')}>
+                                <a href="#" onClick={() => navigate('/instructor/forgot-password')}>
                                     שכחת סיסמה?
                                 </a>
                             </button>
@@ -154,7 +154,7 @@ const LoginSignupForm = () => {
 
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
-                        <h1>הרשמה - סטודנטים</h1>
+                        <h1>הרשמה - מרצים</h1>
                         <div className="input-box">
                             <input
                                 type="text"
@@ -224,7 +224,7 @@ const LoginSignupForm = () => {
                             />
                         </div>
                         <div>
-                            הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד
+                            הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנא בדוק
                         </div>
                         <button type="submit" className="btn">
                             הרשמה
@@ -240,35 +240,34 @@ const LoginSignupForm = () => {
                         <button className="btn register-btn" onClick={handleRegisterClick}>
                             הרשמה
                         </button>
-                        <button className="btn teacher-btn" onClick={handleTeacherSectionClick}>
+                        <button className="btn switchUser-btn" onClick={handleStudentSectionClick}>
                             <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
-                            כניסה למרצים
+                            כניסה לסטודנטים
                         </button>
                     </div>
                     <div className="toggle-panel toggle-right">
                         <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon" />
                         <h1>Welcome Back!</h1>
-                        <p>יש לך חשבון?</p>
+                        <p>יש לך כבר חשבון?</p>
                         <button className="btn login-btn" onClick={handleLoginClick}>
                             כניסה
                         </button>
-                        <button className="btn teacher-btn" onClick={handleTeacherSectionClick}>
+                        <button className="btn switchUser-btn" onClick={handleStudentSectionClick}>
                             <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
-                            כניסה למרצים
+                            כניסה לסטודנטים
                         </button>
                     </div>
                 </div>
-
-                {error && notificationType === 'error' && (
-                    <NotificationPopup
-                        message={error}
-                        type={notificationType}
-                        onClose={handleCloseNotification}
-                    />
-                )}
             </div>
+            {error && (
+                <NotificationPopup
+                    message={error}
+                    type={notificationType}
+                    onClose={handleCloseNotification}
+                />
+            )}
         </div>
     );
 };
+export default LoginSignupFormINS;
 
-export default LoginSignupForm;

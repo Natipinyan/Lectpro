@@ -4,7 +4,7 @@ import NotificationPopup from "../projects/NotificationPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
-const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
+const ProfileFormSTD = ({ userData, formData, setFormData, isEditing, setIsEditing, onSave, onCancel }) => {
     const [notification, setNotification] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -156,4 +156,4 @@ const ProfileForm = ({ userData, formData, setFormData, isEditing, setIsEditing,
     );
 };
 
-export default ProfileForm;
+export default ProfileFormSTD;

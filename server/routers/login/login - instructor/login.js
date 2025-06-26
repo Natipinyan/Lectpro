@@ -2,18 +2,15 @@ const express = require("express");
 const router = express.Router();
 const middleLog = require("../../../middleware/login - instructor/middleWareLogin");
 
-router.post("/check", middleLog.check_login, (req, res) => {
-    if (res.loggedEn) {
-        res.status(200).json({
-            loggedIn: true,
-            message: "התחברת בהצלחה",
-            user: { id: req.user.id, userName: req.user.user_name },
+// REST: Instructor login
+router.post('/', middleLog.check_login, (req, res) => {
+    try {
+        res.status(res.statusCodeToSend).json({
+            success: res.statusCodeToSend === 200,
+            ...res.responseData
         });
-    } else {
-        res.status(401).json({
-            loggedIn: false,
-            message: res.message || "שם משתמש או סיסמה שגויים",
-        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בהתחברות' });
     }
 });
 

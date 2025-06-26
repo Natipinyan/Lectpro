@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../css/logAndReg/login.css";
 
-const LoginStudents = ({ onLoginSuccess }) => {
+const LoginSTD = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -99,4 +99,4 @@ const LoginStudents = ({ onLoginSuccess }) => {
     );
 };
 
-export default LoginStudents;
+export default LoginSTD;

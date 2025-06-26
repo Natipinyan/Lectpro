@@ -11,12 +11,12 @@ const PrivateRouteInstructor = ({ element: Component, ...rest }) => {
 
         const checkAuth = async () => {
             try {
-                const response = await axios.get(`${process.env.BASE_URL}/apiInstructor/check-auth`, {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/apiInstructor/check-auth`, {
                     withCredentials: true,
                 });
-                //console.log("Check-auth response:", response.data);
+                const isAuth = response.data.data?.isAuthenticated;
                 if (isMounted) {
-                    setIsAuthenticated(response.data.isAuthenticated);
+                    setIsAuthenticated(isAuth);
                 }
             } catch (err) {
                 console.error("Check-auth failed:", err.response?.data || err.message);

@@ -3,29 +3,42 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../css/logAndReg/login.css";
 
-const LoginInstructor = ({ onLoginSuccess }) => {
+const LoginINS = ({ onLoginSuccess }) => {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [mustChangePassword, setMustChangePassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/instructor/login/check`,
+                `${process.env.REACT_APP_BASE_URL}/instructor/login/`,
                 { userName, password },
                 { withCredentials: true }
             );
-            if (response.data.loggedIn) {
-                onLoginSuccess();
+            if (response.data.success && response.data.data?.loggedIn) {
+                onLoginSuccess && onLoginSuccess();
+
+                if (response.data.data.mustChangePassword) {
+                    setMustChangePassword(true);
+                    setTimeout(() => {
+                        navigate("/instructor/Profile");
+                    }, 2000);
+                    return;
+                }
+
                 navigate("/instructor/HomeInstructor");
             } else {
-                setError(response.data.message);
+                setError(response.data.message || "שגיאה בהתחברות");
+                setTimeout(() => setError(""), 2000);
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Error connecting to server");
+            setError(err.response?.data?.message || "שגיאה בהתחברות לשרת");
             console.error(err);
+            setTimeout(() => setError(""), 2000);
         }
     };
 
@@ -48,6 +61,7 @@ const LoginInstructor = ({ onLoginSuccess }) => {
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
                         placeholder="שם משתמש"
+                        required
                     />
                 </div>
                 <div>
@@ -57,15 +71,32 @@ const LoginInstructor = ({ onLoginSuccess }) => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="סיסמה"
+                        required
                     />
                 </div>
                 <div>
                     <input type="submit" value="כניסה" />
                 </div>
+                <div>
+                    <button
+                        type="button"
+                        className="forgotPasswordButton"
+                        onClick={() => navigate("/instructor/forgot-password")}
+                    >
+                        שכחתי סיסמה
+                    </button>
+                </div>
             </form>
+
             {error && <p style={{ color: "red" }}>{error}</p>}
+
+            {mustChangePassword && (
+                <p style={{ color: "orange", fontWeight: "bold" }}>
+                    הסיסמה שלך חייבת להשתנות. מעביר אותך לדף שינוי סיסמה...
+                </p>
+            )}
         </div>
     );
 };
 
-export default LoginInstructor;
+export default LoginINS; 

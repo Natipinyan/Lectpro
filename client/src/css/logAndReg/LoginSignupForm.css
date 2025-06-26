@@ -261,7 +261,7 @@ form {
     transform: scale(1.2);
 }
 
-.teacher-btn {
+.switchUser-btn {
     width: 160px;
     height: 46px;
     background: transparent;
@@ -280,14 +280,14 @@ form {
     margin-top: 15px;
 }
 
-.teacher-btn:hover {
+.switchUser-btn:hover {
     background: #fff;
     color: #7494ec;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
 
-.teacher-btn .btn-icon {
+.switchUser-btn .btn-icon {
     margin-left: 8px;
 }
 

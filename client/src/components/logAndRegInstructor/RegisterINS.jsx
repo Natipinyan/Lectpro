@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../../css/logAndReg/register.css';
 import axios from 'axios';
 
-const Register = () => {
+const RegisterINS = () => {
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
@@ -14,9 +14,17 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/;
+
+        if (!passwordRegex.test(pass)) {
+            setErrorMessage('הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנא בדוק.');
+            setSuccessMessage('');
+            setTimeout(() => setErrorMessage(''), 5000);
+            return;
+        }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/instructor/register/Add`, {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/instructor/register/`, {
                 userName,
                 email,
                 first_name: firstName,
@@ -24,11 +32,21 @@ const Register = () => {
                 phone,
                 pass
             });
-            setSuccessMessage(response.data.message);
-            setErrorMessage('');
+            if (response.data.success) {
+                setSuccessMessage(response.data.message);
+                setErrorMessage('');
+            } else {
+                setErrorMessage(response.data.message || 'שגיאה בהרשמה');
+                setSuccessMessage('');
+            }
+            setTimeout(() => {
+                setSuccessMessage('');
+                setErrorMessage('');
+            }, 1500);
         } catch (error) {
-            setErrorMessage('שגיאה בהרשמת מרצה');
+            setErrorMessage(error.response?.data?.message || 'שגיאה בהרשמה');
             setSuccessMessage('');
+            setTimeout(() => setErrorMessage(''), 1500);
         }
     };
 
@@ -41,7 +59,7 @@ const Register = () => {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="הכנס שם פרטי"
+                        placeholder="שם פרטי"
                     />
                 </div>
                 <div>
@@ -49,7 +67,7 @@ const Register = () => {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="הכנס שם משפחה"
+                        placeholder="שם משפחה"
                     />
                 </div>
                 <div>
@@ -57,7 +75,7 @@ const Register = () => {
                         type="text"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
-                        placeholder="הכנס שם משתמש"
+                        placeholder="שם משתמש"
                     />
                 </div>
                 <div>
@@ -65,7 +83,7 @@ const Register = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="הכנס כתובת מייל"
+                        placeholder="כתובת אימייל"
                     />
                 </div>
                 <div>
@@ -73,7 +91,7 @@ const Register = () => {
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="הכנס מספר טלפון"
+                        placeholder="מספר טלפון"
                     />
                 </div>
                 <div>
@@ -81,7 +99,7 @@ const Register = () => {
                         type="password"
                         value={pass}
                         onChange={(e) => setPass(e.target.value)}
-                        placeholder="הכנס סיסמה"
+                        placeholder="סיסמה"
                     />
                 </div>
                 <div>
@@ -94,4 +112,4 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default RegisterINS; 

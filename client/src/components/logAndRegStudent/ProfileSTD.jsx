@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserData, updateUserData } from "../../services/api";
-import ProfileForm from "./ProfileForm";
+import ProfileForm from "./ProfileFormSTD";
 import NotificationPopup from "../projects/NotificationPopup";
 import "../../css/logAndReg/profile.css";
 
-export default function Profile() {
+export default function ProfileSTD() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(null);

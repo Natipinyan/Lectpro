@@ -22,65 +22,92 @@ async function check_login(req, res, next) {
     try {
         const rateLimiterRes = await rateLimiter.consume(req.connection.remoteAddress, 1);
         points = rateLimiterRes.remainingPoints;
-    } catch (rateLimiterRes) {
+    } catch {
         points = 0;
     }
 
     if (points <= 0) {
-        res.loggedEn = false;
-        res.message = "בוצעו יותר מדי ניסיונות. נסה שוב מאוחר יותר.";
+        res.statusCodeToSend = 429;
+        res.responseData = {
+            loggedIn: false,
+            message: "המערכת זיהתה ניסיונות מרובים, אנא המתן מספר דקות",
+        };
         return next();
     }
 
-    let uname = req.body.userName;
-    let password = EncWithSalt(req.body.password);
-    res.loggedEn = false;
+    const uname = req.body.userName;
+    const password = EncWithSalt(req.body.password);
 
-    const Query = `SELECT * FROM teachers WHERE user_name = ? AND pass = ?`;
+    const Query = `SELECT * FROM instructor WHERE user_name = ?`;
     const promisePool = db_pool.promise();
 
     try {
-        const [rows] = await promisePool.query(Query, [uname, password]);
+        const [rows] = await promisePool.query(Query, [uname]);
 
-        if (rows.length > 0) {
-            const token = jwt.sign(
-                { userName: uname, id: rows[0].id },
-                jwtSecret,
-                { expiresIn: "1d" }
-            );
-
-            res.cookie("instructors", token, {
-                httpOnly: true,
-                secure: false, // change to true in production
-                maxAge: 86400000,
-                sameSite: "Lax",
-            });
-
-            res.loggedEn = true;
-            req.user = rows[0];
-            //console.log("Cookie set:", token);
-        } else {
-            res.message = "שם משתמש או סיסמה שגויים";
+        if (rows.length === 0) {
+            res.statusCodeToSend = 401;
+            res.responseData = {
+                loggedIn: false,
+                message: "משתמש לא קיים",
+            };
+            return next();
         }
+
+        if (rows[0].pass !== password) {
+            res.statusCodeToSend = 401;
+            res.responseData = {
+                loggedIn: false,
+                message: "שגיאה בסיסמה, אנא נסה שנית",
+            };
+            return next();
+        }
+
+        const token = jwt.sign(
+            { userName: uname, id: rows[0].id, Email: rows[0].email },
+            jwtSecret,
+            { expiresIn: "1d" }
+        );
+
+        res.cookie("instructors", token, {
+            httpOnly: true,
+            secure: false,// change to true in production
+            maxAge: 86400000,
+            sameSite: "Lax",
+        });
+
+        res.statusCodeToSend = 200;
+        res.responseData = {
+            loggedIn: true,
+            message: "התחברת בהצלחה",
+            mustChangePassword: rows[0].must_change_password === 1,
+            user: {
+                id: rows[0].id,
+                userName: rows[0].user_name,
+            },
+        };
 
         return next();
     } catch (err) {
         console.error("Database error:", err);
-        return res.status(500).json({ message: "שגיאה במסד הנתונים", error: err.message });
+        res.statusCodeToSend = 500;
+        res.responseData = {
+            loggedIn: false,
+            message: "שגיאה במסד הנתונים",
+            error: err.message,
+        };
+        return next();
     }
 }
 
 function authenticateToken(req, res, next) {
     const token = req.cookies.instructors;
-    console.log("Received token in check-auth:", token);
-
     if (!token) {
         return res.status(401).json({ message: "נדרש להתחבר למערכת" });
     }
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = { id: decoded.id, userName: decoded.userName };
+        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
@@ -88,8 +115,40 @@ function authenticateToken(req, res, next) {
     }
 }
 
+function externalAuthenticate(req, res, next) {
+    const token = req.cookies.instructors;
+
+    if (!token) {
+        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = {id: decoded.id, userName: decoded.userName, email: decoded.Email};
+        next();
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+    }
+}
+
+function logout(req, res) {
+    res.clearCookie("instructors", {
+        httpOnly: true,
+        secure: false, // change to true in production
+        sameSite: "Lax",
+    });
+
+    res.status(200).json({
+        loggedOut: true,
+        message: "התנתקת בהצלחה",
+    });
+}
+
 module.exports = {
     check_login,
     EncWithSalt,
     authenticateToken,
+    externalAuthenticate,
+    logout,
 };
