@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import NotificationPopup from "../projects/NotificationPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faUser, faEnvelope, faLock, faPhone, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faSignInAlt, faUser, faEnvelope, faLock, faPhone, faEye, faEyeSlash, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
 
 const LoginSignupForm = () => {
     const [isActive, setIsActive] = useState(false);
@@ -100,6 +100,10 @@ const LoginSignupForm = () => {
     const handleCloseNotification = () => {
         setError('');
         setNotificationType('');
+    };
+
+    const handleTeacherSectionClick = () => {
+        navigate('/instructor');
     };
 
     return (
@@ -236,6 +240,10 @@ const LoginSignupForm = () => {
                         <button className="btn register-btn" onClick={handleRegisterClick}>
                             הרשמה
                         </button>
+                        <button className="btn teacher-btn" onClick={handleTeacherSectionClick}>
+                            <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
+                            כניסה למרצים
+                        </button>
                     </div>
                     <div className="toggle-panel toggle-right">
                         <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon" />
@@ -243,6 +251,10 @@ const LoginSignupForm = () => {
                         <p>יש לך חשבון?</p>
                         <button className="btn login-btn" onClick={handleLoginClick}>
                             כניסה
+                        </button>
+                        <button className="btn teacher-btn" onClick={handleTeacherSectionClick}>
+                            <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
+                            כניסה למרצים
                         </button>
                     </div>
                 </div>

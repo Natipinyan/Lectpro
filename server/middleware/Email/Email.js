@@ -74,7 +74,7 @@ async function sendEmailFromApi(req, res) {
 
         res.status(200).json({
             success: true,
-            message: 'המייל נשלח בהצלחה!'
+            //message: 'המייל נשלח בהצלחה!'
         });
     } catch (error) {
         console.error('שגיאה בשליחת המייל:', error.message);
@@ -89,7 +89,7 @@ async function sendEmailFromApi(req, res) {
 async function sendEmailFromServer(to, subject, message, isHtml = false) {
     try {
         await sendEmail({ to, subject, message, isHtml });
-        console.log('מייל נשלח בהצלחה ל-' + to);
+        //console.log('מייל נשלח בהצלחה ל-' + to);
     } catch (error) {
         console.error('שגיאה בשליחת המייל מהשרת:', error.message);
     }
