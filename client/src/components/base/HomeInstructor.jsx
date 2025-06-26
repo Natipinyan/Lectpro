@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import NotificationPopup from '../../components/projects/NotificationPopup';
-import '../../css/base/homeStudent.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserGraduate } from '@fortawesome/free-solid-svg-icons';
+import "../../css/base/homeStudent.css"
+import {faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import NotificationPopup from "../projects/NotificationPopup";
 
-const HomeInstructor = () => {
+const HomeStudents = () => {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
 
@@ -29,25 +29,45 @@ const HomeInstructor = () => {
         }
     };
 
-    const handleSwitchToStudent = () => {
-        navigate('/students');
+    const handleNavigate = (page) => {
+        navigate(page);
     };
+
+
+    const buttons = [
+        { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
+        { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
+    ];
+
+
 
     return (
         <div className="main-section-home">
-            <h1>ברוך הבא מרצה</h1>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
-                <button className="home-button" onClick={handleSwitchToStudent}>
-                    <FontAwesomeIcon icon={faUserGraduate} />
-                    <span>מעבר לאיזור סטודנטים</span>
-                </button>
-                <button className="home-button" onClick={handleLogout}>
-                    התנתקות
-                </button>
-            </div>
+            <h1>lectpro</h1>
+            <nav className="buttons-home">
+                <div className="button-row-home">
+                    {buttons.slice(0, 2).map((btn, index) => (
+                        <button key={index}  className="home-button" onClick={btn.onClick || (() => handleNavigate(btn.page))}>
+                            <FontAwesomeIcon icon={btn.icon} />
+                            <span>{btn.label}</span>
+                        </button>
+                    ))}
+                </div>
+                <div className="button-row-home">
+                    {buttons.slice(2).map((btn, index) => (
+                        <button key={index + 2}  className="home-button" onClick={btn.onClick || (() => handleNavigate(btn.page))}>
+                            <FontAwesomeIcon icon={btn.icon} />
+                            <span>{btn.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </nav>
             {popupMessage && <NotificationPopup message={popupMessage.message} type={popupMessage.type} />}
         </div>
+
+
+
     );
 };
 
-export default HomeInstructor;
+export default HomeStudents;

@@ -1,14 +1,14 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
+import SidebarSTD from "./SidebarSTD";
 
-export default function SidebarLayout() {
+export default function SidebarLayoutSTD() {
     return (
         <div style={{ display: "flex", flexDirection: "row", minHeight: "100vh", width: "100vw" }}>
             <div style={{
                 flexShrink: 0,
                 boxSizing: "border-box",
             }}>
-                <Sidebar />
+                <SidebarSTD />
             </div>
 
             <div style={{ display: "flex", flexDirection: "row-reverse", minHeight: "100vh", width: "100vw" }}>

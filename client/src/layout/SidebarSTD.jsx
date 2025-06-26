@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../components/projects/NotificationPopup";
 
-const Sidebar = () => {
+function SidebarSTD(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
 
@@ -68,6 +68,6 @@ const Sidebar = () => {
             {popupMessage && <NotificationPopup message={popupMessage.message} type={popupMessage.type} />}
         </aside>
     );
-};
+}
 
-export default Sidebar;
+export default SidebarSTD;
