@@ -10,7 +10,7 @@ import RegisterSTD from "./components/logAndRegStudent/RegisterSTD";
 import ForgotPasswordSTD from "./components/logAndRegStudent/ForgotPasswordSTD";
 import LoginSignupFormSTD from "./components/logAndRegStudent/LoginSignupFormSTD";
 import ProfileSTD from "./components/logAndRegStudent/ProfileSTD";
-import SidebarLayoutSTD from "./layout/SidebarLayoutSTD";
+import SidebarLayoutSTD from "./components/layout/SidebarLayoutSTD";
 import HomeStudent from "./components/base/HomeStudents";
 
 // Components for students
@@ -30,8 +30,13 @@ import RegisterINS from "./components/logAndRegInstructor/RegisterINS";
 import ForgotPasswordINS from "./components/logAndRegInstructor/ForgotPasswordINS";
 import LoginSignupFormINS from "./components/logAndRegInstructor/LoginSignupFormINS";
 import ProfileINS from "./components/logAndRegInstructor/ProfileINS";
-import SidebarLayoutINS from "./layout/SidebarLayoutINS";
+import SidebarLayoutINS from "./components/layout/SidebarLayoutINS";
 import HomeInstructor from "./components/base/HomeInstructor";
+
+// Components for instructors
+import InstructorProjects  from "./components/projects/InstructorProjectsList";
+import InstructorProjectDetails from "./components/projects/InstructorProjectsDetails";
+
 
 export {
     // React Router dependencies
@@ -66,4 +71,10 @@ export {
     ProfileINS,
     SidebarLayoutINS,
     HomeInstructor,
+
+    // instructors project components
+    InstructorProjects,
+    InstructorProjectDetails,
+
+
 };

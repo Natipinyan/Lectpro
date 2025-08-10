@@ -1,8 +1,8 @@
 import * as Imports from "./imports";
 
-const onLoginSuccess = () => {
-    console.log("Login successful!");
-};
+// const onLoginSuccess = () => {
+//     console.log("Login successful!");
+// };
 
 export default function BaseRouter() {
     const router = Imports.createBrowserRouter([
@@ -35,10 +35,12 @@ export default function BaseRouter() {
                     element: <Imports.SidebarLayoutINS />,
                     children: [
                         { path: "Profile", element: <Imports.PrivateRouteInstructor element={Imports.ProfileINS} /> },
+                        { path: "MyProjects", element: <Imports.PrivateRouteInstructor element={Imports.InstructorProjects} /> },
+                        { path: "project/:projectId", element: <Imports.PrivateRouteInstructor element={Imports.InstructorProjectDetails} /> },
                     ],
                 },
             ],
-        },
+        }
     ]);
 
     return <Imports.RouterProvider router={router} />;

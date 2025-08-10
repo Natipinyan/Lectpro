@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './sideBar.css';
+import '../../css/layuot/sideBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload } from '@fortawesome/free-solid-svg-icons';
-import NotificationPopup from "../components/projects/NotificationPopup";
+import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import NotificationPopup from "../projects/NotificationPopup";
 
-function SidebarSTD(props) {
+function SidebarINS(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
 
     const handleLogout = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/apiStudent/logout`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/apiInstructor/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -19,24 +19,21 @@ function SidebarSTD(props) {
             if (response.ok) {
                 setPopupMessage({ message: "התנתקת בהצלחה", type: "success" });
                 setTimeout(() => {
-                    navigate('/students');
+                    navigate('/instructor');
                 }, 2000);
             } else {
                 setPopupMessage({ message: "שגיאה בהתנתקות", type: "error" });
             }
         } catch (error) {
-            console.error('Logout failed:', error);
             setPopupMessage({ message: "שגיאה בהתנתקות", type: "error" });
         }
     };
 
     const buttons = [
-        { icon: faHouse, label: 'בית', page: '/students/HomeStudent' },
+        { icon: faHouse, label: 'בית', page: '/instructor/HomeInstructor' },
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
-        { icon: faUser, label: 'פרופיל', page: '/students/profile' },
-        { icon: faPlusCircle, label: 'הוסף פרויקט', page: '/students/upload' },
-        { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/students/MyProjects' },
-        { icon: faUpload, label: 'העלה קובץ', page: '/students/UpFile' },
+        { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
+        { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
     ];
 
     const handleNavigate = (page) => {
@@ -70,4 +67,4 @@ function SidebarSTD(props) {
     );
 }
 
-export default SidebarSTD;
+export default SidebarINS;

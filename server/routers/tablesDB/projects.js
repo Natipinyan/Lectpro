@@ -32,6 +32,17 @@ router.get('/:projectId', middleLog.authenticateToken, middlePro.getOneProject, 
     }
 });
 
+
+// REST: Get one project by ID (for instructor)
+router.get('/ins/:projectId', middleLogIns.authenticateToken, middlePro.getOneProjectIns, (req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.project });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת פרויקט' });
+    }
+});
+
+
 // REST: Create a new project
 router.post('/', middleLog.authenticateToken, middlePro.addProject, (req, res) => {
     try {
@@ -68,9 +79,27 @@ router.get('/:projectId/technologies', middleLog.authenticateToken, middlePro.ge
     }
 });
 
+// REST: Get technologies for a project (for instructor)
+router.get('/ins/:projectId/technologies', middleLogIns.authenticateToken, middlePro.getProjectTechnologies, (req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.technologies });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות' });
+    }
+});
 
 // REST: Get file for a project
 router.get('/:projectId/file', middleLog.authenticateToken, middlePro.getProjectFile, (req, res) => {
+    res.sendFile(res.filePath, (err) => {
+        if (err) {
+            console.error('Error sending file:', err);
+            return res.status(500).json({ success: false, message: 'שגיאה בשליחת קובץ' });
+        }
+    });
+});
+
+// REST: Get file for a project (for instructor)
+router.get('/ins/:projectId/file', middleLogIns.authenticateToken, middlePro.getProjectFile, (req, res) => {
     res.sendFile(res.filePath, (err) => {
         if (err) {
             console.error('Error sending file:', err);

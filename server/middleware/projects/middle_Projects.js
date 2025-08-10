@@ -112,6 +112,22 @@ const getOneProject = (req, res) => {
     });
 };
 
+const getOneProjectIns = (req, res) => {
+    const projectId = req.params.projectId;
+    const q = `SELECT * FROM projects WHERE id = ?`;
+    db_pool.query(q, [projectId], function (err, rows) {
+        if (err) {
+            console.error("Error fetching project:", err);
+            return res.status(500).json({ success: false, message: "שגיאה בקבלת פרויקט" });
+        }
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ success: false, message: "הפרויקט לא נמצא" });
+        }
+        return res.status(200).json({ success: true, data: rows[0] });
+    });
+};
+
+
 const getProjectTechnologies = (req, res) => {
     const { projectId } = req.params;
     const q = `SELECT t.id, t.title, t.language FROM projects_technologies pt JOIN technology_in_use t ON pt.technology_id = t.id WHERE pt.project_id = ?`;
@@ -323,4 +339,5 @@ module.exports = {
     editProject,
     deleteProject,
     getProjectsByInstructor,
+    getOneProjectIns,
 };
