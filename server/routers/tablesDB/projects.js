@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const middleLog = require("../../middleware/login - students/middleWareLogin");
+const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
 const middlePro = require("../../middleware/projects/middle_Projects");
 
 // REST: Get all projects
@@ -11,6 +12,16 @@ router.get('/', middleLog.authenticateToken, middlePro.getProjects, (req, res) =
         res.status(500).json({ success: false, message: 'שגיאה בקבלת פרויקטים' });
     }
 });
+
+// REST: Get projects by instructor
+router.get('/ins', middleLogIns.authenticateToken, middlePro.getProjectsByInstructor, (req, res) => {
+    try {
+        return res.status(200).json({ success: true, data: res.projectsList });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "שגיאה בהחזרת פרויקטים למנחה" });
+    }
+});
+
 
 // REST: Get one project by ID
 router.get('/:projectId', middleLog.authenticateToken, middlePro.getOneProject, (req, res) => {
@@ -56,6 +67,7 @@ router.get('/:projectId/technologies', middleLog.authenticateToken, middlePro.ge
         res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות' });
     }
 });
+
 
 // REST: Get file for a project
 router.get('/:projectId/file', middleLog.authenticateToken, middlePro.getProjectFile, (req, res) => {

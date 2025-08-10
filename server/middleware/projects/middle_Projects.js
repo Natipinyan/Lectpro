@@ -286,6 +286,34 @@ const getProjectFile = (req, res) => {
     });
 };
 
+const getProjectsByInstructor = (req, res, next) => {
+    const instructorId = req.user?.id;
+
+    if (!instructorId) {
+        return res.status(401).json({ success: false, message: "נדרש להתחבר כמנחה" });
+    }
+
+    const query = `
+        SELECT p.*,
+               s1.first_name AS student1_first_name, s1.last_name AS student1_last_name,
+               s2.first_name AS student2_first_name, s2.last_name AS student2_last_name
+        FROM projects p
+                 LEFT JOIN students s1 ON p.student_id1 = s1.id
+                 LEFT JOIN students s2 ON p.student_id2 = s2.id
+        WHERE p.instructor_id = ?
+    `;
+
+    db_pool.query(query, [instructorId], (err, rows) => {
+        if (err) {
+            console.error("DB Error (get projects by instructor):", err);
+            return res.status(500).json({ success: false, message: "שגיאה בקבלת פרויקטים של מנחה" });
+        }
+        res.projectsList = rows;
+        next();
+    });
+};
+
+
 module.exports = {
     addProject,
     getProjects,
@@ -294,4 +322,5 @@ module.exports = {
     getProjectFile,
     editProject,
     deleteProject,
+    getProjectsByInstructor,
 };

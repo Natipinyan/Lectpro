@@ -32,15 +32,16 @@
 
 ## Projects
 
-| Method | Endpoint                              | Description                        | Request Body         | Response                |
-|--------|----------------------------------------|------------------------------------|----------------------|-------------------------|
-| GET    | /projects/                            | Get all projects                   | -                    | Array of projects       |
-| GET    | /projects/:projectId                  | Get a project by ID                | -                    | Project object          |
-| POST   | /projects/                            | Create a new project               | Project fields (JSON)| Project object          |
-| PUT    | /projects/:projectId                  | Update a project by ID             | Project fields (JSON)| Project object          |
-| DELETE | /projects/:projectId                  | Delete a project by ID             | -                    | 204 No Content          |
-| GET    | /projects/:projectId/technologies     | Get technologies for a project     | -                    | Array of technologies   |
-| GET    | /projects/:projectId/file             | Get file for a project             | -                    | File download           |
+| Method | Endpoint                        | Description                  | Request Body          | Response                |
+|--------|--------------------------------|------------------------------|-----------------------|-------------------------|
+| GET    | /projects/                     | Get all projects             | -                     | Array of projects       |
+| GET    | /projects/ins                  | Get projects by instructor   | -                     | Array of projects       |
+| GET    | /projects/:projectId           | Get a project by ID          | -                     | Project object          |
+| POST   | /projects/                    | Create a new project         | Project fields (JSON)  | Project object          |
+| PUT    | /projects/:projectId           | Update a project by ID       | Project fields (JSON)  | Project object          |
+| DELETE | /projects/:projectId           | Delete a project by ID       | -                     | 204 No Content          |
+| GET    | /projects/:projectId/technologies | Get technologies for a project | -                  | Array of technologies   |
+| GET    | /projects/:projectId/file      | Get file for a project       | -                     | File download           |
 
 ## Technologies
 

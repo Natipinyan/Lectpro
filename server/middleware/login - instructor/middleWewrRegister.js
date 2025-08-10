@@ -35,9 +35,9 @@ async function Adduser(req, res, next) {
             return next();
         }
         await promisePool.query(
-            `INSERT INTO instructor (user_name, pass, email, first_name, last_name, phone)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userName, encryptedPass, email, first_name, last_name, phone]
+            `INSERT INTO instructor (user_name, pass, email, first_name, last_name, phone, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [userName, encryptedPass, email, first_name, last_name, phone, false]
         );
         const emailContent = `
             <h1>אישור הרשמה</h1>
@@ -54,7 +54,7 @@ async function Adduser(req, res, next) {
         try {
             await sendMailServer(email, 'אישור הרשמה', emailContent, true);
             res.addStatus = 200;
-            res.addMessage = "משתמש נוסף בהצלחה";
+            res.addMessage = "משתמש נוסף בהצלחה, אנא פנה אל מנהל המגמה שיעדכן את סטטוס המנחה לפעיל להשלמת הגישה למערכת!";
         } catch (mailErr) {
             console.error("שגיאה בשליחת מייל:", mailErr);
             res.addStatus = 500;

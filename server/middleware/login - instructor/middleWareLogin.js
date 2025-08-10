@@ -53,6 +53,15 @@ async function check_login(req, res, next) {
             return next();
         }
 
+        if (!rows[0].is_active) {
+            res.statusCodeToSend = 403;
+            res.responseData = {
+                loggedIn: false,
+                message: "המשתמש לא פעיל במערכת",
+            };
+            return next();
+        }
+
         if (rows[0].pass !== password) {
             res.statusCodeToSend = 401;
             res.responseData = {
