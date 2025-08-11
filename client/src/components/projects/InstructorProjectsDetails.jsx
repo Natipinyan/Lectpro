@@ -25,36 +25,29 @@ const ProjectDetails = () => {
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                const resProject = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`, {
+                    method: "GET",
+                    credentials: 'include',
+                });
                 const dataProject = await resProject.json();
-                if (!resProject.ok || !dataProject.success)
+                if (!resProject.ok || !dataProject.success) {
                     throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
+                }
 
-                const resTech = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`, {
+                    method: "GET",
+                    credentials: 'include',
+                });
                 const techData = await resTech.json();
-                if (!resTech.ok || !techData.success)
+                if (!resTech.ok || !techData.success) {
                     throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
+                }
 
                 let newPdfUrl = null;
-                const resPdf = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`, {
+                    method: "GET",
+                    credentials: 'include',
+                });
 
                 if (resPdf.ok) {
                     const pdfBlob = await resPdf.blob();
@@ -80,16 +73,14 @@ const ProjectDetails = () => {
         const fetchCommentsSummary = async () => {
             try {
                 setCommentsLoading(true);
-                const res = await fetch(
-                    `${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
+                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
                 const data = await res.json();
-                if (!res.ok || !data.success)
+                if (!res.ok || !data.success) {
                     throw new Error(data.message || "שגיאה בטעינת הערות");
+                }
 
                 setCommentsSummary(data.data);
             } catch (err) {
@@ -112,13 +103,12 @@ const ProjectDetails = () => {
         };
     }, [pdfUrl]);
 
+
     const handleSaveNote = async (noteData) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
                     project_id: projectId,
@@ -230,10 +220,10 @@ const ProjectDetails = () => {
                             <div>קישור לגיטהאב</div>
                             {project.link_to_github ? (
                                 <span>
-                                    <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
-                                        {project.link_to_github}
-                                    </a>
-                                </span>
+                  <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                    {project.link_to_github}
+                  </a>
+                </span>
                             ) : (
                                 <span>לא הוזן קישור לגיטהאב</span>
                             )}
@@ -259,15 +249,19 @@ const ProjectDetails = () => {
                             <div className="error">{commentsError}</div>
                         ) : commentsSummary ? (
                             <>
-                                <div>סה"כ הערות: {commentsSummary.totalCount}</div>
-                                <div>הערות שסומנו כבוצע: {commentsSummary.doneByUser?.length || 0}</div>
-                                <div>הערות שהושלמו על ידי משתמש אחר: {commentsSummary.doneByOthers?.length || 0}</div>
-                                <div>הערות שלא סומנו ולא הושלמו: {commentsSummary.notDone?.length || 0}</div>
+                                <h4>סה"כ הערות: </h4>
+                                <div>הערה בוצעה: {commentsSummary.doneAndCompleted?.length || 0}</div>
+                                <div>ממתין לתגובת מרצה: {commentsSummary.doneButNotCompleted?.length || 0}</div>
+                                <div>ממתין לתגובת סטודנט: {commentsSummary.notDone?.length || 0}</div>
 
                                 <div
-                                    className="button-container" style={{ marginTop: "10px", justifyContent: "space-between" }}>
-                                        <button onClick={() => setShowComments(true)}>למעבר לתצוגה מפורטת</button>
-                                    <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                    className="button-container"
+                                    style={{ marginTop: "10px", justifyContent: "space-between" }}
+                                >
+                                    <button onClick={() => setShowComments(true)}>למעבר לתצוגה מפורטת</button>
+                                    <button className="add-note-button" onClick={() => setShowAddNote(true)}>
+                                        ➕ הוסף הערה
+                                    </button>
                                 </div>
                             </>
                         ) : (
@@ -293,16 +287,9 @@ const ProjectDetails = () => {
                 </div>
             </div>
 
-            {/* Modal להצגת ההערות */}
             {showComments && (
                 <Modal onClose={() => setShowComments(false)}>
-                    <CommentsProject
-                        comments={[
-                            ...(commentsSummary.doneByUser || []),
-                            ...(commentsSummary.doneByOthers || []),
-                            ...(commentsSummary.notDone || []),
-                        ]}
-                    />
+                    <CommentsProject comments={commentsSummary} />
                 </Modal>
             )}
 

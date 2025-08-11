@@ -62,6 +62,17 @@
 | POST   | /upload/addFile                       | Upload a file for a project (old)  | Multipart/form-data (file, projectTitle) | Success message, path   |
 | POST   | /upload/:projectId/file               | Upload a file for a project (REST, currently also expects projectTitle in formData) | Multipart/form-data (file, projectTitle) | Success message, path   |
 
+## Comments
+
+| Method | Endpoint                          | Description                              | Request Body                                    | Response                               | Auth Required          |
+|--------|----------------------------------|----------------------------------------|------------------------------------------------|---------------------------------------|-----------------------|
+| GET    | /comments                       | Get all comments (Instructor only)      | -                                              | { success: true, data: Array }         | Instructor             |
+| GET    | /comments/ins/project/:projectId | Get comments by project ID (Instructor) | -                                              | { success: true, data: { doneAndCompleted, doneButNotCompleted, notDone, counts } } | Instructor             |
+| GET    | /comments/project/:projectId     | Get comments by project ID (Student)    | -                                              | { success: true, data: { doneAndCompleted, doneButNotCompleted, notDone, counts } } | Student                |
+| POST   | /comments                       | Create a new comment (Instructor only)  | { project_id, title, section, page, text, is_done } | { success: true/false, message: string } | Instructor             |
+| PUT    | /comments/:commentId            | Update a comment by ID (Instructor only) | { title, section, page, text, is_done }          | { success: true/false, message: string } | Instructor             |
+| DELETE | /comments/:commentId            | Delete a comment by ID (Instructor only) | -                                              | { success: true/false, message: string } | Instructor             |
+
 ---
 
 - All routes require authentication (authenticateToken)

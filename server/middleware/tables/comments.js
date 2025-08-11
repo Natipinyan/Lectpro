@@ -11,32 +11,45 @@ async function getComments(req, res, next) {
 
 async function getCommentsByProject(req, res, next) {
     const { projectId } = req.params;
-    const q = `SELECT * FROM comments WHERE project_id = ?`;
 
-    db_pool.query(q, [projectId], (err, rows) => {
+    const query = `
+        SELECT id, text, is_done, title, section, page, user_response, done_by_user
+        FROM comments
+        WHERE project_id = ?
+    `;
+
+    db_pool.query(query, [projectId], (err, rows) => {
         if (err) {
-            return next(err);
+            console.error("Error fetching comments:", err);
+            return res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
         }
 
-        const doneByUser = rows.filter(c => Number(c.is_done) === 1);
-        const doneByOthers = rows.filter(c => Number(c.is_done) === 0 && Number(c.done_by_user) === 1);
-        const notDone = rows.filter(c => Number(c.is_done) === 0 && (!c.done_by_user || Number(c.done_by_user) === 0));
+        const doneAndCompleted = [];       // is_done=1 && done_by_user !== 0
+        const doneButNotCompleted = [];    // is_done=0 && done_by_user !== 0
+        const notDone = [];                // done_by_user = 0 || null
+
+        rows.forEach(comment => {
+            if (comment.is_done === 1 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
+                doneAndCompleted.push(comment);
+            } else if (comment.is_done === 0 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
+                doneButNotCompleted.push(comment);
+            } else if (comment.done_by_user === 0 || comment.done_by_user === null) {
+                notDone.push(comment);
+            }
+        });
 
         res.commentsList = {
-            doneByUser,
-            doneByOthers,
+            doneAndCompleted,
+            doneButNotCompleted,
             notDone,
-            totalCount: rows.length,
-            doneCount: doneByUser.length,
-            doneByOthersCount: doneByOthers.length,
-            notDoneCount: notDone.length
+            doneAndCompletedCount: doneAndCompleted.length,
+            doneButNotCompletedCount: doneButNotCompleted.length,
+            notDoneCount: notDone.length,
         };
 
         next();
     });
 }
-
-
 
 async function addComment(req, res, next) {
     const { project_id, title, section, page, text, is_done } = req.body;
@@ -180,3 +193,5 @@ module.exports = {
     updateComment,
     deleteComment
 };
+
+

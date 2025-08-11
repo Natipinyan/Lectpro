@@ -59,15 +59,22 @@ const ProjectDetails = () => {
             }
         };
 
+
+
         const fetchCommentsSummary = async () => {
+
             try {
                 setCommentsLoading(true);
-                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/project/${projectId}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const res = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/comments/project/${projectId}`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
                 const data = await res.json();
-                if (!res.ok || !data.success) throw new Error(data.message || "שגיאה בטעינת הערות");
+                if (!res.ok || !data.success)
+                    throw new Error(data.message || "שגיאה בטעינת הערות");
 
                 setCommentsSummary(data.data);
             } catch (err) {
@@ -229,10 +236,11 @@ const ProjectDetails = () => {
                             <div className="error">{commentsError}</div>
                         ) : commentsSummary ? (
                             <>
-                                <div>סה"כ הערות: {commentsSummary.totalCount}</div>
-                                <div>הערות שסומנו כבוצע: {commentsSummary.doneByUser?.length || 0}</div>
-                                <div>הערות שהושלמו על ידי משתמש אחר: {commentsSummary.doneByOthers?.length || 0}</div>
-                                <div>הערות שלא סומנו ולא הושלמו: {commentsSummary.notDone?.length || 0}</div>
+                                <h4>סה"כ הערות: </h4>
+                                <div>הערה בוצעה: {commentsSummary.doneAndCompleted?.length || 0}</div>
+                                <div>ממתין לתגובת מרצה: {commentsSummary.doneButNotCompleted?.length || 0}</div>
+                                <div>ממתין לתגובת סטודנט: {commentsSummary.notDone?.length || 0}</div>
+
 
                                 <div className="button-container" style={{ marginTop: "10px" }}>
                                     <button onClick={() => setShowComments(true)}>למעבר לתצוגה מפורטת</button>
@@ -254,13 +262,7 @@ const ProjectDetails = () => {
 
             {showComments && commentsSummary && (
                 <Modal onClose={() => setShowComments(false)}>
-                    <CommentsProject
-                        comments={[
-                            ...(commentsSummary.doneByUser || []),
-                            ...(commentsSummary.doneByOthers || []),
-                            ...(commentsSummary.notDone || []),
-                        ]}
-                    />
+                    <CommentsProject comments={commentsSummary} />
                 </Modal>
             )}
         </div>
