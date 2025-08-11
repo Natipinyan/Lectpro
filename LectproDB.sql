@@ -58,19 +58,22 @@ CREATE TABLE `stages` (
 
 CREATE TABLE `comments` (
                             `id` int(11) NOT NULL AUTO_INCREMENT,
-                            `text` text DEFAULT NULL,
-                            `stage_id` int(11) DEFAULT NULL,
-                            `is_done` tinyint(1) DEFAULT NULL,
+                            `title` varchar(255) NOT NULL,
+                            `text` text NOT NULL,
+                            `project_id` int(11) DEFAULT NULL,
+                            `section` varchar(255) NOT NULL,
+                            `page` int(11) NOT NULL,
+                            `is_done` tinyint(1) DEFAULT 0,
                             PRIMARY KEY (`id`),
-                            KEY `stage_id` (`stage_id`)
+                            KEY `project_id` (`project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `files` (
                          `id` int(11) NOT NULL AUTO_INCREMENT,
                          `routing` varchar(255) DEFAULT NULL,
-                         `stage_id` int(11) DEFAULT NULL,
+                         `project_id` int(11) DEFAULT NULL,
                          PRIMARY KEY (`id`),
-                         KEY `stage_id` (`stage_id`)
+                         KEY `project_id` (`project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `technology_in_use` (
@@ -95,10 +98,10 @@ ALTER TABLE `stages`
     ADD CONSTRAINT `stages_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
 
 ALTER TABLE `comments`
-    ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stages` (`id`);
+    ADD CONSTRAINT `comments_fk_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `files`
-    ADD CONSTRAINT `files_ibfk_1` FOREIGN KEY (`stage_id`) REFERENCES `stages` (`id`);
+    ADD CONSTRAINT `files_fk_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `projects_technologies`
     ADD CONSTRAINT `projects_technologies_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),

@@ -41,6 +41,7 @@ const authRouterStd = require("./routers/login/login - students/authStudents");
 const authRouterIns = require("./routers/login/login - instructor/authInstructor");
 const techRouter = require("./routers/tablesDB/technology");
 const EmailRouter = require("./routers/email/email");
+const commentsRouter = require("./routers/tablesDB/comments");
 
 app.use("/students", studentsRouter);
 app.use("/instructor", instructorRouter);
@@ -50,6 +51,7 @@ app.use("/apiStudent", authRouterStd);
 app.use("/apiInstructor", authRouterIns);
 app.use("/technology", techRouter);
 app.use("/Email", EmailRouter);
+app.use("/comments", commentsRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

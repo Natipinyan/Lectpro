@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
+import AddNotePopup from "./AddNotePopup";
 import "../../css/projects/ProjectDetails.css";
 
 const ProjectDetails = () => {
@@ -10,6 +11,8 @@ const ProjectDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
+    const [showAddNote, setShowAddNote] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,14 +20,14 @@ const ProjectDetails = () => {
             try {
                 const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`, {
                     method: "GET",
-                    credentials: 'include',
+                    credentials: "include",
                 });
                 const dataProject = await resProject.json();
                 if (!resProject.ok || !dataProject.success) throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
 
                 const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`, {
                     method: "GET",
-                    credentials: 'include',
+                    credentials: "include",
                 });
                 const techData = await resTech.json();
                 if (!resTech.ok || !techData.success) throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
@@ -32,7 +35,7 @@ const ProjectDetails = () => {
                 let newPdfUrl = null;
                 const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`, {
                     method: "GET",
-                    credentials: 'include',
+                    credentials: "include",
                 });
 
                 if (resPdf.ok) {
@@ -62,6 +65,46 @@ const ProjectDetails = () => {
             }
         };
     }, [pdfUrl]);
+
+    const handleSaveNote = async (noteData) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    project_id: projectId,
+                    title: noteData.title,
+                    section: noteData.section,
+                    page: noteData.page,
+                    text: noteData.text,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                setNotification({ message: "ההערה נשמרה בהצלחה!", type: "success" });
+                setProject((prev) => ({
+                    ...prev,
+                    notes:
+                        prev.notes === "אין הערות"
+                            ? noteData.text
+                            : prev.notes + "\n" + noteData.text,
+                }));
+            } else {
+                setNotification({ message: data.message || "שגיאה בשמירת ההערה", type: "error" });
+            }
+        } catch (error) {
+            console.error("שגיאה בשמירת הערה:", error);
+            setNotification({ message: "שגיאה בתקשורת עם השרת", type: "error" });
+        } finally {
+            setShowAddNote(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -110,17 +153,20 @@ const ProjectDetails = () => {
                 <div className="right-column">
                     <div className="project-details-container">
                         <div className="button-container">
-                            <button className="back-button" onClick={() => navigate(-1)}>חזרה לכל הפרוייקטים</button>
-                        </div>                        <div className="project-title">{project.title}</div>
+                            <button className="back-button" onClick={() => navigate(-1)}>
+                                חזרה לכל הפרוייקטים
+                            </button>
+                        </div>
+                        <div className="project-title">{project.title}</div>
                         <div className="project-description">{project.description}</div>
                         <div className="project-github">
                             <div>קישור לגיטהאב</div>
                             {project.link_to_github ? (
                                 <span>
-                                    <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
-                                        {project.link_to_github}
-                                    </a>
-                                </span>
+                  <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                    {project.link_to_github}
+                  </a>
+                </span>
                             ) : (
                                 <span>לא הוזן קישור לגיטהאב</span>
                             )}
@@ -129,7 +175,7 @@ const ProjectDetails = () => {
                             <div className="project-technologies">
                                 <h4>טכנולוגיות בפרויקט:</h4>
                                 <ul>
-                                    {project.technologies.map(tech => (
+                                    {project.technologies.map((tech) => (
                                         <li key={tech.id}>
                                             {tech.language} {tech.language && `(${tech.title})`}
                                         </li>
@@ -140,21 +186,30 @@ const ProjectDetails = () => {
                     </div>
                     <div className="notes-container">
                         <h4>הערות</h4>
+                        <div className="button-container">
+                            <button className="back-button" onClick={() => setShowAddNote(true)}>
+                                ➕ הוסף הערה
+                            </button>
+                        </div>
                         <div className="notes-content">{project.notes || "אין הערות"}</div>
                     </div>
                 </div>
                 <div className="pdfView">
                     {pdfUrl ? (
-                        <iframe
-                            src={pdfUrl}
-                            title="Project PDF"
-                            className="pdf-iframe"
-                        />
+                        <iframe src={pdfUrl} title="Project PDF" className="pdf-iframe" />
                     ) : (
                         <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
                     )}
                 </div>
             </div>
+
+            {showAddNote && (
+                <AddNotePopup
+                    projectTitle={project.title}
+                    onClose={() => setShowAddNote(false)}
+                    onSave={handleSaveNote}
+                />
+            )}
         </div>
     );
 };
