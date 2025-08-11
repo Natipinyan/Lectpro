@@ -33,15 +33,6 @@ router.get('/project/:projectId', middleLog.authenticateToken, middleComments.ge
     }
 });
 
-// REST: Get comments by project ID (for student)
-router.get('/project/:projectId', middleLog.authenticateToken, middleComments.getCommentsByProject, (req, res) => {
-    try {
-        res.status(200).json({ success: true, data: res.commentsList });
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
-    }
-});
-
 // REST: Create a new comment (for instructor)
 router.post('/', middleLogIns.authenticateToken, middleComments.addComment, (req, res) => {
     try {

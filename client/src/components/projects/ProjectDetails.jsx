@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import CommentsProject from "./CommentsProject";
+import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import Swal from 'sweetalert2';
 
@@ -12,13 +13,11 @@ const ProjectDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
-    const navigate = useNavigate();
-
-    const [comments, setComments] = useState([]);
+    const [commentsSummary, setCommentsSummary] = useState(null);
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
-
-
+    const [showComments, setShowComments] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProjectDetails = async () => {
@@ -60,7 +59,7 @@ const ProjectDetails = () => {
             }
         };
 
-        const fetchComments = async () => {
+        const fetchCommentsSummary = async () => {
             try {
                 setCommentsLoading(true);
                 const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/project/${projectId}`, {
@@ -69,7 +68,8 @@ const ProjectDetails = () => {
                 });
                 const data = await res.json();
                 if (!res.ok || !data.success) throw new Error(data.message || "שגיאה בטעינת הערות");
-                setComments(data.data);
+
+                setCommentsSummary(data.data);
             } catch (err) {
                 console.error("שגיאה בטעינת הערות:", err);
                 setCommentsError(err.message);
@@ -79,7 +79,7 @@ const ProjectDetails = () => {
         };
 
         fetchProjectDetails();
-        fetchComments();
+        fetchCommentsSummary();
     }, [projectId]);
 
     useEffect(() => {
@@ -142,6 +142,7 @@ const ProjectDetails = () => {
             });
         }
     };
+
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -220,31 +221,48 @@ const ProjectDetails = () => {
                             </div>
                         )}
                     </div>
+
                     <div className="notes-container">
                         {commentsLoading ? (
                             <div>טוען הערות...</div>
                         ) : commentsError ? (
                             <div className="error">{commentsError}</div>
-                        ) : comments.length === 0 ? (
-                            <div>אין הערות לפרויקט זה</div>
+                        ) : commentsSummary ? (
+                            <>
+                                <div>סה"כ הערות: {commentsSummary.totalCount}</div>
+                                <div>הערות שסומנו כבוצע: {commentsSummary.doneByUser?.length || 0}</div>
+                                <div>הערות שהושלמו על ידי משתמש אחר: {commentsSummary.doneByOthers?.length || 0}</div>
+                                <div>הערות שלא סומנו ולא הושלמו: {commentsSummary.notDone?.length || 0}</div>
+
+                                <div className="button-container" style={{ marginTop: "10px" }}>
+                                    <button onClick={() => setShowComments(true)}>למעבר לתצוגה מפורטת</button>
+                                </div>
+                            </>
                         ) : (
-                            <CommentsProject comments={comments} />
+                            <div>אין הערות לפרויקט זה</div>
                         )}
                     </div>
-
                 </div>
                 <div className="pdfView">
                     {pdfUrl ? (
-                        <iframe
-                            src={pdfUrl}
-                            title="Project PDF"
-                            className="pdf-iframe"
-                        />
+                        <iframe src={pdfUrl} title="Project PDF" className="pdf-iframe" />
                     ) : (
                         <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
                     )}
                 </div>
             </div>
+
+            {showComments && commentsSummary && (
+                <Modal onClose={() => setShowComments(false)}>
+                    <CommentsProject
+                        comments={[
+                            ...(commentsSummary.doneByUser || []),
+                            ...(commentsSummary.doneByOthers || []),
+                            ...(commentsSummary.notDone || []),
+                        ]}
+                    />
+                </Modal>
+            )}
         </div>
     );
 };

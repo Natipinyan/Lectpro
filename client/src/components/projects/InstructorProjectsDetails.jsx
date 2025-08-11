@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import AddNotePopup from "./AddNotePopup";
 import CommentsProject from "./CommentsProject";
+import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 
 const ProjectDetails = () => {
@@ -14,34 +15,46 @@ const ProjectDetails = () => {
     const [notification, setNotification] = useState(null);
     const [showAddNote, setShowAddNote] = useState(false);
 
-    const [comments, setComments] = useState([]);
+    const [commentsSummary, setCommentsSummary] = useState(null);
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
+    const [showComments, setShowComments] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const resProject = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
                 const dataProject = await resProject.json();
-                if (!resProject.ok || !dataProject.success) throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
+                if (!resProject.ok || !dataProject.success)
+                    throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
 
-                const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const resTech = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
                 const techData = await resTech.json();
-                if (!resTech.ok || !techData.success) throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
+                if (!resTech.ok || !techData.success)
+                    throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
 
                 let newPdfUrl = null;
-                const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const resPdf = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
 
                 if (resPdf.ok) {
                     const pdfBlob = await resPdf.blob();
@@ -50,7 +63,11 @@ const ProjectDetails = () => {
                     throw new Error("שגיאה בטעינת קובץ ה-PDF");
                 }
 
-                setProject({ ...dataProject.data, technologies: techData.data, notes: dataProject.data.notes || "אין הערות" });
+                setProject({
+                    ...dataProject.data,
+                    technologies: techData.data,
+                    notes: dataProject.data.notes || "אין הערות",
+                });
                 setPdfUrl(newPdfUrl);
                 setLoading(false);
             } catch (err) {
@@ -60,16 +77,21 @@ const ProjectDetails = () => {
             }
         };
 
-        const fetchComments = async () => {
+        const fetchCommentsSummary = async () => {
             try {
                 setCommentsLoading(true);
-                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`, {
-                    method: "GET",
-                    credentials: "include",
-                });
+                const res = await fetch(
+                    `${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
                 const data = await res.json();
-                if (!res.ok || !data.success) throw new Error(data.message || "שגיאה בטעינת הערות");
-                setComments(data.data);
+                if (!res.ok || !data.success)
+                    throw new Error(data.message || "שגיאה בטעינת הערות");
+
+                setCommentsSummary(data.data);
             } catch (err) {
                 console.error("שגיאה בטעינת הערות:", err);
                 setCommentsError(err.message);
@@ -79,8 +101,7 @@ const ProjectDetails = () => {
         };
 
         fetchProjectDetails();
-        fetchComments();
-
+        fetchCommentsSummary();
     }, [projectId]);
 
     useEffect(() => {
@@ -112,16 +133,34 @@ const ProjectDetails = () => {
 
             if (response.ok && data.success) {
                 setNotification({ message: "ההערה נשמרה בהצלחה!", type: "success" });
-                // לרענן את ההערות אחרי הוספה
-                setComments(prev => [...prev, {
-                    id: data.insertedId, // בהנחה שהשרת מחזיר את זה, אם לא צריך לשפר
-                    title: noteData.title,
-                    section: noteData.section,
-                    page: noteData.page,
-                    text: noteData.text,
-                    is_done: 0,
-                    user_marked: null,
-                }]);
+                setCommentsSummary((prev) => ({
+                    ...prev,
+                    notDone: prev?.notDone
+                        ? [
+                            ...prev.notDone,
+                            {
+                                id: data.insertedId,
+                                title: noteData.title,
+                                section: noteData.section,
+                                page: noteData.page,
+                                text: noteData.text,
+                                is_done: 0,
+                                done_by_user: 0,
+                            },
+                        ]
+                        : [
+                            {
+                                id: data.insertedId,
+                                title: noteData.title,
+                                section: noteData.section,
+                                page: noteData.page,
+                                text: noteData.text,
+                                is_done: 0,
+                                done_by_user: 0,
+                            },
+                        ],
+                    totalCount: (prev?.totalCount || 0) + 1,
+                }));
             } else {
                 setNotification({ message: data.message || "שגיאה בשמירת ההערה", type: "error" });
             }
@@ -132,7 +171,6 @@ const ProjectDetails = () => {
             setShowAddNote(false);
         }
     };
-
 
     if (loading) {
         return (
@@ -176,6 +214,7 @@ const ProjectDetails = () => {
                     onClose={() => setNotification(null)}
                 />
             )}
+
             <h2 className="formLabel">פרטי הפרויקט</h2>
             <div className="content-wrapper">
                 <div className="right-column">
@@ -191,10 +230,10 @@ const ProjectDetails = () => {
                             <div>קישור לגיטהאב</div>
                             {project.link_to_github ? (
                                 <span>
-                  <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
-                    {project.link_to_github}
-                  </a>
-                </span>
+                                    <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                                        {project.link_to_github}
+                                    </a>
+                                </span>
                             ) : (
                                 <span>לא הוזן קישור לגיטהאב</span>
                             )}
@@ -212,23 +251,39 @@ const ProjectDetails = () => {
                             </div>
                         )}
                     </div>
+
                     <div className="notes-container">
-                        <div className="button-container">
-                            <button className="back-button" onClick={() => setShowAddNote(true)}>
-                                ➕ הוסף הערה
-                            </button>
-                        </div>
                         {commentsLoading ? (
-                            <div>טוען הערות...</div>
+                            <div>טוען סיכום הערות...</div>
                         ) : commentsError ? (
                             <div className="error">{commentsError}</div>
-                        ) : comments.length === 0 ? (
-                            <div>אין הערות לפרויקט זה</div>
+                        ) : commentsSummary ? (
+                            <>
+                                <div>סה"כ הערות: {commentsSummary.totalCount}</div>
+                                <div>הערות שסומנו כבוצע: {commentsSummary.doneByUser?.length || 0}</div>
+                                <div>הערות שהושלמו על ידי משתמש אחר: {commentsSummary.doneByOthers?.length || 0}</div>
+                                <div>הערות שלא סומנו ולא הושלמו: {commentsSummary.notDone?.length || 0}</div>
+
+                                <div
+                                    className="button-container" style={{ marginTop: "10px", justifyContent: "space-between" }}>
+                                        <button onClick={() => setShowComments(true)}>למעבר לתצוגה מפורטת</button>
+                                    <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                </div>
+                            </>
                         ) : (
-                            <CommentsProject comments={comments} />
+                            <div>אין הערות לפרויקט זה</div>
+                        )}
+
+                        {!commentsLoading && !commentsError && commentsSummary && commentsSummary.totalCount === 0 && (
+                            <div className="button-container" style={{ marginTop: "10px" }}>
+                                <button className="back-button" onClick={() => setShowAddNote(true)}>
+                                    ➕ הוסף הערה
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
+
                 <div className="pdfView">
                     {pdfUrl ? (
                         <iframe src={pdfUrl} title="Project PDF" className="pdf-iframe" />
@@ -237,6 +292,19 @@ const ProjectDetails = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal להצגת ההערות */}
+            {showComments && (
+                <Modal onClose={() => setShowComments(false)}>
+                    <CommentsProject
+                        comments={[
+                            ...(commentsSummary.doneByUser || []),
+                            ...(commentsSummary.doneByOthers || []),
+                            ...(commentsSummary.notDone || []),
+                        ]}
+                    />
+                </Modal>
+            )}
 
             {showAddNote && (
                 <AddNotePopup

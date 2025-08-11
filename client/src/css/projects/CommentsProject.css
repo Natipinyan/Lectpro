@@ -1,7 +1,6 @@
 /* CommentsProject.css */
 .comments-container {
     max-width: 900px;
-    margin: 30px auto;
     padding: 0 20px;
     font-family: 'Rubik', 'Arial', sans-serif;
     direction: rtl;
@@ -11,7 +10,6 @@
 .comments-container h3 {
     font-size: 1.8rem;
     color: #2c3e50;
-    margin-bottom: 20px;
     text-align: center;
 }
 

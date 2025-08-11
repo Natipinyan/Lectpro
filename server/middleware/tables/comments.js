@@ -12,14 +12,31 @@ async function getComments(req, res, next) {
 async function getCommentsByProject(req, res, next) {
     const { projectId } = req.params;
     const q = `SELECT * FROM comments WHERE project_id = ?`;
+
     db_pool.query(q, [projectId], (err, rows) => {
         if (err) {
-            return res.status(500).json({ message: "שגיאה בקבלת ההערות עבור הפרויקט" });
+            return next(err);
         }
-        res.commentsList = rows;
+
+        const doneByUser = rows.filter(c => Number(c.is_done) === 1);
+        const doneByOthers = rows.filter(c => Number(c.is_done) === 0 && Number(c.done_by_user) === 1);
+        const notDone = rows.filter(c => Number(c.is_done) === 0 && (!c.done_by_user || Number(c.done_by_user) === 0));
+
+        res.commentsList = {
+            doneByUser,
+            doneByOthers,
+            notDone,
+            totalCount: rows.length,
+            doneCount: doneByUser.length,
+            doneByOthersCount: doneByOthers.length,
+            notDoneCount: notDone.length
+        };
+
         next();
     });
 }
+
+
 
 async function addComment(req, res, next) {
     const { project_id, title, section, page, text, is_done } = req.body;
