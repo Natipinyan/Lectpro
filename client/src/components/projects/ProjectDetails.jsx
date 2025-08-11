@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
+import CommentsProject from "./CommentsProject";
 import "../../css/projects/ProjectDetails.css";
 import Swal from 'sweetalert2';
 
@@ -12,6 +13,12 @@ const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
     const navigate = useNavigate();
+
+    const [comments, setComments] = useState([]);
+    const [commentsLoading, setCommentsLoading] = useState(true);
+    const [commentsError, setCommentsError] = useState(null);
+
+
 
     useEffect(() => {
         const fetchProjectDetails = async () => {
@@ -53,7 +60,26 @@ const ProjectDetails = () => {
             }
         };
 
+        const fetchComments = async () => {
+            try {
+                setCommentsLoading(true);
+                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/project/${projectId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.message || "שגיאה בטעינת הערות");
+                setComments(data.data);
+            } catch (err) {
+                console.error("שגיאה בטעינת הערות:", err);
+                setCommentsError(err.message);
+            } finally {
+                setCommentsLoading(false);
+            }
+        };
+
         fetchProjectDetails();
+        fetchComments();
     }, [projectId]);
 
     useEffect(() => {
@@ -195,9 +221,17 @@ const ProjectDetails = () => {
                         )}
                     </div>
                     <div className="notes-container">
-                        <h4>הערות</h4>
-                        <div className="notes-content">{project.notes || "אין הערות"}</div>
+                        {commentsLoading ? (
+                            <div>טוען הערות...</div>
+                        ) : commentsError ? (
+                            <div className="error">{commentsError}</div>
+                        ) : comments.length === 0 ? (
+                            <div>אין הערות לפרויקט זה</div>
+                        ) : (
+                            <CommentsProject comments={comments} />
+                        )}
                     </div>
+
                 </div>
                 <div className="pdfView">
                     {pdfUrl ? (

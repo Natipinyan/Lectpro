@@ -64,6 +64,7 @@ CREATE TABLE `comments` (
                             `section` varchar(255) NOT NULL,
                             `page` int(11) NOT NULL,
                             `is_done` tinyint(1) DEFAULT 0,
+                            `done_by_user` tinyint(1) DEFAULT 0,
                             PRIMARY KEY (`id`),
                             KEY `project_id` (`project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

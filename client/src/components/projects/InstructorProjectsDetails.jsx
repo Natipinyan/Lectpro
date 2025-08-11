@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import AddNotePopup from "./AddNotePopup";
+import CommentsProject from "./CommentsProject";
 import "../../css/projects/ProjectDetails.css";
 
 const ProjectDetails = () => {
@@ -12,6 +13,10 @@ const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
     const [showAddNote, setShowAddNote] = useState(false);
+
+    const [comments, setComments] = useState([]);
+    const [commentsLoading, setCommentsLoading] = useState(true);
+    const [commentsError, setCommentsError] = useState(null);
 
     const navigate = useNavigate();
 
@@ -55,7 +60,27 @@ const ProjectDetails = () => {
             }
         };
 
+        const fetchComments = async () => {
+            try {
+                setCommentsLoading(true);
+                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.message || "שגיאה בטעינת הערות");
+                setComments(data.data);
+            } catch (err) {
+                console.error("שגיאה בטעינת הערות:", err);
+                setCommentsError(err.message);
+            } finally {
+                setCommentsLoading(false);
+            }
+        };
+
         fetchProjectDetails();
+        fetchComments();
+
     }, [projectId]);
 
     useEffect(() => {
@@ -87,13 +112,16 @@ const ProjectDetails = () => {
 
             if (response.ok && data.success) {
                 setNotification({ message: "ההערה נשמרה בהצלחה!", type: "success" });
-                setProject((prev) => ({
-                    ...prev,
-                    notes:
-                        prev.notes === "אין הערות"
-                            ? noteData.text
-                            : prev.notes + "\n" + noteData.text,
-                }));
+                // לרענן את ההערות אחרי הוספה
+                setComments(prev => [...prev, {
+                    id: data.insertedId, // בהנחה שהשרת מחזיר את זה, אם לא צריך לשפר
+                    title: noteData.title,
+                    section: noteData.section,
+                    page: noteData.page,
+                    text: noteData.text,
+                    is_done: 0,
+                    user_marked: null,
+                }]);
             } else {
                 setNotification({ message: data.message || "שגיאה בשמירת ההערה", type: "error" });
             }
@@ -185,13 +213,20 @@ const ProjectDetails = () => {
                         )}
                     </div>
                     <div className="notes-container">
-                        <h4>הערות</h4>
                         <div className="button-container">
                             <button className="back-button" onClick={() => setShowAddNote(true)}>
                                 ➕ הוסף הערה
                             </button>
                         </div>
-                        <div className="notes-content">{project.notes || "אין הערות"}</div>
+                        {commentsLoading ? (
+                            <div>טוען הערות...</div>
+                        ) : commentsError ? (
+                            <div className="error">{commentsError}</div>
+                        ) : comments.length === 0 ? (
+                            <div>אין הערות לפרויקט זה</div>
+                        ) : (
+                            <CommentsProject comments={comments} />
+                        )}
                     </div>
                 </div>
                 <div className="pdfView">

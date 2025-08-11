@@ -1,0 +1,121 @@
+/* CommentsProject.css */
+.comments-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+    font-family: 'Rubik', 'Arial', sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+.comments-container h3 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.comment-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.comment-header {
+    margin-bottom: 15px;
+}
+
+.comment-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.comment-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.comment-details span {
+    background-color: #f1f4ff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.comment-status {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    min-width: 100px;
+    text-align: center;
+}
+
+.comment-status.done {
+    background-color: #27ae60;
+    color: #ffffff;
+}
+
+.comment-status.not-done {
+    background-color: #e74c3c;
+    color: #ffffff;
+}
+
+.comment-actions {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.comment-actions button {
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.comment-actions button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+
+/* רספונסיביות */
+@media (max-width: 600px) {
+    .comments-container {
+        padding: 0 10px;
+    }
+
+    .comment-card {
+        padding: 15px;
+    }
+
+    .comment-title {
+        font-size: 1.1rem;
+    }
+
+    .comment-details span {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+    }
+
+    .comment-actions button {
+        padding: 7px 12px;
+        font-size: 0.85rem;
+    }
+}
