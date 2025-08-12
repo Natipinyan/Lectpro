@@ -9,7 +9,6 @@ const Comment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { comment } = location.state || {};
-    console.log("Comment component location state:", location.state);
 
     const [currentComment, setCurrentComment] = useState(comment);
     const [notification, setNotification] = useState(null);
@@ -117,6 +116,10 @@ const Comment = () => {
                             }));
                             setButtonDisabled(true);
                             setShowMarkDoneModal(false);
+
+                            setTimeout(() => {
+                                navigate(-1);
+                            }, 3000);
                         }}
                         onSendError={(msg) => {
                             setNotification({ message: msg, type: "error" });

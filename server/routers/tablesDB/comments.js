@@ -42,15 +42,14 @@ router.post('/', middleLogIns.authenticateToken, middleComments.addComment, (req
     }
 });
 
-// REST: User marks comment done with response (for student)
-router.put('/:commentId/userDone', middleLog.authenticateToken, middleComments.markDoneByUser, (req, res) => {
+// REST: Update a comment by ID (for instructor)
+router.put('/:commentId', middleLogIns.authenticateToken, middleComments.updateComment, (req, res) => {
     try {
         res.status(res.updateStatus || 200).json({ success: res.updateStatus === 200, message: res.updateMessage });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בעדכון תגובת המשתמש' });
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון הערה' });
     }
 });
-
 
 // REST: Update a comment to be done (for instructor)
 router.put('/isDone/:commentId', middleLogIns.authenticateToken, middleComments.setCommentDone, (req, res) => {
@@ -61,6 +60,14 @@ router.put('/isDone/:commentId', middleLogIns.authenticateToken, middleComments.
     }
 });
 
+// REST: User marks comment done with response (for student)
+router.put('/:commentId/userDone', middleLog.authenticateToken, middleComments.markDoneByUser, (req, res) => {
+    try {
+        res.status(res.updateStatus || 200).json({ success: res.updateStatus === 200, message: res.updateMessage });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון תגובת המשתמש' });
+    }
+});
 
 // REST: Delete a comment by ID (for instructor)
 router.delete('/:commentId', middleLogIns.authenticateToken, middleComments.deleteComment, (req, res) => {

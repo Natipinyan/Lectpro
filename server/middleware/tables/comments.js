@@ -200,17 +200,32 @@ async function setCommentDone(req, res, next) {
 async function markDoneByUser(req, res, next) {
     const { commentId } = req.params;
     const { user_response } = req.body;
+
     if (!user_response || user_response.trim() === "") {
         res.updateStatus = 400;
         res.updateMessage = "תגובה היא שדה חובה";
         return next();
     }
 
-    const selectQuery = `SELECT id FROM comments WHERE id = ? LIMIT 1`;
+    const selectQuery = `
+        SELECT id, done_by_user, user_response
+        FROM comments
+        WHERE id = ?
+            LIMIT 1
+    `;
+
     db_pool.query(selectQuery, [commentId], (err, results) => {
         if (err || results.length === 0) {
             res.updateStatus = 404;
             res.updateMessage = "ההערה לא נמצאה";
+            return next();
+        }
+
+        const comment = results[0];
+
+        if (comment.done_by_user === 1 || (comment.user_response && comment.user_response.trim() !== "")) {
+            res.updateStatus = 400;
+            res.updateMessage = "ההערה כבר טופלה";
             return next();
         }
 
@@ -219,6 +234,7 @@ async function markDoneByUser(req, res, next) {
             SET done_by_user = 1, user_response = ?
             WHERE id = ?
         `;
+
         db_pool.query(updateQuery, [user_response.trim(), commentId], (err2) => {
             if (err2) {
                 res.updateStatus = 500;

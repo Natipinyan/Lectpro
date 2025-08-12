@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // הוספנו useEffect
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../css/projects/InstructorComment.css";
 import Swal from "sweetalert2";
@@ -13,8 +13,17 @@ const InstructorComment = () => {
 
     const [showEdit, setShowEdit] = useState(false);
     const [currentComment, setCurrentComment] = useState(comment);
-
     const [notification, setNotification] = useState(null);
+
+    useEffect(() => {
+        let timer;
+        if (notification?.type === "success" && showEdit === false) {
+            timer = setTimeout(() => {
+                navigate(-1);
+            }, 3000);
+        }
+        return () => clearTimeout(timer);
+    }, [notification, showEdit, navigate]);
 
     if (!currentComment) {
         return <div className="no-comment">לא נמצאה הערה</div>;
@@ -68,6 +77,7 @@ const InstructorComment = () => {
         setShowEdit(false);
         setNotification({ message: "ההערה עודכנה בהצלחה!", type: "success" });
     };
+
     const handleMarkDone = async () => {
         try {
             const response = await fetch(
@@ -83,11 +93,14 @@ const InstructorComment = () => {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setCurrentComment(prev => ({
+                setCurrentComment((prev) => ({
                     ...prev,
                     is_done: true,
                 }));
-                setNotification({ message: "ההערה סומנה כבוצעה בהצלחה!", type: "success" });
+                setNotification({
+                    message: "ההערה סומנה כבוצעה בהצלחה!",
+                    type: "success",
+                });
             } else {
                 throw new Error(data.message || "שגיאה בסימון ההערה כבוצעה");
             }
@@ -139,8 +152,8 @@ const InstructorComment = () => {
                     <div className="status-box">
                         <span className="label">האם הושלם על ידי המשתמש?</span>
                         <span className="value">
-              {currentComment.done_by_user ? "כן" : "לא"}
-            </span>
+                            {currentComment.done_by_user ? "כן" : "לא"}
+                        </span>
                     </div>
 
                     <div className="status-box">
@@ -150,8 +163,8 @@ const InstructorComment = () => {
                                 currentComment.is_done ? "done-user" : "not-done-user"
                             }`}
                         >
-              {currentComment.is_done ? "הושלם" : "לא הושלם"}
-            </span>
+                            {currentComment.is_done ? "הושלם" : "לא הושלם"}
+                        </span>
                     </div>
                 </div>
 
