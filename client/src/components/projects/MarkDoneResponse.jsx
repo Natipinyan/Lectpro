@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import '../../css/projects/ MarkDoneResponse.css'
+import '../../css/projects/ MarkDoneResponse.css';
 
-const MarkDoneResponse = ({ onClose, onSend }) => {
+const MarkDoneResponse = ({ commentId, onClose, onSendSuccess, onSendError }) => {
     const [responseText, setResponseText] = useState("");
     const [sending, setSending] = useState(false);
     const [error, setError] = useState(null);
@@ -15,9 +15,29 @@ const MarkDoneResponse = ({ onClose, onSend }) => {
         setSending(true);
 
         try {
-            await onSend(responseText);
+            const response = await fetch(
+                `${process.env.REACT_APP_BASE_URL}/comments/${commentId}/userDone`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ user_response: responseText.trim() }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                onSendSuccess && onSendSuccess(data.message || "התגובה נקלטה בהצלחה", responseText.trim());
+                onClose();
+            } else {
+                throw new Error(data.message || "שגיאה בשליחת התגובה");
+            }
         } catch (err) {
             setError(err.message || "שגיאה בשליחת התגובה");
+            onSendError && onSendError(err.message || "שגיאה בשליחת התגובה");
         } finally {
             setSending(false);
         }
@@ -32,6 +52,7 @@ const MarkDoneResponse = ({ onClose, onSend }) => {
                 value={responseText}
                 onChange={(e) => setResponseText(e.target.value)}
                 placeholder="כתוב את תגובתך כאן..."
+                disabled={sending}
             />
             <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between" }}>
                 <button onClick={onClose} disabled={sending}>ביטול</button>

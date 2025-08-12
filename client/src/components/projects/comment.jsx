@@ -1,50 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../css/projects/InstructorComment.css";
 import Modal from "../base/Modal";
-import MarkDoneResponse from "../projects/ MarkDoneResponse"
+import MarkDoneResponse from "./MarkDoneResponse";
 import NotificationPopup from "./NotificationPopup";
 
-const InstructorComment = () => {
+const Comment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { comment } = location.state || {};
+    console.log("Comment component location state:", location.state);
 
     const [currentComment, setCurrentComment] = useState(comment);
-
     const [notification, setNotification] = useState(null);
-
     const [showMarkDoneModal, setShowMarkDoneModal] = useState(false);
+    const [buttonDisabled, setButtonDisabled] = useState(false);
 
-    const handleSendMarkDone = async (responseText) => {
-        try {
-            const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/isDone/${currentComment.id}`, {
-                method: "PUT",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ user_response: responseText }),
-            });
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                throw new Error(data.message || "שגיאה בסימון ההערה כבוצעה");
-            }
-
-            setCurrentComment(prev => ({
-                ...prev,
-                is_done: true,
-                user_response: responseText,
-            }));
-
-            setNotification({ message: "ההערה סומנה כבוצעה בהצלחה!", type: "success" });
-            setShowMarkDoneModal(false);
-        } catch (error) {
-            throw error;
+    useEffect(() => {
+        if (currentComment) {
+            setButtonDisabled(currentComment.done_by_user || currentComment.is_done);
         }
-    };
-
+    }, [currentComment]);
 
     if (!currentComment) {
         return <div className="no-comment">לא נמצאה הערה</div>;
@@ -86,9 +62,13 @@ const InstructorComment = () => {
                 <div className="status-boxes">
                     <div className="status-box">
                         <span className="label">האם הושלם על ידי המשתמש?</span>
-                        <span className="value">
-              {currentComment.done_by_user ? "כן" : "לא"}
-            </span>
+                        <span
+                            className={`value ${
+                                currentComment.done_by_user ? "done-by-user-true" : "done-by-user-false"
+                            }`}
+                        >
+                            {currentComment.done_by_user ? "כן" : "לא"}
+                        </span>
                     </div>
 
                     <div className="status-box">
@@ -98,29 +78,26 @@ const InstructorComment = () => {
                                 currentComment.is_done ? "done-user" : "not-done-user"
                             }`}
                         >
-              {currentComment.is_done ? "הושלם" : "לא הושלם"}
-            </span>
+                            {currentComment.is_done ? "הושלם" : "לא הושלם"}
+                        </span>
                     </div>
                 </div>
 
-                {currentComment.done_by_user &&
-                    String(currentComment.user_response).trim() !== "" && (
-                        <div className="user-response">
-                            <span className="label">תגובת המשתמש:</span>
-                            <p>{currentComment.user_response}</p>
-                        </div>
-                    )}
+                {currentComment.done_by_user && currentComment.user_response?.trim() !== "" && (
+                    <div className="user-response">
+                        <span className="label">תגובת המשתמש:</span>
+                        <p>{currentComment.user_response}</p>
+                    </div>
+                )}
 
-                <div
-                    style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-                >
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
                     <button
                         className="mark-button"
                         style={{ width: "200px" }}
                         onClick={() => setShowMarkDoneModal(true)}
-                        disabled={currentComment.is_done}
+                        disabled={buttonDisabled}
                     >
-                        {currentComment.is_done ? "ההערה כבר סומנה" : "סמן כבוצע"}
+                        {buttonDisabled ? "ההערה כבר סומנה" : "סמן כבוצע"}
                     </button>
                 </div>
             </div>
@@ -128,8 +105,22 @@ const InstructorComment = () => {
             {showMarkDoneModal && (
                 <Modal onClose={() => setShowMarkDoneModal(false)} width="40vw">
                     <MarkDoneResponse
+                        commentId={currentComment.id}
                         onClose={() => setShowMarkDoneModal(false)}
-                        onSend={handleSendMarkDone}
+                        onSendSuccess={(msg, responseText) => {
+                            setNotification({ message: msg, type: "success" });
+                            setCurrentComment((prev) => ({
+                                ...prev,
+                                done_by_user: true,
+                                user_response: responseText,
+                                is_done: true,
+                            }));
+                            setButtonDisabled(true);
+                            setShowMarkDoneModal(false);
+                        }}
+                        onSendError={(msg) => {
+                            setNotification({ message: msg, type: "error" });
+                        }}
                     />
                 </Modal>
             )}
@@ -145,4 +136,4 @@ const InstructorComment = () => {
     );
 };
 
-export default InstructorComment;
+export default Comment;

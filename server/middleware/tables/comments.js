@@ -197,6 +197,40 @@ async function setCommentDone(req, res, next) {
     });
 }
 
+async function markDoneByUser(req, res, next) {
+    const { commentId } = req.params;
+    const { user_response } = req.body;
+    if (!user_response || user_response.trim() === "") {
+        res.updateStatus = 400;
+        res.updateMessage = "תגובה היא שדה חובה";
+        return next();
+    }
+
+    const selectQuery = `SELECT id FROM comments WHERE id = ? LIMIT 1`;
+    db_pool.query(selectQuery, [commentId], (err, results) => {
+        if (err || results.length === 0) {
+            res.updateStatus = 404;
+            res.updateMessage = "ההערה לא נמצאה";
+            return next();
+        }
+
+        const updateQuery = `
+            UPDATE comments
+            SET done_by_user = 1, user_response = ?
+            WHERE id = ?
+        `;
+        db_pool.query(updateQuery, [user_response.trim(), commentId], (err2) => {
+            if (err2) {
+                res.updateStatus = 500;
+                res.updateMessage = "שגיאה בעדכון תגובת המשתמש";
+            } else {
+                res.updateStatus = 200;
+                res.updateMessage = "התגובה נקלטה בהצלחה";
+            }
+            next();
+        });
+    });
+}
 
 async function deleteComment(req, res, next) {
     const { commentId } = req.params;
@@ -229,7 +263,8 @@ module.exports = {
     addComment,
     updateComment,
     deleteComment,
-    setCommentDone
+    setCommentDone,
+    markDoneByUser
 };
 
 
