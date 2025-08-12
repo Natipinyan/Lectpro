@@ -261,7 +261,7 @@ const ProjectDetails = () => {
             </div>
 
             {showComments && commentsSummary && (
-                <Modal onClose={() => setShowComments(false)}>
+                <Modal onClose={() => setShowComments(false)} width="70vw">
                     <CommentsProject comments={commentsSummary} nav={'students'}  />
                 </Modal>
             )}

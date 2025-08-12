@@ -44,20 +44,20 @@
     margin-bottom: 15px;
 }
 
+
 .back-button,
-.delete-button,
-.edit-button {
-    flex: 1;
-    margin: 0 5px;
-    padding: 8px 12px;
+.edit-button,
+.delete-button {
+    width: 160px;
+    height: 48px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border: none;
-    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    color: white;
-    transition: background-color 0.2s ease;
-    user-select: none;
-    text-align: center;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .status-boxes {
