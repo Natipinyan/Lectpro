@@ -19,6 +19,7 @@ import UpFile from "./components/projects/UploadFile";
 import MyProjects from "./components/projects/MyProjects";
 import ProjectDetails from "./components/projects/ProjectDetails";
 import EditProject from "./components/projects/EditPtoject";
+import Comment from "./components/projects/comment";
 
 // Cookie check for instructors
 import PrivateRouteInstructor from "./services/PrivateRouteInstructor";
@@ -36,6 +37,7 @@ import HomeInstructor from "./components/base/HomeInstructor";
 // Components for instructors
 import InstructorProjects  from "./components/projects/InstructorProjectsList";
 import InstructorProjectDetails from "./components/projects/InstructorProjectsDetails";
+import InstructorComment from "./components/projects/instructorComment";
 
 
 export {
@@ -60,6 +62,7 @@ export {
     MyProjects,
     ProjectDetails,
     EditProject,
+    Comment,
 
     // Instructor authentication and routes
     PrivateRouteInstructor,
@@ -75,6 +78,7 @@ export {
     // instructors project components
     InstructorProjects,
     InstructorProjectDetails,
+    InstructorComment,
 
 
 };

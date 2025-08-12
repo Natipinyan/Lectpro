@@ -262,7 +262,7 @@ const ProjectDetails = () => {
 
             {showComments && commentsSummary && (
                 <Modal onClose={() => setShowComments(false)}>
-                    <CommentsProject comments={commentsSummary} />
+                    <CommentsProject comments={commentsSummary} nav={'students'}  />
                 </Modal>
             )}
         </div>

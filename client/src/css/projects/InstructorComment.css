@@ -1,0 +1,110 @@
+.comment-page {
+    max-width: 900px;
+    margin: 30px auto;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+}
+
+.top-boxes {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-box {
+    flex: 1;
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+.label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.value {
+    color: #333;
+}
+
+.bottom-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.top-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.back-button,
+.delete-button,
+.edit-button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    transition: background-color 0.2s ease;
+    user-select: none;
+    text-align: center;
+}
+
+.status-boxes {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.status-box {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.done-user {
+    color: green;
+    font-weight: bold;
+}
+
+.not-done-user {
+    color: red;
+    font-weight: bold;
+}
+
+.user-response {
+    margin-top: 10px;
+    padding: 10px;
+    background: #eef6ff;
+    border-radius: 6px;
+}
+
+.mark-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mark-button:hover {
+    background: #005fa3;
+}

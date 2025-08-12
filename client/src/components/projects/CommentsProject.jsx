@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../css/projects/CommentsProject.css";
 
-const CommentsProject = ({ comments }) => {
+const CommentsProject = ({ comments ,nav}) => {
     const [activeTab, setActiveTab] = useState("all");
+    const  navUrl = nav;
+    const navigate = useNavigate();
 
     if (
         !comments ||
@@ -88,7 +91,7 @@ const CommentsProject = ({ comments }) => {
                 <div className="no-comments-message">אין הערות להצגה בטאב זה.</div>
             ) : (
                 displayedComments.map(
-                    ({ id, title, page, section, is_done, done_by_user, user_response }) => (
+                    ({ id, title, text, page, section, is_done, done_by_user, user_response }) => (
                         <div
                             className="comment-row"
                             key={id}
@@ -108,7 +111,20 @@ const CommentsProject = ({ comments }) => {
                             <span>
                                 <button
                                     onClick={() => {
-                                        alert(`מעבר להערה עם id: ${id}`);
+                                        navigate(`/${navUrl}/comments/${id}`, {
+                                            state: {
+                                                comment: {
+                                                    id,
+                                                    title,
+                                                    page,
+                                                    section,
+                                                    text,
+                                                    is_done,
+                                                    done_by_user,
+                                                    user_response
+                                                }
+                                            }
+                                        });
                                     }}
                                     className="go-to-comment-button"
                                 >

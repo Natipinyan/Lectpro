@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../../css/projects/AddNotePopup.css";
+import "../../css/projects/AddNote.css";
 
-const AddNotePopup = ({ projectTitle, onClose, onSave }) => {
+const AddNote = ({ projectTitle, onClose, onSave }) => {
     const [title, setTitle] = useState("");
     const [section, setSection] = useState("");
     const [page, setPage] = useState("");
@@ -83,4 +83,4 @@ const AddNotePopup = ({ projectTitle, onClose, onSave }) => {
     );
 };
 
-export default AddNotePopup;
+export default AddNote;

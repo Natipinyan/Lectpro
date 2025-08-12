@@ -108,7 +108,7 @@ async function addComment(req, res, next) {
 
 async function updateComment(req, res, next) {
     const { commentId } = req.params;
-    const { title, section, page, text, is_done } = req.body;
+    const { title, section, page, text } = req.body;
 
     if (!title || title.trim() === "") {
         res.updateStatus = 400;
@@ -141,12 +141,12 @@ async function updateComment(req, res, next) {
 
         const updateQuery = `
             UPDATE comments
-            SET title = ?, section = ?, page = ?, text = ?, is_done = ?
+            SET title = ?, section = ?, page = ?, text = ?
             WHERE id = ?
         `;
         db_pool.query(
             updateQuery,
-            [title, section, page, text, is_done, commentId],
+            [title, section, page, text, commentId],
             (err2) => {
                 if (err2) {
                     res.updateStatus = 500;
@@ -160,6 +160,43 @@ async function updateComment(req, res, next) {
         );
     });
 }
+
+async function setCommentDone(req, res, next) {
+    const { commentId } = req.params;
+
+    const selectQuery = `SELECT id, done_by_user FROM comments WHERE id = ? LIMIT 1`;
+    db_pool.query(selectQuery, [commentId], (err, results) => {
+        if (err || results.length === 0) {
+            res.updateStatus = 404;
+            res.updateMessage = "ההערה לא נמצאה";
+            return next();
+        }
+
+        const comment = results[0];
+        if (!comment.done_by_user) {
+            res.updateStatus = 403;
+            res.updateMessage = "המשתמש לא סימן את ההערה כבוצעה, לא ניתן לסמן כבוצע";
+            return next();
+        }
+
+        const updateQuery = `
+            UPDATE comments
+            SET is_done = 1
+            WHERE id = ?
+        `;
+        db_pool.query(updateQuery, [commentId], (err2) => {
+            if (err2) {
+                res.updateStatus = 500;
+                res.updateMessage = "שגיאה בסימון ההערה כבוצעה";
+            } else {
+                res.updateStatus = 200;
+                res.updateMessage = "ההערה סומנה כבוצעה בהצלחה";
+            }
+            next();
+        });
+    });
+}
+
 
 async function deleteComment(req, res, next) {
     const { commentId } = req.params;
@@ -191,7 +228,8 @@ module.exports = {
     getCommentsByProject,
     addComment,
     updateComment,
-    deleteComment
+    deleteComment,
+    setCommentDone
 };
 
 

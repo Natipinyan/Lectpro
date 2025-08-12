@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
-import AddNotePopup from "./AddNotePopup";
+import AddNote from "./AddNote";
 import CommentsProject from "./CommentsProject";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
@@ -288,18 +288,21 @@ const ProjectDetails = () => {
             </div>
 
             {showComments && (
-                <Modal onClose={() => setShowComments(false)}>
-                    <CommentsProject comments={commentsSummary} />
+                <Modal onClose={() => setShowComments(false)} width="70vw">
+                    <CommentsProject comments={commentsSummary} nav={'instructor'} />
                 </Modal>
             )}
 
             {showAddNote && (
-                <AddNotePopup
-                    projectTitle={project.title}
-                    onClose={() => setShowAddNote(false)}
-                    onSave={handleSaveNote}
-                />
+                <Modal onClose={() => setShowAddNote(false)} width="40vw">
+                    <AddNote
+                        projectTitle={project.title}
+                        onClose={() => setShowAddNote(false)}
+                        onSave={handleSaveNote}
+                    />
+                </Modal>
             )}
+
         </div>
     );
 };

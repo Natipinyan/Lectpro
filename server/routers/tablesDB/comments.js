@@ -51,6 +51,18 @@ router.put('/:commentId', middleLogIns.authenticateToken, middleComments.updateC
     }
 });
 
+// REST: Update a comment to be done (for instructor)
+router.put('/isDone/:commentId', middleLogIns.authenticateToken, middleComments.setCommentDone, (req, res) => {
+    try {
+        res.status(res.updateStatus || 200).json({success: res.updateStatus === 200, message: res.updateMessage});
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון הערה' });
+    }
+});
+
+
+
+
 // REST: Delete a comment by ID (for instructor)
 router.delete('/:commentId', middleLogIns.authenticateToken, middleComments.deleteComment, (req, res) => {
     try {

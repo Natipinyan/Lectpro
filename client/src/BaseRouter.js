@@ -20,7 +20,8 @@ export default function BaseRouter() {
                         { path: "Profile", element: <Imports.PrivateRouteStudents element={Imports.ProfileSTD} /> },
                         { path: "MyProjects", element: <Imports.PrivateRouteStudents element={Imports.MyProjects} /> },
                         { path: "project/:projectId", element: <Imports.PrivateRouteStudents element={Imports.ProjectDetails} /> },
-                        { path: "EditProject/:projectId", element: <Imports.PrivateRouteStudents element={Imports.EditProject} /> }
+                        { path: "EditProject/:projectId", element: <Imports.PrivateRouteStudents element={Imports.EditProject} /> },
+                        { path: "comments/:projectId", element: <Imports.PrivateRouteStudents element={Imports.Comment} /> }
                     ],
                 },
             ],
@@ -37,6 +38,8 @@ export default function BaseRouter() {
                         { path: "Profile", element: <Imports.PrivateRouteInstructor element={Imports.ProfileINS} /> },
                         { path: "MyProjects", element: <Imports.PrivateRouteInstructor element={Imports.InstructorProjects} /> },
                         { path: "project/:projectId", element: <Imports.PrivateRouteInstructor element={Imports.InstructorProjectDetails} /> },
+                        { path: "comments/:projectId", element: <Imports.PrivateRouteInstructor element={Imports.InstructorComment} /> }
+
                     ],
                 },
             ],
