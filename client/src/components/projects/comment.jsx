@@ -51,6 +51,46 @@ const Comment = () => {
         setShowMarkDoneModal(true);
     };
 
+    const fetchNextComment = async () => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/next/${currentComment.id}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success && data.data) {
+                setCurrentComment(data.data);
+                setNotification({ message: "הערה הבאה נטענה בהצלחה!", type: "success" });
+            } else {
+                setNotification({ message: data.message || "אין הערה הבאה", type: "info" });
+            }
+            console.log("Next comment data:", data);
+        } catch (err) {
+            setNotification({ message: "שגיאה בטעינת ההערה הבאה", type: "error" });
+        }
+    };
+
+    const fetchPrevComment = async () => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/prev/${currentComment.id}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success && data.data) {
+                setCurrentComment(data.data);
+                setNotification({ message: "הערה קודמת נטענה בהצלחה!", type: "success" });
+            } else {
+                setNotification({ message: data.message || "אין הערה קודמת", type: "info" });
+            }
+        } catch (err) {
+            setNotification({ message: "שגיאה בטעינת ההערה הקודמת", type: "error" });
+        }
+    };
+
+
     if (loading) return <div className="loading">טוען...</div>;
     if (error) return <div className="error">{error}</div>;
     if (!currentComment) return <div className="no-comment">לא נמצאה הערה</div>;
@@ -86,6 +126,12 @@ const Comment = () => {
                         onClick={() => navigate(-1)}
                     >
                         ✖ סגור הערה
+                    </button>
+                    <button className="prev-button" onClick={fetchPrevComment}>
+                        ← הערה קודמת
+                    </button>
+                    <button className="next-button" onClick={fetchNextComment}>
+                        הערה הבאה →
                     </button>
                 </div>
 

@@ -57,8 +57,25 @@ router.get('/ins/prev/:commentId', middleLogIns.authenticateToken, middleComment
     }
 });
 
+// REST: Get next comment by ID (for student)
+router.get('/next/:commentId', middleLog.authenticateToken, middleComments.getNextComment, (req, res) => {
+    try {
+        res.status(req.nextStatus || 200).json({success: req.nextSuccess, message: req.nextMessage, data: req.nextComment || null});
+    } catch (err) {
+        res.status(500).json({success: false, message: 'שגיאה בקבלת ההערה הבאה'
+        });
+    }
+});
 
-
+// REST: Get previous comment by ID (for student)
+router.get('/prev/:commentId', middleLog.authenticateToken, middleComments.getPrevComment, (req, res) => {
+    try {
+        res.status(req.prevStatus || 200).json({success: req.prevSuccess, data: req.prevComment || null});
+    } catch (err) {
+        res.status(500).json({success: false, message: 'שגיאה בקבלת ההערה הקודמת'
+        });
+    }
+});
 
 // REST: Get comments by project ID (for instructor)
 router.get('/ins/project/:projectId', middleLogIns.authenticateToken, middleComments.getCommentsByProject, (req, res) => {
