@@ -273,6 +273,39 @@ async function deleteComment(req, res, next) {
     });
 }
 
+async function getCommentById(req, res, next) {
+    const { commentId } = req.params;
+
+    if (!commentId || isNaN(commentId)) {
+        res.getStatus = 400;
+        res.getMessage = "מזהה ההערה אינו תקין";
+        return next();
+    }
+
+    const query = `
+        SELECT * FROM comments WHERE id = ? LIMIT 1
+    `;
+
+    db_pool.query(query, [commentId], (err, results) => {
+        if (err) {
+            res.getStatus = 500;
+            res.getMessage = "שגיאה בקבלת ההערה";
+            return next();
+        }
+
+        if (results.length === 0) {
+            res.getStatus = 404;
+            res.getMessage = "ההערה לא נמצאה";
+            return next();
+        }
+
+        res.getStatus = 200;
+        res.commentData = results[0];
+        next();
+    });
+}
+
+
 module.exports = {
     getComments,
     getCommentsByProject,
@@ -280,7 +313,8 @@ module.exports = {
     updateComment,
     deleteComment,
     setCommentDone,
-    markDoneByUser
+    markDoneByUser,
+    getCommentById
 };
 
 

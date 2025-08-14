@@ -8,22 +8,58 @@ import NotificationPopup from "./NotificationPopup";
 const Comment = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { comment } = location.state || {};
+    const commentID = location.state?.comment?.id ?? null;
 
-    const [currentComment, setCurrentComment] = useState(comment);
+    const [currentComment, setCurrentComment] = useState(null);
     const [notification, setNotification] = useState(null);
     const [showMarkDoneModal, setShowMarkDoneModal] = useState(false);
-    const [buttonDisabled, setButtonDisabled] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (currentComment) {
-            setButtonDisabled(currentComment.done_by_user || currentComment.is_done);
+        if (!commentID) {
+            setError("לא התקבל מזהה הערה");
+            setLoading(false);
+            return;
         }
-    }, [currentComment]);
 
-    if (!currentComment) {
-        return <div className="no-comment">לא נמצאה הערה</div>;
-    }
+        const fetchComment = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/${commentID}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    setCurrentComment(data.data);
+                } else {
+                    setError(data.message || "אירעה שגיאה בטעינת ההערה");
+                }
+            } catch (err) {
+                setError("אירעה שגיאה בטעינת ההערה");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchComment();
+    }, [commentID]);
+
+    const handleMarkDone = () => {
+        if (!currentComment || currentComment.done_by_user) return;
+        setShowMarkDoneModal(true);
+    };
+
+    if (loading) return <div className="loading">טוען...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!currentComment) return <div className="no-comment">לא נמצאה הערה</div>;
+
+    const markButtonText = currentComment.done_by_user
+        ? "ההערה כבר סומנה כבוצעה"
+        : "סמן כבוצע";
+
+    const markButtonDisabled = currentComment.done_by_user || currentComment.is_done;
 
     return (
         <div className="comment-page">
@@ -46,8 +82,8 @@ const Comment = () => {
                 <div className="top-buttons">
                     <button
                         className="back-button"
-                        onClick={() => navigate(-1)}
                         aria-label="חזרה לכל ההערות"
+                        onClick={() => navigate(-1)}
                     >
                         ✖ סגור הערה
                     </button>
@@ -61,22 +97,14 @@ const Comment = () => {
                 <div className="status-boxes">
                     <div className="status-box">
                         <span className="label">האם הושלם על ידי המשתמש?</span>
-                        <span
-                            className={`value ${
-                                currentComment.done_by_user ? "done-by-user-true" : "done-by-user-false"
-                            }`}
-                        >
+                        <span className={`value ${currentComment.done_by_user ? "done-by-user-true" : "done-by-user-false"}`}>
                             {currentComment.done_by_user ? "כן" : "לא"}
                         </span>
                     </div>
 
                     <div className="status-box">
                         <span className="label">סטטוס הערה</span>
-                        <span
-                            className={`value ${
-                                currentComment.is_done ? "done-user" : "not-done-user"
-                            }`}
-                        >
+                        <span className={`value ${currentComment.is_done ? "done-user" : "not-done-user"}`}>
                             {currentComment.is_done ? "הושלם" : "לא הושלם"}
                         </span>
                     </div>
@@ -93,10 +121,10 @@ const Comment = () => {
                     <button
                         className="mark-button"
                         style={{ width: "200px" }}
-                        onClick={() => setShowMarkDoneModal(true)}
-                        disabled={buttonDisabled}
+                        onClick={handleMarkDone}
+                        disabled={markButtonDisabled}
                     >
-                        {buttonDisabled ? "ההערה כבר סומנה" : "סמן כבוצע"}
+                        {markButtonText}
                     </button>
                 </div>
             </div>
@@ -112,18 +140,10 @@ const Comment = () => {
                                 ...prev,
                                 done_by_user: true,
                                 user_response: responseText,
-                                is_done: true,
                             }));
-                            setButtonDisabled(true);
                             setShowMarkDoneModal(false);
-
-                            setTimeout(() => {
-                                navigate(-1);
-                            }, 3000);
                         }}
-                        onSendError={(msg) => {
-                            setNotification({ message: msg, type: "error" });
-                        }}
+                        onSendError={(msg) => setNotification({ message: msg, type: "error" })}
                     />
                 </Modal>
             )}

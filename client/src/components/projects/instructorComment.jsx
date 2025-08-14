@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // הוספנו useEffect
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../css/projects/InstructorComment.css";
 import Swal from "sweetalert2";
@@ -9,21 +9,51 @@ import NotificationPopup from "./NotificationPopup";
 const InstructorComment = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { comment } = location.state || {};
+    const commentID = location.state?.comment?.id ?? null;
 
-    const [showEdit, setShowEdit] = useState(false);
-    const [currentComment, setCurrentComment] = useState(comment);
+    const [currentComment, setCurrentComment] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(null);
+    const [error, setError] = useState(null);
+    const [showEdit, setShowEdit] = useState(false);
 
     useEffect(() => {
-        let timer;
-        if (notification?.type === "success" && showEdit === false) {
-            timer = setTimeout(() => {
-                navigate(-1);
-            }, 3000);
+        if (!commentID) {
+            setError("לא התקבל מזהה הערה");
+            setLoading(false);
+            return;
         }
-        return () => clearTimeout(timer);
-    }, [notification, showEdit, navigate]);
+
+        const fetchComment = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/ins/comments/${commentID}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    setCurrentComment(data.data);
+                } else {
+                    setError(data.message || "אירעה שגיאה בטעינת ההערה");
+                }
+            } catch (err) {
+                setError("אירעה שגיאה בטעינת ההערה");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchComment();
+    }, [commentID]);
+
+    if (loading) {
+        return <div className="loading">טוען...</div>;
+    }
+
+    if (error) {
+        return <div className="error">{error}</div>;
+    }
 
     if (!currentComment) {
         return <div className="no-comment">לא נמצאה הערה</div>;
@@ -68,9 +98,7 @@ const InstructorComment = () => {
         }
     };
 
-    const handleEditClick = () => {
-        setShowEdit(true);
-    };
+    const handleEditClick = () => setShowEdit(true);
 
     const handleSaveNote = (updatedComment) => {
         setCurrentComment(updatedComment);
@@ -93,14 +121,8 @@ const InstructorComment = () => {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setCurrentComment((prev) => ({
-                    ...prev,
-                    is_done: true,
-                }));
-                setNotification({
-                    message: "ההערה סומנה כבוצעה בהצלחה!",
-                    type: "success",
-                });
+                setCurrentComment((prev) => ({ ...prev, is_done: true }));
+                setNotification({ message: "ההערה סומנה כבוצעה בהצלחה!", type: "success" });
             } else {
                 throw new Error(data.message || "שגיאה בסימון ההערה כבוצעה");
             }
@@ -128,18 +150,18 @@ const InstructorComment = () => {
 
             <div className="bottom-card">
                 <div className="top-buttons">
-                    <button
-                        className="back-button"
-                        onClick={() => navigate(-1)}
-                        aria-label="חזרה לכל ההערות"
-                    >
+                    <button className="back-button" onClick={() => navigate(-1)} aria-label="חזרה לכל ההערות">
                         ✖ סגור הערה
                     </button>
                     <button className="delete-button" onClick={handleDelete}>
                         🗑 מחק הערה
                     </button>
-                    <button className="edit-button" onClick={handleEditClick}>
-                        ✏ ערוך הערה
+                    <button
+                        className="edit-button"
+                        onClick={handleEditClick}
+                        disabled={currentComment.is_done}
+                    >
+                        {currentComment.is_done ? "הושלם" : "✏ ערוך הערה"}
                     </button>
                 </div>
 
@@ -158,11 +180,7 @@ const InstructorComment = () => {
 
                     <div className="status-box">
                         <span className="label">סטטוס הערה</span>
-                        <span
-                            className={`value ${
-                                currentComment.is_done ? "done-user" : "not-done-user"
-                            }`}
-                        >
+                        <span className={`value ${currentComment.is_done ? "done-user" : "not-done-user"}`}>
                             {currentComment.is_done ? "הושלם" : "לא הושלם"}
                         </span>
                     </div>
@@ -176,18 +194,21 @@ const InstructorComment = () => {
                         </div>
                     )}
 
-                <div
-                    style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-                >
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
                     <button
                         className="mark-button"
                         style={{ width: "200px" }}
                         onClick={handleMarkDone}
-                        disabled={currentComment.is_done}
+                        disabled={!currentComment.done_by_user || currentComment.is_done}
                     >
-                        סמן כבוצע
+                        {currentComment.done_by_user
+                            ? currentComment.is_done
+                                ? "הושלם"
+                                : "סמן כבוצע"
+                            : "לא בוצע"}
                     </button>
                 </div>
+
             </div>
 
             {showEdit && (

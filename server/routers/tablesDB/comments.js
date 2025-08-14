@@ -15,6 +15,26 @@ router.get('/', middleLogIns.authenticateToken, middleComments.getComments, (req
     }
 });
 
+
+// REST: Get one comment by ID (for instructor)
+router.get('/:commentId', middleLog.authenticateToken, middleComments.getCommentById,(req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.commentData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
+    }
+});
+
+// REST: Get one comment by ID (for instructor)
+router.get('/ins/:commentId', middleLogIns.authenticateToken, middleComments.getCommentById,(req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.commentData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
+    }
+});
+
+
 // REST: Get comments by project ID (for instructor)
 router.get('/ins/project/:projectId', middleLogIns.authenticateToken, middleComments.getCommentsByProject, (req, res) => {
     try {

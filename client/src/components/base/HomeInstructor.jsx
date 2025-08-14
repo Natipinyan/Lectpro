@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../css/base/homeStudent.css"
-import {faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faFolderOpen, faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationPopup from "../projects/NotificationPopup";
 
@@ -37,6 +37,7 @@ const HomeStudents = () => {
     const buttons = [
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
+        { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
     ];
 
 
