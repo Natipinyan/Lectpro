@@ -305,6 +305,138 @@ async function getCommentById(req, res, next) {
     });
 }
 
+async function getNextComment(req, res, next) {
+    const { commentId } = req.params;
+    const currentId = parseInt(commentId, 10);
+
+    if (isNaN(currentId)) {
+        req.nextStatus = 400;
+        req.nextMessage = "מזהה ההערה אינו תקין";
+        req.nextSuccess = false;
+        return next();
+    }
+
+    try {
+        const currentComment = await getCommentByIdFromDb(currentId);
+
+        if (!currentComment) {
+            req.nextStatus = 404;
+            req.nextMessage = "ההערה הנוכחית לא נמצאה";
+            req.nextSuccess = false;
+            return next();
+        }
+
+        const projectId = currentComment.project_id;
+        const query = `
+            SELECT * FROM comments
+            WHERE id > ? AND project_id = ?
+            ORDER BY id ASC
+            LIMIT 1
+        `;
+
+        db_pool.query(query, [currentId, projectId], (err, results) => {
+            if (err) {
+                console.error("שגיאה ב-SQL:", err);
+                req.nextStatus = 500;
+                req.nextMessage = "שגיאה בקבלת ההערה הבאה";
+                req.nextSuccess = false;
+                return next();
+            }
+
+            if (results.length === 0) {
+                req.nextStatus = 200;
+                req.nextMessage = "אין הערה הבאה בפרויקט הנוכחי";
+                req.nextComment = null;
+                req.nextSuccess = false;
+            } else {
+                req.nextStatus = 200;
+                req.nextMessage = "הערה הבאה התקבלה בהצלחה";
+                req.nextComment = results[0];
+                req.nextSuccess = true;
+            }
+            next();
+        });
+    } catch (err) {
+        console.error("שגיאה בתהליך:", err);
+        req.nextStatus = 500;
+        req.nextMessage = "שגיאה בשרת";
+        req.nextSuccess = false;
+        next();
+    }
+}
+
+async function getPrevComment(req, res, next) {
+    const { commentId } = req.params;
+    const currentId = parseInt(commentId, 10);
+
+    if (isNaN(currentId)) {
+        req.prevStatus = 400;
+        req.prevMessage = "מזהה ההערה אינו תקין";
+        req.prevSuccess = false;
+        return next();
+    }
+
+    try {
+        const currentComment = await getCommentByIdFromDb(currentId);
+
+        if (!currentComment) {
+            req.prevStatus = 404;
+            req.prevMessage = "ההערה הנוכחית לא נמצאה";
+            req.prevSuccess = false;
+            return next();
+        }
+
+        const projectId = currentComment.project_id;
+        const query = `
+            SELECT * FROM comments
+            WHERE id < ? AND project_id = ?
+            ORDER BY id DESC
+            LIMIT 1
+        `;
+
+        db_pool.query(query, [currentId, projectId], (err, results) => {
+            if (err) {
+                console.error("שגיאה ב-SQL:", err);
+                req.prevStatus = 500;
+                req.prevMessage = "שגיאה בקבלת ההערה הקודמת";
+                req.prevSuccess = false;
+                return next();
+            }
+
+            if (results.length === 0) {
+                req.prevStatus = 200;
+                req.prevMessage = "אין הערה קודמת בפרויקט הנוכחי";
+                req.prevComment = null;
+                req.prevSuccess = false;
+            } else {
+                req.prevStatus = 200;
+                req.prevMessage = "הערה הקודמת התקבלה בהצלחה";
+                req.prevComment = results[0];
+                req.prevSuccess = true;
+            }
+            next();
+        });
+    } catch (err) {
+        console.error("שגיאה בתהליך:", err);
+        req.prevStatus = 500;
+        req.prevMessage = "שגיאה בשרת";
+        req.prevSuccess = false;
+        next();
+    }
+}
+
+function getCommentByIdFromDb(commentId) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM comments WHERE id = ?';
+        db_pool.query(query, [commentId], (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(results.length > 0 ? results[0] : null);
+        });
+    });
+}
+
 
 module.exports = {
     getComments,
@@ -314,7 +446,9 @@ module.exports = {
     deleteComment,
     setCommentDone,
     markDoneByUser,
-    getCommentById
+    getCommentById,
+    getNextComment,
+    getPrevComment
 };
 
 

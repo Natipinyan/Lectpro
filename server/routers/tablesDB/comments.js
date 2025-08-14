@@ -16,14 +16,7 @@ router.get('/', middleLogIns.authenticateToken, middleComments.getComments, (req
 });
 
 
-// REST: Get one comment by ID (for instructor)
-router.get('/:commentId', middleLog.authenticateToken, middleComments.getCommentById,(req, res) => {
-    try {
-        res.status(200).json({ success: true, data: res.commentData });
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
-    }
-});
+
 
 // REST: Get one comment by ID (for instructor)
 router.get('/ins/:commentId', middleLogIns.authenticateToken, middleComments.getCommentById,(req, res) => {
@@ -33,6 +26,38 @@ router.get('/ins/:commentId', middleLogIns.authenticateToken, middleComments.get
         res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
     }
 });
+
+// REST: Get one comment by ID (for instructor)
+router.get('/:commentId', middleLog.authenticateToken, middleComments.getCommentById,(req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.commentData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
+    }
+});
+
+
+// REST: Get next comment by ID (for instructor)
+router.get('/ins/next/:commentId', middleLogIns.authenticateToken, middleComments.getNextComment, (req, res) => {
+    try {
+        res.status(req.nextStatus || 200).json({success: req.nextSuccess, message: req.nextMessage, data: req.nextComment || null});
+    } catch (err) {
+        res.status(500).json({success: false, message: 'שגיאה בקבלת ההערה הבאה'
+        });
+    }
+});
+
+// REST: Get previous comment by ID (for instructor)
+router.get('/ins/prev/:commentId', middleLogIns.authenticateToken, middleComments.getPrevComment, (req, res) => {
+    try {
+        res.status(req.prevStatus || 200).json({success: req.prevSuccess, data: req.prevComment || null});
+    } catch (err) {
+        res.status(500).json({success: false, message: 'שגיאה בקבלת ההערה הקודמת'
+        });
+    }
+});
+
+
 
 
 // REST: Get comments by project ID (for instructor)
