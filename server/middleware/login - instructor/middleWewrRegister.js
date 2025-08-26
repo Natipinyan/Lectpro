@@ -11,6 +11,41 @@ async function getList(req, res, next) {
     });
 }
 
+async function getInstructorsByDepartment(req, res, next) {
+    try {
+        const instructorId = req.user.id;
+
+        const [userRows] = await db_pool.promise().query(
+            `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
+            [instructorId]
+        );
+
+        if (userRows.length === 0) {
+            res.instructorsListByDept = [];
+            return next();
+        }
+
+        const user = userRows[0];
+
+        if (!user.is_admin) {
+            res.instructorsListByDept = [];
+            return next();
+        }
+
+        const [instructors] = await db_pool.promise().query(
+            `SELECT * FROM instructor WHERE department_id = ? AND id != ?`,
+            [user.department_id, instructorId]
+        );
+
+        res.instructorsListByDept = instructors;
+        next();
+    } catch (err) {
+        console.error(err);
+        res.instructorsListByDept = [];
+        next();
+    }
+}
+
 async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone } = req.body;
     if (!isValidPassword(pass)) {
@@ -354,6 +389,7 @@ function isValidPassword(pass) {
 
 module.exports = {
     getList,
+    getInstructorsByDepartment,
     Adduser,
     AddAdminInstructor,
     UpdateUser,

@@ -141,6 +141,38 @@ function externalAuthenticate(req, res, next) {
     }
 }
 
+async function checkAdmin(req, res, next) {
+    const token = req.cookies.instructors;
+    if (!token) {
+        res.isAdmin = false;
+        return next();
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        const promisePool = db_pool.promise();
+        const [rows] = await promisePool.query(
+            `SELECT is_admin FROM instructor WHERE id = ?`,
+            [decoded.id]
+        );
+
+        if (rows.length === 0) {
+            res.isAdmin = false;
+        } else {
+            res.isAdmin = rows[0].is_admin === 1;
+        }
+
+        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email };
+        return next();
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        res.isAdmin = false;
+        return next();
+    }
+}
+
+
+
 function logout(req, res) {
     res.clearCookie("instructors", {
         httpOnly: true,
@@ -160,4 +192,5 @@ module.exports = {
     authenticateToken,
     externalAuthenticate,
     logout,
+    checkAdmin,
 };

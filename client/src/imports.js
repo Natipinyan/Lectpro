@@ -36,6 +36,7 @@ import LoginSignupFormINS from "./components/logAndRegInstructor/LoginSignupForm
 import ProfileINS from "./components/logAndRegInstructor/ProfileINS";
 import SidebarLayoutINS from "./components/layout/SidebarLayoutINS";
 import HomeInstructor from "./components/base/HomeInstructor";
+import DepartmentInstructors from "./components/logAndRegInstructor/DepartmentInstructors";
 
 // Components for instructors
 import InstructorProjects  from "./components/projects/InstructorProjectsList";
@@ -80,6 +81,7 @@ export {
     ProfileINS,
     SidebarLayoutINS,
     HomeInstructor,
+    DepartmentInstructors,
 
     // instructors project components
     InstructorProjects,

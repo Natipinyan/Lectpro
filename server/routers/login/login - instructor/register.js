@@ -13,6 +13,16 @@ router.get('/', middleLog.authenticateToken, middleReg.getList, (req, res) => {
     }
 });
 
+// REST: Get all instructors in the department of the admin
+router.get('/insByDep', middleLog.authenticateToken, middleReg.getInstructorsByDepartment, (req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.instructorsListByDept });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת מרצים לפי מגמה' });
+    }
+});
+
+
 // REST: Register new instructor
 router.post('/', middleReg.Adduser, (req, res) => {
     try {

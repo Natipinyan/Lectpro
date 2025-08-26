@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen,faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 
 function SidebarINS(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/apiInstructor/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsAdmin(data.isAdmin);
+                } else {
+                    setIsAdmin(false);
+                }
+            } catch (error) {
+                setIsAdmin(false);
+            }
+        };
+        checkAdmin();
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -34,6 +55,7 @@ function SidebarINS(props) {
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
+        ...(isAdmin ? [{ icon: faCheckCircle, label: 'אישור בקשות', page: '/instructor/department-instructors' }] : []),
     ];
 
     const handleNavigate = (page) => {

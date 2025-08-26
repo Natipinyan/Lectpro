@@ -2,6 +2,15 @@ const express = require("express");
 const router = express.Router();
 const middleLog = require("../../../middleware/login - instructor/middleWareLogin");
 
+// REST: Check if instructor is admin
+router.get('/', middleLog.checkAdmin, (req, res) => {
+    try {
+        res.status(200).json({ success: true, isAdmin: res.isAdmin });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בבדיקת מנהל' });
+    }
+});
+
 // REST: Check instructor authentication
 router.get('/check-auth', middleLog.authenticateToken, (req, res) => {
     try {
@@ -20,6 +29,7 @@ router.get('/external-check-auth', middleLog.externalAuthenticate, (req, res) =>
     }
 });
 
+module.exports = router;
 // REST: Instructor logout
 router.post('/logout', middleLog.authenticateToken, (req, res) => {
     try {
