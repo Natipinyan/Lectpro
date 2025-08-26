@@ -19,6 +19,7 @@
 
 | Method | Endpoint                      | Description                        | Request Body                | Response                |
 |--------|--------------------------------|------------------------------------|-----------------------------|-------------------------|
+| POST   | /instructor/register/administrator     | Register new department admin            | `{ userName, email, pass, first_name, last_name, phone, department }`                              | `{ message, success }`            |
 | POST   | /instructor/login               | Instructor login                      | { userName, password }      | { loggedIn, user, ... } |
 | GET    | /instructor/register            | Get all instructors (admin only)      | -                           | Array of instructors    |
 | POST   | /instructor/register            | Register new instructor               | { userName, ... }           | { message, user }       |

@@ -1,5 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+//add department
+import AddDepartment from "./components/base/addDepartment";
+
 // Cookie check for students
 import PrivateRouteStudents from "./services/PrivateRouteStudents";
 import PublicRouteStudents from "./services/PublicRouteStudents";
@@ -44,6 +47,9 @@ export {
     // React Router dependencies
     createBrowserRouter,
     RouterProvider,
+
+    // Add department
+    AddDepartment,
 
     // Student authentication and routes
     PrivateRouteStudents,

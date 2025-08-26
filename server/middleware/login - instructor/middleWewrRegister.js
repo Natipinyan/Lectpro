@@ -69,6 +69,98 @@ async function Adduser(req, res, next) {
     }
 }
 
+async function AddAdminInstructor(req, res, next) {
+    const { userName, email, pass, first_name, last_name, phone, department } = req.body;
+
+    // בדיקת סיסמה
+    if (!isValidPassword(pass)) {
+        res.addStatus = 400;
+        res.addMessage = "הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.";
+        return next();
+    }
+
+    if (!department || department.trim() === '') {
+        res.addStatus = 400;
+        res.addMessage = "שם המגמה חובה";
+        return next();
+    }
+
+    const encryptedPass = middleLog.EncWithSalt(pass);
+    const promisePool = db_pool.promise();
+
+    try {
+        // בדיקה אם המשתמש או המייל כבר קיימים
+        const [existing] = await promisePool.query(
+            `SELECT * FROM instructor WHERE user_name = ? OR email = ?`,
+            [userName, email]
+        );
+
+        if (existing.length > 0) {
+            const existingUser = existing.find(u => u.user_name === userName);
+            const existingEmail = existing.find(u => u.email === email);
+            res.addStatus = 400;
+            res.addMessage = existingUser ? "שם משתמש כבר קיים" : "מייל כבר קיים";
+            return next();
+        }
+
+        // בדיקה אם המגמה קיימת ואם לא – יצירתה
+        let departmentId;
+        const [existingDept] = await promisePool.query(
+            `SELECT id FROM departments WHERE name = ?`,
+            [department]
+        );
+
+        if (existingDept.length > 0) {
+            departmentId = existingDept[0].id;
+        } else {
+            const [insertDept] = await promisePool.query(
+                `INSERT INTO departments (name) VALUES (?)`,
+                [department]
+            );
+            departmentId = insertDept.insertId;
+        }
+
+        // הוספת היוזר עם is_admin = true ו-is_active = false
+        await promisePool.query(
+            `INSERT INTO instructor
+             (user_name, pass, email, first_name, last_name, phone, is_active, is_admin, department_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [userName, encryptedPass, email, first_name, last_name, phone, false, true, departmentId]
+        );
+
+        // שליחת מייל אישור
+        const emailContent = `
+            <h1>אישור הרשמה</h1>
+            <p>שלום ${first_name} ${last_name},</p>
+            <p>ההרשמה שלך כמנהל/ת המגמה הושלמה בהצלחה!</p>
+            <h3>פרטי המשתמש שלך:</h3>
+            <ul>
+                <li><strong>שם משתמש:</strong> ${userName}</li>
+                <li><strong>שם:</strong> ${first_name} ${last_name}</li>
+                <li><strong>טלפון:</strong> ${phone}</li>
+                <li><strong>מגמה:</strong> ${department}</li>
+            </ul>
+            <p>תודה שהצטרפת אלינו!</p>
+        `;
+        try {
+            await sendMailServer(email, 'אישור הרשמה', emailContent, true);
+            res.addStatus = 201;
+            res.addMessage = "מנהלת המגמה נרשמה בהצלחה!";
+        } catch (mailErr) {
+            console.error("שגיאה בשליחת מייל:", mailErr);
+            res.addStatus = 500;
+            res.addMessage = "נרשמת, אך שליחת מייל נכשלה.";
+        }
+
+        return next();
+    } catch (err) {
+        console.error("שגיאה בתהליך ההוספה:", err);
+        res.addStatus = 500;
+        res.addMessage = "שגיאה כללית בהוספת מנהל/ת";
+        return next();
+    }
+}
+
 async function UpdateUser(req, res, next) {
     const id = req.user.id;
     const { user_name, first_name, last_name, email, phone, pass } = req.body;
@@ -263,6 +355,7 @@ function isValidPassword(pass) {
 module.exports = {
     getList,
     Adduser,
+    AddAdminInstructor,
     UpdateUser,
     delUser,
     getUser,

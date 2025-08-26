@@ -22,6 +22,15 @@ router.post('/', middleReg.Adduser, (req, res) => {
     }
 });
 
+// REST: Register new administrator
+router.post('/administrator', middleReg.AddAdminInstructor, (req, res) => {
+    try {
+        res.status(res.addStatus || 200).json({ success: res.addStatus === 201, message: res.addMessage });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בהרשמת מרצה' });
+    }
+});
+
 // REST: Update current instructor
 router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) => {
     try {

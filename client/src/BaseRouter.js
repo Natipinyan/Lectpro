@@ -1,11 +1,11 @@
 import * as Imports from "./imports";
 
-// const onLoginSuccess = () => {
-//     console.log("Login successful!");
-// };
-
 export default function BaseRouter() {
     const router = Imports.createBrowserRouter([
+        {
+          path:"/",
+            element:<Imports.AddDepartment/>
+        },
         {
             path: "/students",
             children: [
