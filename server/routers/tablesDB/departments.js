@@ -1,0 +1,25 @@
+const express = require('express');
+const router = express.Router();
+const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
+const middleDepartments = require("../../middleware/tables/departments");
+
+// REST: Get department by instructor ID
+router.get('/', middleLogIns.authenticateToken, middleDepartments.getDepartmentByInstructorId, (req, res) => {
+    try {
+        res.status(res.departmentStatus || 200).json({success: res.departmentStatus === 200, message: res.departmentMessage, data: res.department || null});
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת המגמה' });
+    }
+});
+
+// REST: Update department name by ID
+router.put('/:departmentId', middleLogIns.authenticateToken, middleDepartments.updateDepartmentNameById, (req, res) => {
+    try {
+        res.status(res.updateStatus || 200).json({success: res.updateStatus === 200, message: res.updateMessage});
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בעדכון המגמה' });
+    }
+});
+
+
+module.exports = router;

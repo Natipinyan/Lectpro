@@ -16,7 +16,9 @@ async function getInstructorsByDepartment(req, res, next) {
         const instructorId = req.user.id;
 
         const [userRows] = await db_pool.promise().query(
-            `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
+            `SELECT is_admin, department_id
+             FROM instructor
+             WHERE id = ?`,
             [instructorId]
         );
 
@@ -33,7 +35,9 @@ async function getInstructorsByDepartment(req, res, next) {
         }
 
         const [instructors] = await db_pool.promise().query(
-            `SELECT * FROM instructor WHERE department_id = ? AND id != ?`,
+            `SELECT id, first_name, last_name, user_name, email, phone, is_active
+             FROM instructor
+             WHERE department_id = ? AND id != ?`,
             [user.department_id, instructorId]
         );
 
@@ -192,6 +196,73 @@ async function AddAdminInstructor(req, res, next) {
         console.error("שגיאה בתהליך ההוספה:", err);
         res.addStatus = 500;
         res.addMessage = "שגיאה כללית בהוספת מנהל/ת";
+        return next();
+    }
+}
+
+async function toggleInstructorStatus(req, res, next) {
+    const adminId = req.user.id;
+    const instructorId = req.params.id;
+
+    const promisePool = db_pool.promise();
+
+    try {
+        const [adminRows] = await promisePool.query(
+            `SELECT id, is_admin, department_id
+             FROM instructor
+             WHERE id = ?`,
+            [adminId]
+        );
+
+        if (adminRows.length === 0) {
+            res.toggleStatus = 403;
+            res.toggleMessage = "משתמש לא נמצא";
+            return next();
+        }
+
+        const admin = adminRows[0];
+
+        if (!admin.is_admin) {
+            res.toggleStatus = 403;
+            res.toggleMessage = "אין לך הרשאות לשנות סטטוס";
+            return next();
+        }
+
+        const [instructorRows] = await promisePool.query(
+            `SELECT id, is_active, department_id
+             FROM instructor
+             WHERE id = ?`,
+            [instructorId]
+        );
+
+        if (instructorRows.length === 0) {
+            res.toggleStatus = 404;
+            res.toggleMessage = "מרצה לא נמצא";
+            return next();
+        }
+
+        const instructor = instructorRows[0];
+
+        if (instructor.department_id !== admin.department_id) {
+            res.toggleStatus = 403;
+            res.toggleMessage = "אין לך הרשאה לשנות סטטוס במגמה אחרת";
+            return next();
+        }
+
+        const newStatus = instructor.is_active ? 0 : 1;
+
+        await promisePool.query(
+            `UPDATE instructor SET is_active = ? WHERE id = ?`,
+            [newStatus, instructorId]
+        );
+
+        res.toggleStatus = 200;
+        res.toggleMessage = `הסטטוס של המרצה עודכן ל-${newStatus ? "פעיל" : "לא פעיל"}`;
+        return next();
+    } catch (err) {
+        console.error("שגיאה בשינוי סטטוס:", err);
+        res.toggleStatus = 500;
+        res.toggleMessage = "שגיאה כללית בשינוי סטטוס";
         return next();
     }
 }
@@ -392,6 +463,7 @@ module.exports = {
     getInstructorsByDepartment,
     Adduser,
     AddAdminInstructor,
+    toggleInstructorStatus,
     UpdateUser,
     delUser,
     getUser,

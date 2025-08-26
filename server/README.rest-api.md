@@ -33,21 +33,30 @@
 | GET    | /apiInstructor/check-auth            | Check instructor authentication   | - (cookie)                                                | { isAuthenticated, user }       |
 | POST   | /apiInstructor/logout                | Instructor logout                 | -                                                         | { loggedOut, message }           |
 
+## Departments (New Routes)
+
+| Method | Endpoint                        | Description                                      | Request Body                        | Response                | Auth Required |
+|--------|---------------------------------|-------------------------------------------------|-------------------------------------|------------------------|---------------|
+| GET    | /departments/                   | Get department info by instructor ID           | - (cookie)                          | { success, message, data: department } | Instructor     |
+| PUT    | /departments/:departmentId      | Update department name by ID (only admin)      | { currentID, newName }              | { success, message }   | Instructor     |
+
+> Note: Only the instructor who is the admin of the department can update the department name.
+
 ## Projects
 
 | Method | Endpoint                                      | Description                                      | Request Body          | Response                |
-|--------|----------------------------------------------|--------------------------------------------------|-----------------------|-------------------------|
+|--------|----------------------------------------------|-------------------------------------------------|-----------------------|-------------------------|
 | GET    | /projects/                                   | Get all projects (student)                       | -                     | Array of projects       |
 | GET    | /projects/ins                                | Get projects by instructor                       | -                     | Array of projects       |
 | GET    | /projects/:projectId                         | Get a project by ID (student)                    | -                     | Project object          |
-| GET    | /projects/ins/:projectId                     | Get a project by ID (instructor)                  | -                     | Project object          |
+| GET    | /projects/ins/:projectId                     | Get a project by ID (instructor)                | -                     | Project object          |
 | POST   | /projects/                                   | Create a new project                              | Project fields (JSON) | Project object          |
 | PUT    | /projects/:projectId                         | Update a project by ID                            | Project fields (JSON) | Project object          |
 | DELETE | /projects/:projectId                         | Delete a project by ID                            | -                     | 204 No Content          |
 | GET    | /projects/:projectId/technologies            | Get technologies for a project (student)         | -                     | Array of technologies   |
 | GET    | /projects/ins/:projectId/technologies        | Get technologies for a project (instructor)      | -                     | Array of technologies   |
 | GET    | /projects/:projectId/file                    | Get file for a project (student)                  | -                     | File download           |
-| GET    | /projects/ins/:projectId/file                | Get file for a project (instructor)               | -                     | File download           |
+| GET    | /projects/ins/:projectId/file                | Get file for a project (instructor)              | -                     | File download           |
 
 ## Technologies
 
@@ -78,6 +87,6 @@
 
 ---
 
-- All routes require authentication (authenticateToken)
-- Old routes remain available in parallel
-- Update the client to use the new REST routes as needed 
+- All routes require authentication (`authenticateToken`).
+- Old routes remain available in parallel.
+- Update the client to use the new REST routes (`/departments`) as needed.  

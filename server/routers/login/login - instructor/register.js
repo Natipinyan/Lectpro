@@ -22,7 +22,6 @@ router.get('/insByDep', middleLog.authenticateToken, middleReg.getInstructorsByD
     }
 });
 
-
 // REST: Register new instructor
 router.post('/', middleReg.Adduser, (req, res) => {
     try {
@@ -40,6 +39,17 @@ router.post('/administrator', middleReg.AddAdminInstructor, (req, res) => {
         res.status(500).json({ success: false, message: 'שגיאה בהרשמת מרצה' });
     }
 });
+
+// REST: Toggle instructor active status
+router.put('/toggle-status/:id', middleLog.authenticateToken, middleReg.toggleInstructorStatus, (req, res) => {
+    try {
+        res.status(res.toggleStatus || 200).json({success: res.toggleStatus === 200, message: res.toggleMessage
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בשינוי סטטוס מרצה' });
+    }
+});
+
 
 // REST: Update current instructor
 router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) => {
