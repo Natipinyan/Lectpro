@@ -30,7 +30,7 @@ function SidebarINS(props) {
                 setIsAdmin(false);
             }
         };
-        const  department  = async function fetchDepartment() {
+        const department  = async function fetchDepartment() {
             try {
                 const res = await axios.get("http://localhost:5000/departments/", { withCredentials: true });
                 if (res.data && res.data.data) {

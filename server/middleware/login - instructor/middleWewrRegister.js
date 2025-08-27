@@ -50,6 +50,45 @@ async function getInstructorsByDepartment(req, res, next) {
     }
 }
 
+async function getStudentsByDepartment(req, res, next) {
+    try {
+        const instructorId = req.user.id;
+
+        const [userRows] = await db_pool.promise().query(
+            `SELECT is_admin, department_id
+             FROM instructor
+             WHERE id = ?`,
+            [instructorId]
+        );
+
+        if (userRows.length === 0) {
+            res.studentsListByDept = [];
+            return next();
+        }
+
+        const user = userRows[0];
+
+        if (!user.is_admin) {
+            res.studentsListByDept = [];
+            return next();
+        }
+
+        const [students] = await db_pool.promise().query(
+            `SELECT id, first_name, last_name, user_name, email, phone
+             FROM students
+             WHERE department_id = ?`,
+            [user.department_id]
+        );
+
+        res.studentsListByDept = students;
+        next();
+    } catch (err) {
+        console.error(err);
+        res.studentsListByDept = [];
+        next();
+    }
+}
+
 async function Adduser(req, res, next) {
     const { userName, email, pass, first_name, last_name, phone, department_id } = req.body;
 
@@ -178,7 +217,7 @@ async function AddAdminInstructor(req, res, next) {
             `INSERT INTO instructor
              (user_name, pass, email, first_name, last_name, phone, is_active, is_admin, department_id)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [userName, encryptedPass, email, first_name, last_name, phone, false, true, departmentId]
+            [userName, encryptedPass, email, first_name, last_name, phone, true, true, departmentId]
         );
 
         const emailContent = `
@@ -474,6 +513,7 @@ function isValidPassword(pass) {
 module.exports = {
     getList,
     getInstructorsByDepartment,
+    getStudentsByDepartment,
     Adduser,
     AddAdminInstructor,
     toggleInstructorStatus,

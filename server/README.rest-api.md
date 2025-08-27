@@ -18,23 +18,24 @@
 
 ## Instructor Authentication & Management
 
-| Method | Endpoint                             | Description                       | Request Body                                              | Response                          |
-|--------|--------------------------------------|-----------------------------------|-----------------------------------------------------------|----------------------------------|
-| POST   | /instructor/register/administrator   | Register new department admin     | { userName, email, pass, first_name, last_name, phone, department } | { message, success }            |
-| POST   | /instructor/login                    | Instructor login                  | { userName, password }                                     | { loggedIn, user, ... }          |
-| GET    | /instructor/register                 | Get all instructors (admin only)  | -                                                         | Array of instructors             |
-| GET    | /instructor/register/insByDep        | Get all instructors by department | -                                                         | Array of instructors             |
+| Method | Endpoint                             | Description                       | Request Body                                              | Response                            |
+|--------|--------------------------------------|-----------------------------------|-----------------------------------------------------------|-------------------------------------|
+| POST   | /instructor/register/administrator   | Register new department admin     | { userName, email, pass, first_name, last_name, phone, department } | { message, success }                |
+| POST   | /instructor/login                    | Instructor login                  | { userName, password }                                     | { loggedIn, user, ... }             |
+| GET    | /instructor/register                 | Get all instructors (admin only)  | -                                                         | Array of instructors                |
+| GET    | /instructor/register/insByDep        | Get all instructors by department | -                                                         | Array of instructors                |
+| GET    | /instructor/register/stdByDep        | Get all students by department    | -                                                         | Array of students                   |
 | GET    | /instructor/                         | Check if instructor is admin      | -                                                         | { success: true, isAdmin: boolean } | 
-| POST   | /instructor/register                 | Register new instructor           | { userName, ... }                                         | { message, user }               |
-| PUT    | /instructor/register/toggle-status/:id | Toggle instructor active status | -                                                         | { success, message }             |
-| GET    | /instructor/register/me              | Get current instructor info       | - (cookie)                                                | { user }                         |
-| PUT    | /instructor/register/me              | Update current instructor         | { ...fields }                                             | { message, user }               |
-| DELETE | /instructor/register/me              | Delete current instructor         | -                                                         | { message }                      |
-| POST   | /instructor/register/forgot-password | Request password reset            | { email }                                                 | { message }                      |
-| GET    | /instructor/register/reset-password  | Reset password (via link)         | { code, newPassword }                                     | { message }                      |
-| GET    | /apiInstructor/check-auth            | Check instructor authentication   | - (cookie)                                                | { isAuthenticated, user }       |
-| GET    | /apiInstructor/external-check-auth   | Check auth for external access    | -                                                         | { isAuthenticated, user }       |
-| POST   | /apiInstructor/logout                | Instructor logout                 | -                                                         | { loggedOut, message }           |
+| POST   | /instructor/register                 | Register new instructor           | { userName, ... }                                         | { message, user }                   |
+| PUT    | /instructor/register/toggle-status/:id | Toggle instructor active status   | -                                                         | { success, message }                |
+| GET    | /instructor/register/me              | Get current instructor info       | - (cookie)                                                | { user }                            |
+| PUT    | /instructor/register/me              | Update current instructor         | { ...fields }                                             | { message, user }                   |
+| DELETE | /instructor/register/me              | Delete current instructor         | -                                                         | { message }                         |
+| POST   | /instructor/register/forgot-password | Request password reset            | { email }                                                 | { message }                         |
+| GET    | /instructor/register/reset-password  | Reset password (via link)         | { code, newPassword }                                     | { message }                         |
+| GET    | /apiInstructor/check-auth            | Check instructor authentication   | - (cookie)                                                | { isAuthenticated, user }           |
+| GET    | /apiInstructor/external-check-auth   | Check auth for external access    | -                                                         | { isAuthenticated, user }           |
+| POST   | /apiInstructor/logout                | Instructor logout                 | -                                                         | { loggedOut, message }              |
 
 ## Departments
 

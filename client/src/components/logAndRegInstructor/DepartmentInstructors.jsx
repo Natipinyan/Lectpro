@@ -6,24 +6,25 @@ import "../../css/logAndReg/DepartmentInstructors.css";
 
 const DepartmentInstructors = () => {
     const [instructors, setInstructors] = useState([]);
+    const [students, setStudents] = useState([]);
     const [departmentName, setDepartmentName] = useState("");
     const [departmentID, setDepartmentID] = useState("");
     const [notification, setNotification] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        fetchInstructors();
+        fetchData();
     }, []);
 
-    const fetchInstructors = async () => {
+    const fetchData = async () => {
         try {
-            const adminCheckRes = await fetch(`${process.env.REACT_APP_BASE_URL}/apiInstructor/`, {
+            const adminRes = await fetch(`${process.env.REACT_APP_BASE_URL}/apiInstructor/`, {
                 method: "GET",
                 credentials: "include",
             });
-            const adminData = await adminCheckRes.json();
+            const adminData = await adminRes.json();
 
-            if (!adminCheckRes.ok || !adminData.isAdmin) {
+            if (!adminRes.ok || !adminData.isAdmin) {
                 setNotification({ message: "אתה לא מנהל", type: "error" });
                 return;
             }
@@ -39,12 +40,22 @@ const DepartmentInstructors = () => {
             }
             setInstructors(instructorsData.data);
 
+            const studentsRes = await fetch(`${process.env.REACT_APP_BASE_URL}/instructor/register/stdByDep`, {
+                method: "GET",
+                credentials: "include",
+            });
+            const studentsData = await studentsRes.json();
+            if (!studentsRes.ok) {
+                setNotification({ message: studentsData.message || "שגיאה בטעינת הסטודנטים", type: "error" });
+                return;
+            }
+            setStudents(studentsData.data);
+
             const departmentRes = await fetch(`${process.env.REACT_APP_BASE_URL}/departments/`, {
                 method: "GET",
                 credentials: "include",
             });
             const departmentData = await departmentRes.json();
-
             if (departmentRes.ok && departmentData.success) {
                 setDepartmentName(departmentData.data.name);
                 setDepartmentID(departmentData.data.id);
@@ -55,7 +66,7 @@ const DepartmentInstructors = () => {
 
         } catch (err) {
             console.error(err);
-            setNotification({ message: "שגיאה בטעינת המרצים", type: "error" });
+            setNotification({ message: "שגיאה בטעינת הנתונים", type: "error" });
         }
     };
 
@@ -72,7 +83,7 @@ const DepartmentInstructors = () => {
                 return;
             }
             setNotification({ message: data.message, type: "success" });
-            fetchInstructors();
+            fetchData();
         } catch (err) {
             console.error(err);
             setNotification({ message: "שגיאה בשינוי הסטטוס", type: "error" });
@@ -82,34 +93,42 @@ const DepartmentInstructors = () => {
     const activeInstructors = instructors.filter(ins => ins.is_active);
     const inactiveInstructors = instructors.filter(ins => !ins.is_active);
 
-    const renderTable = (list, isActiveTable) => (
+    const renderTable = (list, isActiveTable, type = "instructor") => (
         <div className="comments-containerA">
-            <h3>{isActiveTable ? "מרצים פעילים" : "מרצים לא פעילים"}</h3>
+            <h3>
+                {type === "instructor"
+                    ? isActiveTable ? "מרצים פעילים" : "מרצים לא פעילים"
+                    : "סטודנטים במגמה"}
+            </h3>
             <div className="comments-grid-header">
                 <span>שם פרטי</span>
                 <span>שם משפחה</span>
                 <span>שם משתמש</span>
                 <span>אימייל</span>
                 <span>טלפון</span>
-                <span>סטטוס</span>
-                <span>פעולה</span>
+                {type === "instructor" && <span>סטטוס</span>}
+                {type === "instructor" && <span>שנה סטטוס</span>}
             </div>
             {list.length === 0 ? (
-                <p className="no-comments-message">אין מרצים להצגה</p>
+                <p className="no-comments-message">אין {type === "instructor" ? "מרצים" : "סטודנטים"} להצגה</p>
             ) : (
-                list.map(ins => (
-                    <div key={ins.id} className="comment-row">
-                        <span>{ins.first_name}</span>
-                        <span>{ins.last_name}</span>
-                        <span>{ins.user_name}</span>
-                        <span>{ins.email}</span>
-                        <span>{ins.phone}</span>
-                        <span className={`comment-status ${ins.is_active ? "done" : "not-done"}`}>
-                            {ins.is_active ? "פעיל" : "לא פעיל"}
-                        </span>
-                        <button className="go-to-comment-button" onClick={() => toggleStatus(ins.id)}>
-                            {ins.is_active ? "הפוך ללא פעיל" : "הפוך לפעיל"}
-                        </button>
+                list.map(item => (
+                    <div key={item.id} className="comment-row">
+                        <span>{item.first_name}</span>
+                        <span>{item.last_name}</span>
+                        <span>{item.user_name}</span>
+                        <span>{item.email}</span>
+                        <span>{item.phone}</span>
+                        {type === "instructor" && (
+                            <>
+                                <span className={`comment-status ${item.is_active ? "done" : "not-done"}`}>
+                                    {item.is_active ? "פעיל" : "לא פעיל"}
+                                </span>
+                                <button className="go-to-comment-button" onClick={() => toggleStatus(item.id)}>
+                                    {item.is_active ? "הפוך ללא פעיל" : "הפוך לפעיל"}
+                                </button>
+                            </>
+                        )}
                     </div>
                 ))
             )}
@@ -137,6 +156,7 @@ const DepartmentInstructors = () => {
 
             {renderTable(activeInstructors, true)}
             {renderTable(inactiveInstructors, false)}
+            {renderTable(students, null, "student")}
 
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)} width="30vw">

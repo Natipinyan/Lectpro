@@ -1,13 +1,15 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../css/base/homeStudent.css"
-import {faFolderOpen, faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCheckCircle, faFolderOpen, faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationPopup from "../projects/NotificationPopup";
 
 const HomeStudents = () => {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
 
     const handleLogout = async () => {
         try {
@@ -32,12 +34,34 @@ const HomeStudents = () => {
     const handleNavigate = (page) => {
         navigate(page);
     };
+    useEffect(() => {
+        const checkAdmin = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/apiInstructor/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsAdmin(data.isAdmin);
+                } else {
+                    setIsAdmin(false);
+                }
+            } catch (error) {
+                setIsAdmin(false);
+            }
+        };
+        checkAdmin();
+    }, []);
+
+
 
 
     const buttons = [
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
+        ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
     ];
 
 
