@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../css/logAndReg/LoginSignupForm.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import NotificationPopup from "../projects/NotificationPopup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faUser, faEnvelope, faLock, faPhone, faEye, faEyeSlash, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 const LoginSignupFormSTD = () => {
     const [isActive, setIsActive] = useState(false);
@@ -19,15 +20,26 @@ const LoginSignupFormSTD = () => {
     const [notificationType, setNotificationType] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+    const [departments, setDepartments] = useState([]);
+    const [departmentId, setDepartmentId] = useState('');
     const navigate = useNavigate();
 
-    const handleRegisterClick = () => {
-        setIsActive(true);
-    };
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/departments/all');
+                if (response.data && response.data.data) {
+                    setDepartments(response.data.data);
+                }
+            } catch (err) {
+                console.error("שגיאה בשליפת מגמות:", err);
+            }
+        };
+        fetchDepartments();
+    }, []);
 
-    const handleLoginClick = () => {
-        setIsActive(false);
-    };
+    const handleRegisterClick = () => setIsActive(true);
+    const handleLoginClick = () => setIsActive(false);
 
     const handleSubmitRegister = async (e) => {
         e.preventDefault();
@@ -40,6 +52,13 @@ const LoginSignupFormSTD = () => {
             return;
         }
 
+        if (!departmentId) {
+            setError('אנא בחר מגמה');
+            setNotificationType('error');
+            setTimeout(() => setError(''), 3000);
+            return;
+        }
+
         try {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/students/register/`, {
                 userName,
@@ -48,6 +67,7 @@ const LoginSignupFormSTD = () => {
                 last_name: lastName,
                 phone,
                 pass,
+                department_id: departmentId
             });
             if (response.data.success) {
                 setError(response.data.message);
@@ -66,7 +86,6 @@ const LoginSignupFormSTD = () => {
 
     const handleSubmitLogin = async (e) => {
         e.preventDefault();
-
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/students/login/`,
@@ -109,6 +128,7 @@ const LoginSignupFormSTD = () => {
     return (
         <div className="bodyLogReg">
             <div className={`container ${isActive ? 'active' : ''}`}>
+                {/* LOGIN */}
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
                         <h1>כניסה</h1>
@@ -139,19 +159,16 @@ const LoginSignupFormSTD = () => {
                                 onClick={() => setShowPassword(!showPassword)}
                             />
                         </div>
-                        <button type="submit" className="btn">
-                            כניסה
-                        </button>
+                        <button type="submit" className="btn">כניסה</button>
                         <div className="forgot-link">
-                            <button className="btnF">
-                                <a href="#" onClick={() => navigate('/students/forgot-password')}>
-                                    שכחת סיסמה?
-                                </a>
-                            </button>
+                            <Link to="/students/forgot-password" className="btnF">
+                                שכחת סיסמה?
+                            </Link>
                         </div>
                     </form>
                 </div>
 
+                {/* REGISTER */}
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
                         <h1>הרשמה - סטודנטים</h1>
@@ -223,23 +240,37 @@ const LoginSignupFormSTD = () => {
                                 onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                             />
                         </div>
+
+                        <div className="input-box">
+                            <select
+                                value={departmentId}
+                                onChange={(e) => setDepartmentId(e.target.value)}
+                                required
+                            >
+                                <option value="">בחר מגמה</option>
+                                {departments.map((dep) => (
+                                    <option key={dep.id} value={dep.id}>
+                                        {dep.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <FontAwesomeIcon icon={faChalkboardTeacher} className="input-icon" />
+                        </div>
+
                         <div>
                             הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד
                         </div>
-                        <button type="submit" className="btn">
-                            הרשמה
-                        </button>
+                        <button type="submit" className="btn">הרשמה</button>
                     </form>
                 </div>
 
+                {/* TOGGLE PANELS */}
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
                         <FontAwesomeIcon icon={faUser} className="toggle-icon" />
                         <h1>Hello, Welcome!</h1>
                         <p>אין לך חשבון?</p>
-                        <button className="btn register-btn" onClick={handleRegisterClick}>
-                            הרשמה
-                        </button>
+                        <button className="btn register-btn" onClick={handleRegisterClick}>הרשמה</button>
                         <button className="btn switchUser-btn" onClick={handleTeacherSectionClick}>
                             <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
                             כניסה למרצים
@@ -249,9 +280,7 @@ const LoginSignupFormSTD = () => {
                         <FontAwesomeIcon icon={faSignInAlt} className="toggle-icon" />
                         <h1>Welcome Back!</h1>
                         <p>יש לך חשבון?</p>
-                        <button className="btn login-btn" onClick={handleLoginClick}>
-                            כניסה
-                        </button>
+                        <button className="btn login-btn" onClick={handleLoginClick}>כניסה</button>
                         <button className="btn switchUser-btn" onClick={handleTeacherSectionClick}>
                             <FontAwesomeIcon icon={faChalkboardTeacher} className="btn-icon" />
                             כניסה למרצים
@@ -259,7 +288,7 @@ const LoginSignupFormSTD = () => {
                     </div>
                 </div>
 
-                {error && notificationType === 'error' && (
+                {error && (
                     <NotificationPopup
                         message={error}
                         type={notificationType}
@@ -270,4 +299,5 @@ const LoginSignupFormSTD = () => {
         </div>
     );
 };
+
 export default LoginSignupFormSTD;

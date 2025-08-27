@@ -12,8 +12,7 @@ async function getList(req, res, next) {
 }
 
 async function Adduser(req, res, next) {
-    const { userName, email, pass, first_name, last_name, phone } = req.body;
-    //console.log("Adding user:", userName, email, first_name, last_name, phone);
+    const { userName, email, pass, first_name, last_name, phone, department_id } = req.body;
 
     if (!isValidPassword(pass)) {
         res.addStatus = 400;
@@ -42,9 +41,9 @@ async function Adduser(req, res, next) {
         }
 
         await promisePool.query(
-            `INSERT INTO students (user_name, pass, email, first_name, last_name, phone)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userName, encryptedPass, email, first_name, last_name, phone]
+            `INSERT INTO students (user_name, pass, email, first_name, last_name, phone, department_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [userName, encryptedPass, email, first_name, last_name, phone, department_id]
         );
 
         const emailContent = `
@@ -56,6 +55,7 @@ async function Adduser(req, res, next) {
                 <li><strong>שם משתמש:</strong> ${userName}</li>
                 <li><strong>שם:</strong> ${first_name} ${last_name}</li>
                 <li><strong>טלפון:</strong> ${phone}</li>
+                <li><strong>מגמה:</strong> ${department_id}</li>
             </ul>
             <p>תודה שהצטרפת אלינו!</p>
         `;
@@ -292,6 +292,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
 function isValidPassword(pass) {
     return passwordRegex.test(pass);
 }
+
 module.exports = {
     getList,
     Adduser,

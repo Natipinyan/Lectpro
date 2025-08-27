@@ -75,7 +75,7 @@ form {
     margin: 10px 0;
 }
 
-.input-box input {
+.input-box input,select {
     width: 100%;
     padding: 13px 50px 13px 50px;
     background: #eee;
@@ -87,14 +87,16 @@ form {
     font-weight: 500;
 }
 
-.input-box input::placeholder {
+
+
+.input-box input,select::placeholder {
     color: #888;
     font-weight: 400;
 }
 
 .input-box .input-icon {
     position: absolute;
-    right: 20px; /* אייקון המנעול בצד ימין */
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
@@ -105,10 +107,33 @@ form {
 .input-box:hover .input-icon {
     color: #7494ec;
 }
+.input-box select {
+    width: 100%;
+    padding: 13px 50px 13px 50px;
+    background: #eee;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    font-family: "Poppins", sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    text-align-last: center;
+}
+
+.input-box select::placeholder {
+    color: #888;
+    font-weight: 400;
+    text-align: center;
+}
 
 .toggle-password {
     position: absolute;
-    left: 20px; /* אייקון העין בצד שמאל */
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
@@ -118,7 +143,7 @@ form {
 }
 
 .toggle-password:hover {
-    color: #7494ec; /* התאמת צבע בעת ריחוף לעקביות */
+    color: #7494ec;
 }
 
 .forgot-link {
@@ -354,4 +379,3 @@ form {
         font-size: 30px;
     }
 }
-

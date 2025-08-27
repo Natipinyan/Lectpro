@@ -51,33 +51,40 @@ async function getInstructorsByDepartment(req, res, next) {
 }
 
 async function Adduser(req, res, next) {
-    const { userName, email, pass, first_name, last_name, phone } = req.body;
+    const { userName, email, pass, first_name, last_name, phone, department_id } = req.body;
+
     if (!isValidPassword(pass)) {
         res.addStatus = 400;
         res.addMessage = "הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.";
         return next();
     }
+
     const encryptedPass = middleLog.EncWithSalt(pass);
     const promisePool = db_pool.promise();
+
     try {
         const [existing] = await promisePool.query(
             `SELECT * FROM instructor WHERE user_name = ? OR email = ?`,
             [userName, email]
         );
+
         if (existing.length > 0) {
             const existingUser = existing.find(u => u.user_name === userName);
             const existingEmail = existing.find(u => u.email === email);
+
             res.addStatus = 400;
             res.addMessage = existingUser
                 ? "שם משתמש כבר קיים"
                 : "מייל כבר קיים";
             return next();
         }
+
         await promisePool.query(
-            `INSERT INTO instructor (user_name, pass, email, first_name, last_name, phone, is_active)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [userName, encryptedPass, email, first_name, last_name, phone, false]
+            `INSERT INTO instructor (user_name, pass, email, first_name, last_name, phone, department_id, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [userName, encryptedPass, email, first_name, last_name, phone, department_id, false]
         );
+
         const emailContent = `
             <h1>אישור הרשמה</h1>
             <p>שלום ${first_name} ${last_name},</p>
@@ -87,9 +94,12 @@ async function Adduser(req, res, next) {
                 <li><strong>שם משתמש:</strong> ${userName}</li>
                 <li><strong>שם:</strong> ${first_name} ${last_name}</li>
                 <li><strong>טלפון:</strong> ${phone}</li>
+                <li><strong>מגמה:</strong> ${department_id}</li>
             </ul>
             <p>תודה שהצטרפת אלינו!</p>
+            <p><strong>שים לב:</strong> יש לפנות למנהל המגמה כדי שיאשר את החשבון שלך.</p>
         `;
+
         try {
             await sendMailServer(email, 'אישור הרשמה', emailContent, true);
             res.addStatus = 200;
@@ -99,7 +109,9 @@ async function Adduser(req, res, next) {
             res.addStatus = 500;
             res.addMessage = "נרשמת, אך שליחת מייל נכשלה.";
         }
+
         return next();
+
     } catch (err) {
         console.error("שגיאה בתהליך ההוספה:", err);
         res.addStatus = 500;

@@ -1,3 +1,33 @@
+async function getDepartment(req, res, next) {
+    try {
+        const selectDepartments = `SELECT * FROM departments`;
+
+        db_pool.query(selectDepartments, (err, departmentRows) => {
+            if (err) {
+                res.departmentStatus = 500;
+                res.departmentMessage = "שגיאה במסד הנתונים";
+                return next(err);
+            }
+
+            if (!departmentRows || departmentRows.length === 0) {
+                res.departmentStatus = 404;
+                res.departmentMessage = "לא נמצאו מגמות";
+                return next();
+            }
+
+            res.departments = departmentRows;
+            res.departmentStatus = 200;
+            res.departmentMessage = "המגמות התקבלו בהצלחה";
+            next();
+        });
+    } catch (error) {
+        res.departmentStatus = 500;
+        res.departmentMessage = "שגיאה בשרת";
+        next(error);
+    }
+}
+
+
 async function getDepartmentByInstructorId(req, res, next) {
     const instructorId = req.user.id;
 
@@ -69,6 +99,7 @@ async function updateDepartmentNameById(req, res, next) {
 }
 
 module.exports = {
+    getDepartment,
     getDepartmentByInstructorId,
     updateDepartmentNameById
 };

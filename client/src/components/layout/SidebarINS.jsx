@@ -55,7 +55,7 @@ function SidebarINS(props) {
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
-        ...(isAdmin ? [{ icon: faCheckCircle, label: 'אישור בקשות', page: '/instructor/department-instructors' }] : []),
+        ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
     ];
 
     const handleNavigate = (page) => {

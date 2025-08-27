@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../css/logAndReg/LoginSignupForm.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +19,26 @@ const LoginSignupFormINS = () => {
     const [notificationType, setNotificationType] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+
+    const [departments, setDepartments] = useState([]);
+    const [departmentId, setDepartmentId] = useState('');
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            try {
+                const response = await axios.get("http://localhost:5000/departments/all");
+                if (response.data.success) {
+                    setDepartments(response.data.data);
+                }
+                console.log(response.data);
+            } catch (err) {
+                console.error("שגיאה בטעינת מגמות:", err);
+            }
+        };
+        fetchDepartments();
+    }, []);
 
     const handleRegisterClick = () => {
         setIsActive(true);
@@ -48,6 +67,7 @@ const LoginSignupFormINS = () => {
                 last_name: lastName,
                 phone,
                 pass,
+                department_id: departmentId,
             });
             if (response.data.success) {
                 setError(response.data.message);
@@ -109,6 +129,7 @@ const LoginSignupFormINS = () => {
     return (
         <div className="bodyLogReg">
             <div className={`container ${isActive ? 'active' : ''}`}>
+                {/* טופס כניסה */}
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
                         <h1>כניסה</h1>
@@ -143,15 +164,14 @@ const LoginSignupFormINS = () => {
                             כניסה
                         </button>
                         <div className="forgot-link">
-                            <button className="btnF">
-                                <a href="#" onClick={() => navigate('/instructor/forgot-password')}>
-                                    שכחת סיסמה?
-                                </a>
+                            <button className="btnF" type="button" onClick={() => navigate('/instructor/forgot-password')}>
+                                שכחת סיסמה?
                             </button>
                         </div>
                     </form>
                 </div>
 
+                {/* טופס הרשמה */}
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
                         <h1>הרשמה - מרצים</h1>
@@ -223,8 +243,25 @@ const LoginSignupFormINS = () => {
                                 onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                             />
                         </div>
+
+                        <div className="input-box">
+                            <select
+                                value={departmentId}
+                                onChange={(e) => setDepartmentId(e.target.value)}
+                                required
+                            >
+                                <option value="">בחר מגמה</option>
+                                {departments.map((dep) => (
+                                    <option key={dep.id} value={dep.id}>
+                                        {dep.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <FontAwesomeIcon icon={faChalkboardTeacher} className="input-icon" />
+                        </div>
+
                         <div>
-                            הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנא בדוק
+                            הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד.
                         </div>
                         <button type="submit" className="btn">
                             הרשמה
@@ -232,6 +269,7 @@ const LoginSignupFormINS = () => {
                     </form>
                 </div>
 
+                {/* toggle בין כניסה להרשמה */}
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
                         <FontAwesomeIcon icon={faUser} className="toggle-icon" />
@@ -269,5 +307,5 @@ const LoginSignupFormINS = () => {
         </div>
     );
 };
-export default LoginSignupFormINS;
 
+export default LoginSignupFormINS;
