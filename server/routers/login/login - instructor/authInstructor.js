@@ -29,7 +29,6 @@ router.get('/external-check-auth', middleLog.externalAuthenticate, (req, res) =>
     }
 });
 
-module.exports = router;
 // REST: Instructor logout
 router.post('/logout', middleLog.authenticateToken, (req, res) => {
     try {
