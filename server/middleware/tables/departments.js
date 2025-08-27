@@ -27,7 +27,6 @@ async function getDepartment(req, res, next) {
     }
 }
 
-
 async function getDepartmentByInstructorId(req, res, next) {
     const instructorId = req.user.id;
 
@@ -40,6 +39,34 @@ async function getDepartmentByInstructorId(req, res, next) {
         }
 
         const departmentId = instructorRows[0].department_id;
+        const selectDepartment = `SELECT * FROM departments WHERE id = ?`;
+        db_pool.query(selectDepartment, [departmentId], (err2, departmentRows) => {
+            if (err2 || departmentRows.length === 0) {
+                res.departmentStatus = 404;
+                res.departmentMessage = "מגמה לא נמצאה";
+                return next();
+            }
+
+            res.department = departmentRows[0];
+            res.departmentStatus = 200;
+            res.departmentMessage = "המגמה נמצאה בהצלחה";
+            next();
+        });
+    });
+}
+
+async function getDepartmentByStdId(req, res, next) {
+    const stdId = req.user.id;
+
+    const selectStudent = `SELECT department_id FROM students WHERE id = ?`;
+    db_pool.query(selectStudent, [stdId], (err, stdRows) => {
+        if (err || stdRows.length === 0) {
+            res.departmentStatus = 404;
+            res.departmentMessage = "סטודנט לא נמצא או שגיאה בשרת";
+            return next();
+        }
+
+        const departmentId = stdRows[0].department_id;
         const selectDepartment = `SELECT * FROM departments WHERE id = ?`;
         db_pool.query(selectDepartment, [departmentId], (err2, departmentRows) => {
             if (err2 || departmentRows.length === 0) {
@@ -101,5 +128,6 @@ async function updateDepartmentNameById(req, res, next) {
 module.exports = {
     getDepartment,
     getDepartmentByInstructorId,
+    getDepartmentByStdId,
     updateDepartmentNameById
 };

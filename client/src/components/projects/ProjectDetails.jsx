@@ -5,6 +5,7 @@ import CommentsProject from "./CommentsProject";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import Swal from 'sweetalert2';
+import axios from "axios";
 
 const ProjectDetails = () => {
     const { projectId } = useParams();
@@ -17,6 +18,7 @@ const ProjectDetails = () => {
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
     const [showComments, setShowComments] = useState(false);
+    const [department, setDepartment] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,6 +87,19 @@ const ProjectDetails = () => {
             }
         };
 
+
+            const department = async function fetchDepartment() {
+                try {
+                    const res = await axios.get("http://localhost:5000/departments/std", { withCredentials: true });
+                    if (res.data && res.data.data) {
+                        setDepartment(res.data.data);
+                    }
+                } catch (err) {
+                    console.error("שגיאה בטעינת המגמה:", err);
+                }
+            }
+
+        department();
         fetchProjectDetails();
         fetchCommentsSummary();
     }, [projectId]);
@@ -192,7 +207,16 @@ const ProjectDetails = () => {
                     onClose={() => setNotification(null)}
                 />
             )}
-            <h2 className="formLabel">פרטי הפרויקט</h2>
+            <div>
+
+            </div>
+            <div className="project-header">
+                <h2 className="project-title-label">פרטי הפרויקט</h2>
+                {department && (
+                    <h2 className="department-name">{department.name}</h2>
+                )}
+            </div>
+
             <div className="content-wrapper">
                 <div className="right-column">
                     <div className="project-details-container">

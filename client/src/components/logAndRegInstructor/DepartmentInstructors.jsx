@@ -83,7 +83,7 @@ const DepartmentInstructors = () => {
     const inactiveInstructors = instructors.filter(ins => !ins.is_active);
 
     const renderTable = (list, isActiveTable) => (
-        <div className="comments-container">
+        <div className="comments-containerA">
             <h3>{isActiveTable ? "מרצים פעילים" : "מרצים לא פעילים"}</h3>
             <div className="comments-grid-header">
                 <span>שם פרטי</span>

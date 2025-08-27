@@ -4,11 +4,14 @@ import '../../css/layuot/sideBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen,faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
+import axios from "axios";
 
 function SidebarINS(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [department, setDepartment] = useState(null);
+
 
     useEffect(() => {
         const checkAdmin = async () => {
@@ -27,8 +30,20 @@ function SidebarINS(props) {
                 setIsAdmin(false);
             }
         };
+        const  department  = async function fetchDepartment() {
+            try {
+                const res = await axios.get("http://localhost:5000/departments/", { withCredentials: true });
+                if (res.data && res.data.data) {
+                    setDepartment(res.data.data);
+                }
+            } catch (err) {
+                console.error("שגיאה בטעינת המגמה:", err);
+            }
+        }
         checkAdmin();
+        department();
     }, []);
+
 
     const handleLogout = async () => {
         try {
@@ -70,6 +85,9 @@ function SidebarINS(props) {
                 <button disabled>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
+                {department && (
+                    <h2 style={{ marginTop: 'auto', textAlign: 'center',}}> {department.name}</h2>
+                )}
             </div>
 
             <div className="right">

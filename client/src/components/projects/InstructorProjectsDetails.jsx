@@ -5,6 +5,7 @@ import AddNote from "./AddNote";
 import CommentsProject from "./CommentsProject";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
+import axios from "axios";
 
 const ProjectDetails = () => {
     const { projectId } = useParams();
@@ -22,6 +23,9 @@ const ProjectDetails = () => {
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
     const [showComments, setShowComments] = useState(false);
+
+    const [department, setDepartment] = useState(null);
+
 
     const fetchProjectDetails = async () => {
         try {
@@ -90,7 +94,19 @@ const ProjectDetails = () => {
         }
     };
 
+    const departmentName = async function fetchDepartment() {
+        try {
+            const res = await axios.get("http://localhost:5000/departments", { withCredentials: true });
+            if (res.data && res.data.data) {
+                setDepartment(res.data.data);
+            }
+        } catch (err) {
+            console.error("שגיאה בטעינת המגמה:", err);
+        }
+    }
+
     useEffect(() => {
+        departmentName();
         fetchProjectDetails();
         fetchCommentsSummary();
     }, [projectId]);
@@ -103,7 +119,6 @@ const ProjectDetails = () => {
         };
     }, [pdfUrl]);
 
-    // ===== Handlers =====
     const handleSaveNote = async (noteData) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments`, {
@@ -138,7 +153,6 @@ const ProjectDetails = () => {
         }
     };
 
-    // ===== Render States =====
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -182,7 +196,12 @@ const ProjectDetails = () => {
                 />
             )}
 
-            <h2 className="formLabel">פרטי הפרויקט</h2>
+            <div className="project-header">
+                <h2 className="project-title-label">פרטי הפרויקט</h2>
+                {department && (
+                    <h2 className="department-name">{department.name}</h2>
+                )}
+            </div>
             <div className="content-wrapper">
                 <div className="right-column">
                     <div className="project-details-container">

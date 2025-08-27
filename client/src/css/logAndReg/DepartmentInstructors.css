@@ -1,4 +1,4 @@
-.comments-container {
+. comments-containerA{
     width: 70%;
     padding: 0 20px;
     font-family: 'Rubik', 'Arial', sans-serif;
@@ -12,7 +12,7 @@
 .comments-grid-header,
 .comment-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr 1fr; /* 7 עמודות */
+    grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr 1fr;
     gap: 15px;
     font-weight: 700;
     color: #34495e;
@@ -38,7 +38,7 @@
     background-color: #d6e4ff;
 }
 
-.comments-container h3 {
+.comments-containerA h3 {
     font-size: 1.8rem;
     color: #2c3e50;
     text-align: center;
@@ -118,5 +118,5 @@
 
 .edit-department-button:hover {
     background-color: #2980b9;
-    transform: translateY(-1px); /* אפקט קטן של הרמה */
+    transform: translateY(-1px);
 }

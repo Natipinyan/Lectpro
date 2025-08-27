@@ -18,12 +18,30 @@
     width: 100%;
 }
 
+.project-header{
+         width: 70%;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 15px 20px;
+         margin: 0px auto;
+ }
+
+.project-details-wrapper {
+         display: flex;
+         flex-direction: column;
+         min-height: 100vh;
+         background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+         width: 100%;
+ }
+
 .formLabel {
     font-size: 36px;
     margin: 0 0 20px;
     color: #333;
     text-align: center;
 }
+
 
 .content-wrapper {
     display: flex;

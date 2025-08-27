@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
+import axios from "axios";
 
 function SidebarSTD(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
+    const [department, setDepartment] = useState(null);
 
     const handleLogout = async () => {
         try {
@@ -30,6 +32,22 @@ function SidebarSTD(props) {
         }
     };
 
+    useEffect(() => {
+        async function fetchDepartment() {
+            try {
+                const res = await axios.get("http://localhost:5000/departments/std", { withCredentials: true });
+                if (res.data && res.data.data) {
+                    setDepartment(res.data.data);
+                }
+            } catch (err) {
+                console.error("שגיאה בטעינת המגמה:", err);
+            }
+        }
+
+        fetchDepartment();
+    }, []);
+
+
     const buttons = [
         { icon: faHouse, label: 'בית', page: '/students/HomeStudent' },
         { icon: faSignInAlt, label: 'התנתקות', action: 'logout', onClick: handleLogout },
@@ -51,6 +69,9 @@ function SidebarSTD(props) {
                 <button disabled>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
+                {department && (
+                    <h2 style={{ marginTop: 'auto', textAlign: 'center',}}> {department.name}</h2>
+                )}
             </div>
 
             <div className="right">
