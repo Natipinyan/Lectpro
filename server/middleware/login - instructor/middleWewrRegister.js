@@ -121,9 +121,14 @@ async function Adduser(req, res, next) {
 }
 
 async function AddAdminInstructor(req, res, next) {
-    const { userName, email, pass, first_name, last_name, phone, department } = req.body;
+    const { userName, email, pass, first_name, last_name, phone, department, adminKey } = req.body;
 
-    // בדיקת סיסמה
+    if (adminKey !== process.env.MANAGER_PASS) {
+        res.addStatus = 401;
+        res.addMessage = "סיסמת מנהל לא תקינה";
+        return next();
+    }
+
     if (!isValidPassword(pass)) {
         res.addStatus = 400;
         res.addMessage = "הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד. אנגלית בלבד.";
@@ -140,7 +145,6 @@ async function AddAdminInstructor(req, res, next) {
     const promisePool = db_pool.promise();
 
     try {
-        // בדיקה אם המשתמש או המייל כבר קיימים
         const [existing] = await promisePool.query(
             `SELECT * FROM instructor WHERE user_name = ? OR email = ?`,
             [userName, email]
@@ -154,7 +158,6 @@ async function AddAdminInstructor(req, res, next) {
             return next();
         }
 
-        // בדיקה אם המגמה קיימת ואם לא – יצירתה
         let departmentId;
         const [existingDept] = await promisePool.query(
             `SELECT id FROM departments WHERE name = ?`,
@@ -171,7 +174,6 @@ async function AddAdminInstructor(req, res, next) {
             departmentId = insertDept.insertId;
         }
 
-        // הוספת היוזר עם is_admin = true ו-is_active = false
         await promisePool.query(
             `INSERT INTO instructor
              (user_name, pass, email, first_name, last_name, phone, is_active, is_admin, department_id)
@@ -179,7 +181,6 @@ async function AddAdminInstructor(req, res, next) {
             [userName, encryptedPass, email, first_name, last_name, phone, false, true, departmentId]
         );
 
-        // שליחת מייל אישור
         const emailContent = `
             <h1>אישור הרשמה</h1>
             <p>שלום ${first_name} ${last_name},</p>
@@ -196,7 +197,7 @@ async function AddAdminInstructor(req, res, next) {
         try {
             await sendMailServer(email, 'אישור הרשמה', emailContent, true);
             res.addStatus = 201;
-            res.addMessage = "מנהלת המגמה נרשמה בהצלחה!";
+            res.addMessage = "מנהל המגמה נרשמה בהצלחה!";
         } catch (mailErr) {
             console.error("שגיאה בשליחת מייל:", mailErr);
             res.addStatus = 500;

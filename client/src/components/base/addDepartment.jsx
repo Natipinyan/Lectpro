@@ -22,6 +22,7 @@ const AddDepartment = () => {
     const [phone, setPhone] = useState('');
     const [pass, setPass] = useState('');
     const [department, setDepartment] = useState('');
+    const [adminKey, setAdminKey] = useState('');
     const [error, setError] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
@@ -48,6 +49,7 @@ const AddDepartment = () => {
                 phone,
                 pass,
                 department,
+                adminKey
             });
 
             if (response.data.success) {
@@ -129,7 +131,6 @@ const AddDepartment = () => {
                             />
                             <FontAwesomeIcon icon={faPhone} className="input-icon" />
                         </div>
-                        {/* שדה מגמה */}
                         <div className="input-box">
                             <input
                                 type="text"
@@ -158,6 +159,18 @@ const AddDepartment = () => {
                         <div>
                             הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה, אות קטנה, מספר ותו מיוחד.
                         </div>
+                        <div className="input-box">
+                            <input
+                                type="password"
+                                value={adminKey}
+                                onChange={(e) => setAdminKey(e.target.value)}
+                                placeholder="סיסמת מנהל (בקש את הסיסמה ממנהל הארגון)"
+                                required
+                            />
+                            <FontAwesomeIcon icon={faLock} className="input-icon" />
+
+                        </div>
+
                         <button type="submit" className="btn">
                             הרשמה
                         </button>
