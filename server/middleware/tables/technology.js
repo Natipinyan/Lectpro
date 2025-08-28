@@ -10,8 +10,15 @@ async function getTechnologies(req, res, next) {
 }
 
 async function getTechnologiesAdmin(req, res, next) {
-    const q = `SELECT * FROM technology_in_use`;
-    db_pool.query(q, function (err, rows) {
+    const departmentId = req.user.department_id;
+
+    if (!departmentId) {
+        res.technologyList = [];
+        return next();
+    }
+
+    const q = `SELECT * FROM technology_in_use WHERE department_id = ?`;
+    db_pool.query(q, [departmentId], function (err, rows) {
         if (err) {
             return res.status(500).json({ message: "שגיאה בקבלת טכנולוגיות" });
         }
@@ -22,6 +29,8 @@ async function getTechnologiesAdmin(req, res, next) {
 
 async function addTechnology(req, res, next) {
     const { technologyName, technologyTitle } = req.body;
+    const userId = req.user.id;
+    const departmentId = req.user.department_id;
 
     if (!technologyName || !technologyTitle) {
         res.addStatus = 400;
@@ -29,9 +38,15 @@ async function addTechnology(req, res, next) {
         return next();
     }
 
+    if (!departmentId) {
+        res.addStatus = 400;
+        res.addMessage = "לא ניתן להוסיף טכנולוגיה ללא מגמה משויכת למשתמש";
+        return next();
+    }
+
     try {
-        const checkQuery = `SELECT * FROM technology_in_use WHERE language = ?`;
-        db_pool.query(checkQuery, [technologyName], (err, results) => {
+        const checkQuery = `SELECT * FROM technology_in_use WHERE language = ? AND department_id = ?`;
+        db_pool.query(checkQuery, [technologyName, departmentId], (err, results) => {
             if (err) {
                 res.addStatus = 500;
                 res.addMessage = "שגיאה בחיבור למסד הנתונים";
@@ -40,18 +55,18 @@ async function addTechnology(req, res, next) {
 
             if (results.length > 0) {
                 res.addStatus = 400;
-                res.addMessage = "טכנולוגיה עם שם זה כבר קיימת";
+                res.addMessage = "טכנולוגיה עם שם זה כבר קיימת במגמה שלך";
                 return next();
             }
 
-            const insertQuery = `INSERT INTO technology_in_use (title, language) VALUES (?, ?)`;
-            db_pool.query(insertQuery, [technologyTitle, technologyName], (err, result) => {
+            const insertQuery = `INSERT INTO technology_in_use (title, language, department_id) VALUES (?, ?, ?)`;
+            db_pool.query(insertQuery, [technologyTitle, technologyName, departmentId], (err, result) => {
                 if (err) {
                     res.addStatus = 500;
                     res.addMessage = "שגיאה בהוספת טכנולוגיה";
                 } else {
                     res.addStatus = 200;
-                    res.addMessage = "הטכנולוגיה נוספה בהצלחה";
+                    res.addMessage = "הטכנולוגיה נוספה בהצלחה למגמה שלך";
                 }
                 next();
             });
@@ -68,7 +83,11 @@ async function updateTechnology(req, res, next) {
     const { technologyId } = req.params;
     const { title, language } = req.body;
 
-    const checkAdminQuery = `SELECT is_admin FROM instructor WHERE id = ? LIMIT 1`;
+    const checkAdminQuery = `
+        SELECT is_admin, department_id
+        FROM instructor
+        WHERE id = ? LIMIT 1
+    `;
 
     db_pool.query(checkAdminQuery, [userId], function (err, results) {
         if (err || results.length === 0) {
@@ -77,26 +96,41 @@ async function updateTechnology(req, res, next) {
             return next();
         }
 
-        if (!results[0].is_admin) {
+        const user = results[0];
+
+        if (!user.is_admin) {
             res.updateStatus = 403;
             res.updateMessage = "אין לך הרשאה לעדכן טכנולוגיות";
             return next();
         }
 
-        const updateQuery = `UPDATE technology_in_use SET title = ?, language = ? WHERE id = ?`;
+        const getTechQuery = `SELECT department_id FROM technology_in_use WHERE id = ? LIMIT 1`;
 
-        db_pool.query(updateQuery, [title, language, technologyId], function (err2, result) {
-            if (err2) {
-                res.updateStatus = 500;
-                res.updateMessage = "שגיאה בעדכון טכנולוגיה";
-            } else if (result.affectedRows === 0) {
+        db_pool.query(getTechQuery, [technologyId], function (err2, techResults) {
+            if (err2 || techResults.length === 0) {
                 res.updateStatus = 404;
                 res.updateMessage = "הטכנולוגיה לא נמצאה";
-            } else {
-                res.updateStatus = 200;
-                res.updateMessage = "הטכנולוגיה עודכנה בהצלחה";
+                return next();
             }
-            next();
+
+            if (techResults[0].department_id !== user.department_id) {
+                res.updateStatus = 403;
+                res.updateMessage = "אין לך הרשאה לעדכן טכנולוגיה של מגמה אחרת";
+                return next();
+            }
+
+            const updateQuery = `UPDATE technology_in_use SET title = ?, language = ? WHERE id = ?`;
+
+            db_pool.query(updateQuery, [title, language, technologyId], function (err3, result) {
+                if (err3) {
+                    res.updateStatus = 500;
+                    res.updateMessage = "שגיאה בעדכון טכנולוגיה";
+                } else {
+                    res.updateStatus = 200;
+                    res.updateMessage = "הטכנולוגיה עודכנה בהצלחה";
+                }
+                next();
+            });
         });
     });
 }
@@ -105,7 +139,11 @@ async function deleteTechnology(req, res, next) {
     const userId = req.user.id;
     const { technologyId } = req.params;
 
-    const checkAdminQuery = `SELECT is_admin FROM instructor WHERE id = ? LIMIT 1`;
+    const checkAdminQuery = `
+        SELECT is_admin, department_id
+        FROM instructor
+        WHERE id = ? LIMIT 1
+    `;
 
     db_pool.query(checkAdminQuery, [userId], function (err, results) {
         if (err || results.length === 0) {
@@ -114,31 +152,46 @@ async function deleteTechnology(req, res, next) {
             return next();
         }
 
-        if (!results[0].is_admin) {
+        const user = results[0];
+
+        if (!user.is_admin) {
             res.deleteStatus = 403;
             res.deleteMessage = "אין לך הרשאה למחוק טכנולוגיות";
             return next();
         }
 
-        const deleteQuery = `DELETE FROM technology_in_use WHERE id = ?`;
+        const getTechQuery = `SELECT department_id FROM technology_in_use WHERE id = ? LIMIT 1`;
 
-        db_pool.query(deleteQuery, [technologyId], function (err2, result) {
-            if (err2) {
-                if (err2.code === 'ER_ROW_IS_REFERENCED_2') {
-                    res.deleteStatus = 400;
-                    res.deleteMessage = "הטכנולוגיה בשימוש ואינך יכול למחוק אותה, ניתן לערוך בלבד.";
-                } else {
-                    res.deleteStatus = 500;
-                    res.deleteMessage = "שגיאה במחיקת טכנולוגיה";
-                }
-            } else if (result.affectedRows === 0) {
+        db_pool.query(getTechQuery, [technologyId], function (err2, techResults) {
+            if (err2 || techResults.length === 0) {
                 res.deleteStatus = 404;
                 res.deleteMessage = "הטכנולוגיה לא נמצאה";
-            } else {
-                res.deleteStatus = 200;
-                res.deleteMessage = "הטכנולוגיה נמחקה בהצלחה";
+                return next();
             }
-            next();
+
+            if (techResults[0].department_id !== user.department_id) {
+                res.deleteStatus = 403;
+                res.deleteMessage = "אין לך הרשאה למחוק טכנולוגיה של מגמה אחרת";
+                return next();
+            }
+
+            const deleteQuery = `DELETE FROM technology_in_use WHERE id = ?`;
+
+            db_pool.query(deleteQuery, [technologyId], function (err3, result) {
+                if (err3) {
+                    if (err3.code === 'ER_ROW_IS_REFERENCED_2') {
+                        res.deleteStatus = 400;
+                        res.deleteMessage = "הטכנולוגיה בשימוש ואינך יכול למחוק אותה, ניתן לערוך בלבד.";
+                    } else {
+                        res.deleteStatus = 500;
+                        res.deleteMessage = "שגיאה במחיקת טכנולוגיה";
+                    }
+                } else {
+                    res.deleteStatus = 200;
+                    res.deleteMessage = "הטכנולוגיה נמחקה בהצלחה";
+                }
+                next();
+            });
         });
     });
 }

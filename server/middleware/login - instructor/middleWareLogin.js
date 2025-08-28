@@ -72,7 +72,7 @@ async function check_login(req, res, next) {
         }
 
         const token = jwt.sign(
-            { userName: uname, id: rows[0].id, Email: rows[0].email },
+            { userName: uname, id: rows[0].id, Email: rows[0].email ,department_id: rows[0].department_id},
             jwtSecret,
             { expiresIn: "1d" }
         );
@@ -116,7 +116,7 @@ function authenticateToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email };
+        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email ,department_id: decoded.department_id};
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
