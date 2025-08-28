@@ -1,76 +1,144 @@
 .admin-tech-container {
     max-width: 900px;
-    margin: 20px auto;
+    padding: 0 20px;
+    margin: 0 auto;
     direction: rtl;
-    text-align: center;
+    font-family: "Poppins", sans-serif;
+    color: #333;
+}
+
+.admin-tech-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.admin-tech-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.btn-add-tech {
+    background-color: #7494ec;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-add-tech:hover {
+    background-color: #5e7cd9;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
 }
 
 .admin-tech-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
-.admin-tech-table th, .admin-tech-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
+.admin-tech-table th,
+.admin-tech-table td {
+    padding: 14px 12px;
+    text-align: right;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .admin-tech-table th {
-    background: #f4f4f4;
+    background: #f5f5f5;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.admin-tech-table tr:hover {
+    background: #f0f4ff;
 }
 
 .btn-edit, .btn-delete {
-    margin: 0 5px;
-    padding: 6px 12px;
-    border: none;
+    padding: 6px 14px;
     border-radius: 6px;
+    border: none;
     cursor: pointer;
     font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-edit {
-    background: #4caf50;
-    color: white;
-}
-
-.btn-delete {
-    background: #e53935;
-    color: white;
+    background-color: #7494ec;
+    color: #fff;
 }
 
 .btn-edit:hover {
-    background: #43a047;
+    background-color: #5e7cd9;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.btn-delete {
+    background-color: #e53935;
+    color: #fff;
 }
 
 .btn-delete:hover {
-    background: #d32f2f;
+    background-color: #d32f2f;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
 .edit-tech-form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
 }
 
 .edit-tech-form input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.edit-tech-form input:focus {
+    border-color: #7494ec;
+    box-shadow: 0 0 8px rgba(116,148,236,0.2);
 }
 
 .form-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: 12px;
     margin-top: 15px;
 }
 
 .form-actions button {
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
     border: none;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
+
+.form-actions .btn-edit {
+    background: #7494ec;
+    color: #fff;
+}
+
+.form-actions .btn-delete {
+    background: #e53935;
+    color: #fff;
+}
+
+

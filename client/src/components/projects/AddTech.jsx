@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../../css/projects/AddProject.css";
 
 const AddTechnology = ({ onBackToProject, showNotification }) => {
     const [name, setName] = useState("");
@@ -25,7 +24,7 @@ const AddTechnology = ({ onBackToProject, showNotification }) => {
 
             const data = await response.json();
             if (response.ok && data.success) {
-                showNotification("הטכנולוגיה נוספה בהצלחה,אנא המשך למלא שאר השדות בפרוייקט!", "success");
+                showNotification("הטכנולוגיה נוספה בהצלחה", "success");
                 setName("");
                 setTechType("");
                 onBackToProject();

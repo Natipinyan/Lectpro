@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import Modal from "../base/Modal";
 import EditTechnologyForm from "./EditTechnologyForm";
+import AddTechnology from "./AddTech";
 import NotificationPopup from "./NotificationPopup";
 import '../../css/projects/AdminTechnologies.css';
 
@@ -10,7 +11,8 @@ const AdminTechnologies = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [editingTech, setEditingTech] = useState(null);
-    const [notification, setNotification] = useState(null); // { message: "", type: "success"|"error" }
+    const [addingTech, setAddingTech] = useState(false);
+    const [notification, setNotification] = useState(null);
 
     useEffect(() => {
         fetchTechnologies();
@@ -66,24 +68,28 @@ const AdminTechnologies = () => {
         });
     };
 
-    const handleEdit = (tech) => {
-        setEditingTech(tech);
-    };
-
+    const handleEdit = (tech) => setEditingTech(tech);
     const handleCloseModal = () => {
         setEditingTech(null);
+        setAddingTech(false);
     };
-
-    const handleCloseNotification = () => {
-        setNotification(null);
-    };
+    const handleCloseNotification = () => setNotification(null);
 
     if (loading) return <div>טוען נתונים...</div>;
     if (error) return <div style={{ color: "red" }}>{error}</div>;
 
     return (
         <div className="admin-tech-container">
-            <h2>רשימת טכנולוגיות</h2>
+            <div className="admin-tech-header">
+                <h2 className="admin-tech-title">רשימת טכנולוגיות</h2>
+                <button
+                    className="btn-add-tech"
+                    onClick={() => setAddingTech(true)}
+                >
+                    ➕ הוסף טכנולוגיה חדשה
+                </button>
+            </div>
+
             {technologies.length === 0 ? (
                 <p>לא נמצאו טכנולוגיות</p>
             ) : (
@@ -93,7 +99,8 @@ const AdminTechnologies = () => {
                         <th>#</th>
                         <th>סוג טכנולוגיה</th>
                         <th>שפת טכנולוגיה</th>
-                        <th>פעולות</th>
+                        <th>עריכה</th>
+                        <th>מחיקה</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -103,22 +110,15 @@ const AdminTechnologies = () => {
                             <td>{tech.title}</td>
                             <td>{tech.language}</td>
                             <td>
-                                <button
-                                    className="btn-edit"
-                                    onClick={() => handleEdit(tech)}
-                                >
-                                    ✏️ עריכה
-                                </button>
-                                <button
-                                    className="btn-delete"
-                                    onClick={() => handleDelete(tech.id)}
-                                >
-                                    🗑️ מחיקה
-                                </button>
+                                <button className="btn-edit" onClick={() => handleEdit(tech)}>✏️ עריכה</button>
+                            </td>
+                            <td>
+                                <button className="btn-delete" onClick={() => handleDelete(tech.id)}>🗑️ מחיקה</button>
                             </td>
                         </tr>
                     ))}
                     </tbody>
+
                 </table>
             )}
 
@@ -130,6 +130,20 @@ const AdminTechnologies = () => {
                         onSave={() => {
                             fetchTechnologies();
                             setNotification({ message: "הטכנולוגיה עודכנה בהצלחה", type: "success" });
+                        }}
+                    />
+                </Modal>
+            )}
+
+            {addingTech && (
+                <Modal onClose={handleCloseModal} width="40vw">
+                    <AddTechnology
+                        onBackToProject={handleCloseModal}
+                        showNotification={(msg, type) => setNotification({ message: msg, type })}
+                        onSave={() => {
+                            fetchTechnologies();
+                            setNotification({ message: "הטכנולוגיה נוספה בהצלחה", type: "success" });
+                            handleCloseModal();
                         }}
                     />
                 </Modal>
