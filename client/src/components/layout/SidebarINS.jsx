@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
+import logo from '../../logoMin.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen,faCheckCircle, faCogs} from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
@@ -92,7 +93,7 @@ function SidebarINS(props) {
             </div>
 
             <div className="right">
-                <h1>lectpro</h1>
+                <img src={logo} alt="Logo" className="side-logo" />
                 <nav className="buttons">
                     {buttons.map((btn, index) => (
                         <button key={index} onClick={btn.onClick || (() => handleNavigate(btn.page))}>

@@ -23,6 +23,11 @@ body {
     z-index: 1000;
 
 }
+.side-logo{
+    width: 120px;
+    height: auto;
+    margin: 0px auto;
+}
 
 .sidebar button {
     border: none;

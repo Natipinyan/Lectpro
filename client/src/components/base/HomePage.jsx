@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import '../../css/base/HomePage.css';
+import logo from '../../logoMin.png'
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -8,7 +9,7 @@ const HomePage = () => {
     return (
         <div className="home-container">
             <header className="home-header">
-                <h1>lectpro</h1>
+                <img src={logo} alt="Logo" className="home-logo" />
                 <h1>ברוכים הבאים למערכת שלנו</h1>
                 <p>
                     מערכת לניהול מגמות, מעקב סטודנטים, וממשק אישי למרצים וסטודנטים.
