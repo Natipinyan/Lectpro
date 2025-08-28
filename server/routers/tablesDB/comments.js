@@ -16,8 +16,6 @@ router.get('/', middleLogIns.authenticateToken, middleComments.getComments, (req
 });
 
 
-
-
 // REST: Get one comment by ID (for instructor)
 router.get('/ins/:commentId', middleLogIns.authenticateToken, middleComments.getCommentById,(req, res) => {
     try {

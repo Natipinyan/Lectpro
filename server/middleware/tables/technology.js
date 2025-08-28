@@ -83,7 +83,6 @@ async function updateTechnology(req, res, next) {
             return next();
         }
 
-        // אם הוא אדמין – נעדכן
         const updateQuery = `UPDATE technology_in_use SET title = ?, language = ? WHERE id = ?`;
 
         db_pool.query(updateQuery, [title, language, technologyId], function (err2, result) {
@@ -143,7 +142,6 @@ async function deleteTechnology(req, res, next) {
         });
     });
 }
-
 
 module.exports = {
     getTechnologies,

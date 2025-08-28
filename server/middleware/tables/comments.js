@@ -11,48 +11,71 @@ async function getComments(req, res, next) {
 
 async function getCommentsByProject(req, res, next) {
     const { projectId } = req.params;
+    const userId = req.user.id;
 
-    const query = `
-        SELECT id, text, is_done, title, section, page, user_response, done_by_user
-        FROM comments
-        WHERE project_id = ?
+    const checkQuery = `
+        SELECT id 
+        FROM projects 
+        WHERE id = ? AND (
+            student_id1 = ? OR 
+            student_id2 = ? OR 
+            instructor_id = ?
+        )
     `;
 
-    db_pool.query(query, [projectId], (err, rows) => {
+    db_pool.query(checkQuery, [projectId, userId, userId, userId], (err, rows) => {
         if (err) {
-            console.error("Error fetching comments:", err);
-            return res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
+            console.error('Error checking project access:', err);
+            return res.status(500).json({ success: false, message: 'שגיאה בבדיקת הרשאות' });
         }
 
-        const doneAndCompleted = [];       // is_done=1 && done_by_user !== 0
-        const doneButNotCompleted = [];    // is_done=0 && done_by_user !== 0
-        const notDone = [];                // done_by_user = 0 || null
+        if (rows.length === 0) {
+            return res.status(403).json({ success: false, message: 'אין לך גישה להערות של פרויקט זה' });
+        }
 
-        rows.forEach(comment => {
-            if (comment.is_done === 1 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
-                doneAndCompleted.push(comment);
-            } else if (comment.is_done === 0 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
-                doneButNotCompleted.push(comment);
-            } else if (comment.done_by_user === 0 || comment.done_by_user === null) {
-                notDone.push(comment);
+        const commentsQuery = `
+            SELECT id, text, is_done, title, section, page, user_response, done_by_user
+            FROM comments
+            WHERE project_id = ?
+        `;
+
+        db_pool.query(commentsQuery, [projectId], (err2, comments) => {
+            if (err2) {
+                console.error("Error fetching comments:", err2);
+                return res.status(500).json({ success: false, message: 'שגיאה בקבלת הערות עבור הפרויקט' });
             }
+
+            const doneAndCompleted = [];
+            const doneButNotCompleted = [];
+            const notDone = [];
+
+            comments.forEach(comment => {
+                if (comment.is_done === 1 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
+                    doneAndCompleted.push(comment);
+                } else if (comment.is_done === 0 && comment.done_by_user !== 0 && comment.done_by_user !== null) {
+                    doneButNotCompleted.push(comment);
+                } else if (comment.done_by_user === 0 || comment.done_by_user === null) {
+                    notDone.push(comment);
+                }
+            });
+
+            res.commentsList = {
+                doneAndCompleted,
+                doneButNotCompleted,
+                notDone,
+                doneAndCompletedCount: doneAndCompleted.length,
+                doneButNotCompletedCount: doneButNotCompleted.length,
+                notDoneCount: notDone.length,
+            };
+
+            next();
         });
-
-        res.commentsList = {
-            doneAndCompleted,
-            doneButNotCompleted,
-            notDone,
-            doneAndCompletedCount: doneAndCompleted.length,
-            doneButNotCompletedCount: doneButNotCompleted.length,
-            notDoneCount: notDone.length,
-        };
-
-        next();
     });
 }
 
 async function addComment(req, res, next) {
     const { project_id, title, section, page, text, is_done } = req.body;
+    const userId = req.user.id;
 
     if (!project_id) {
         res.addStatus = 400;
@@ -81,25 +104,44 @@ async function addComment(req, res, next) {
     }
 
     try {
-        const insertQuery = `
-            INSERT INTO comments (project_id, title, section, page, text, is_done)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        db_pool.query(
-            insertQuery,
-            [project_id, title, section, page, text, is_done || 0],
-            (err, result) => {
-                if (err) {
-                    res.addStatus = 500;
-                    res.addMessage = "שגיאה בהוספת ההערה";
-                } else {
-                    res.addStatus = 200;
-                    res.addMessage = "ההערה נוספה בהצלחה";
-                }
-                next();
+        const checkQuery = `SELECT id FROM projects WHERE id = ? AND instructor_id = ?`;
+        db_pool.query(checkQuery, [project_id, userId], (err, rows) => {
+            if (err) {
+                console.error("Error checking project access:", err);
+                res.addStatus = 500;
+                res.addMessage = "שגיאה בבדיקת הרשאות";
+                return next();
             }
-        );
+
+            if (rows.length === 0) {
+                res.addStatus = 403;
+                res.addMessage = "אין לך גישה להוסיף הערות לפרויקט זה";
+                return next();
+            }
+
+            const insertQuery = `
+                INSERT INTO comments (project_id, title, section, page, text, is_done)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+
+            db_pool.query(
+                insertQuery,
+                [project_id, title, section, page, text, is_done || 0],
+                (err2, result) => {
+                    if (err2) {
+                        console.error("Error inserting comment:", err2);
+                        res.addStatus = 500;
+                        res.addMessage = "שגיאה בהוספת ההערה";
+                    } else {
+                        res.addStatus = 200;
+                        res.addMessage = "ההערה נוספה בהצלחה";
+                    }
+                    next();
+                }
+            );
+        });
     } catch (error) {
+        console.error("General error in addComment:", error);
         res.addStatus = 500;
         res.addMessage = "שגיאה כללית בהוספת ההערה";
         next();
@@ -109,6 +151,7 @@ async function addComment(req, res, next) {
 async function updateComment(req, res, next) {
     const { commentId } = req.params;
     const { title, section, page, text } = req.body;
+    const userId = req.user.id;
 
     if (!title || title.trim() === "") {
         res.updateStatus = 400;
@@ -131,11 +174,24 @@ async function updateComment(req, res, next) {
         return next();
     }
 
-    const selectQuery = `SELECT id FROM comments WHERE id = ? LIMIT 1`;
-    db_pool.query(selectQuery, [commentId], (err, results) => {
-        if (err || results.length === 0) {
-            res.updateStatus = 404;
-            res.updateMessage = "ההערה לא נמצאה";
+    const selectQuery = `
+        SELECT c.id
+        FROM comments c
+                 JOIN projects p ON c.project_id = p.id
+        WHERE c.id = ? AND p.instructor_id = ?
+            LIMIT 1
+    `;
+    db_pool.query(selectQuery, [commentId, userId], (err, results) => {
+        if (err) {
+            console.error("Error checking comment access:", err);
+            res.updateStatus = 500;
+            res.updateMessage = "שגיאה בבדיקת הרשאות";
+            return next();
+        }
+
+        if (results.length === 0) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך גישה לעדכן את ההערה הזו";
             return next();
         }
 
@@ -144,31 +200,42 @@ async function updateComment(req, res, next) {
             SET title = ?, section = ?, page = ?, text = ?
             WHERE id = ?
         `;
-        db_pool.query(
-            updateQuery,
-            [title, section, page, text, commentId],
-            (err2) => {
-                if (err2) {
-                    res.updateStatus = 500;
-                    res.updateMessage = "שגיאה בעדכון ההערה";
-                } else {
-                    res.updateStatus = 200;
-                    res.updateMessage = "ההערה עודכנה בהצלחה";
-                }
-                next();
+        db_pool.query(updateQuery, [title, section, page, text, commentId], (err2) => {
+            if (err2) {
+                console.error("Error updating comment:", err2);
+                res.updateStatus = 500;
+                res.updateMessage = "שגיאה בעדכון ההערה";
+            } else {
+                res.updateStatus = 200;
+                res.updateMessage = "ההערה עודכנה בהצלחה";
             }
-        );
+            next();
+        });
     });
 }
 
 async function setCommentDone(req, res, next) {
     const { commentId } = req.params;
+    const userId = req.user.id;
 
-    const selectQuery = `SELECT id, done_by_user FROM comments WHERE id = ? LIMIT 1`;
-    db_pool.query(selectQuery, [commentId], (err, results) => {
-        if (err || results.length === 0) {
-            res.updateStatus = 404;
-            res.updateMessage = "ההערה לא נמצאה";
+    const selectQuery = `
+        SELECT c.id, c.done_by_user
+        FROM comments c
+        JOIN projects p ON c.project_id = p.id
+        WHERE c.id = ? AND p.instructor_id = ?
+        LIMIT 1
+    `;
+    db_pool.query(selectQuery, [commentId, userId], (err, results) => {
+        if (err) {
+            console.error("Error checking comment access:", err);
+            res.updateStatus = 500;
+            res.updateMessage = "שגיאה בבדיקת הרשאות";
+            return next();
+        }
+
+        if (results.length === 0) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך גישה לסמן את ההערה הזו כבוצעה";
             return next();
         }
 
@@ -179,13 +246,10 @@ async function setCommentDone(req, res, next) {
             return next();
         }
 
-        const updateQuery = `
-            UPDATE comments
-            SET is_done = 1
-            WHERE id = ?
-        `;
+        const updateQuery = `UPDATE comments SET is_done = 1 WHERE id = ?`;
         db_pool.query(updateQuery, [commentId], (err2) => {
             if (err2) {
+                console.error("Error marking comment as done:", err2);
                 res.updateStatus = 500;
                 res.updateMessage = "שגיאה בסימון ההערה כבוצעה";
             } else {
@@ -200,6 +264,7 @@ async function setCommentDone(req, res, next) {
 async function markDoneByUser(req, res, next) {
     const { commentId } = req.params;
     const { user_response } = req.body;
+    const userId = req.user.id;
 
     if (!user_response || user_response.trim() === "") {
         res.updateStatus = 400;
@@ -208,16 +273,23 @@ async function markDoneByUser(req, res, next) {
     }
 
     const selectQuery = `
-        SELECT id, done_by_user, user_response
-        FROM comments
-        WHERE id = ?
-            LIMIT 1
+        SELECT c.id, c.done_by_user, c.user_response
+        FROM comments c
+        JOIN projects p ON c.project_id = p.id
+        WHERE c.id = ? AND (p.student_id1 = ? OR p.student_id2 = ?)
+        LIMIT 1
     `;
+    db_pool.query(selectQuery, [commentId, userId, userId], (err, results) => {
+        if (err) {
+            console.error("Error checking comment access:", err);
+            res.updateStatus = 500;
+            res.updateMessage = "שגיאה בבדיקת הרשאות";
+            return next();
+        }
 
-    db_pool.query(selectQuery, [commentId], (err, results) => {
-        if (err || results.length === 0) {
-            res.updateStatus = 404;
-            res.updateMessage = "ההערה לא נמצאה";
+        if (results.length === 0) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך גישה לעדכן את ההערה הזו";
             return next();
         }
 
@@ -234,7 +306,6 @@ async function markDoneByUser(req, res, next) {
             SET done_by_user = 1, user_response = ?
             WHERE id = ?
         `;
-
         db_pool.query(updateQuery, [user_response.trim(), commentId], (err2) => {
             if (err2) {
                 res.updateStatus = 500;
@@ -250,18 +321,33 @@ async function markDoneByUser(req, res, next) {
 
 async function deleteComment(req, res, next) {
     const { commentId } = req.params;
+    const userId = req.user.id;
 
-    const selectQuery = `SELECT id FROM comments WHERE id = ? LIMIT 1`;
-    db_pool.query(selectQuery, [commentId], (err, results) => {
-        if (err || results.length === 0) {
-            res.deleteStatus = 404;
-            res.deleteMessage = "ההערה לא נמצאה";
+    const selectQuery = `
+        SELECT c.id
+        FROM comments c
+        JOIN projects p ON c.project_id = p.id
+        WHERE c.id = ? AND p.instructor_id = ?
+        LIMIT 1
+    `;
+    db_pool.query(selectQuery, [commentId, userId], (err, results) => {
+        if (err) {
+            console.error("Error checking comment access:", err);
+            res.deleteStatus = 500;
+            res.deleteMessage = "שגיאה בבדיקת הרשאות";
+            return next();
+        }
+
+        if (results.length === 0) {
+            res.deleteStatus = 403;
+            res.deleteMessage = "אין לך גישה למחוק את ההערה הזו";
             return next();
         }
 
         const deleteQuery = `DELETE FROM comments WHERE id = ?`;
         db_pool.query(deleteQuery, [commentId], (err2) => {
             if (err2) {
+                console.error("Error deleting comment:", err2);
                 res.deleteStatus = 500;
                 res.deleteMessage = "שגיאה במחיקת ההערה";
             } else {
@@ -275,6 +361,7 @@ async function deleteComment(req, res, next) {
 
 async function getCommentById(req, res, next) {
     const { commentId } = req.params;
+    const userId = req.user.id;
 
     if (!commentId || isNaN(commentId)) {
         res.getStatus = 400;
@@ -283,19 +370,25 @@ async function getCommentById(req, res, next) {
     }
 
     const query = `
-        SELECT * FROM comments WHERE id = ? LIMIT 1
+        SELECT c.*
+        FROM comments c
+                 JOIN projects p ON c.project_id = p.id
+        WHERE c.id = ?
+          AND (p.instructor_id = ? OR p.student_id1 = ? OR p.student_id2 = ?)
+            LIMIT 1
     `;
 
-    db_pool.query(query, [commentId], (err, results) => {
+    db_pool.query(query, [commentId, userId, userId, userId], (err, results) => {
         if (err) {
+            console.error("Error fetching comment:", err);
             res.getStatus = 500;
             res.getMessage = "שגיאה בקבלת ההערה";
             return next();
         }
 
         if (results.length === 0) {
-            res.getStatus = 404;
-            res.getMessage = "ההערה לא נמצאה";
+            res.getStatus = 403;
+            res.getMessage = "אין לך גישה להערה הזו";
             return next();
         }
 
@@ -308,6 +401,7 @@ async function getCommentById(req, res, next) {
 async function getNextComment(req, res, next) {
     const { commentId } = req.params;
     const currentId = parseInt(commentId, 10);
+    const userId = req.user.id;
 
     if (isNaN(currentId)) {
         req.nextStatus = 400;
@@ -317,21 +411,22 @@ async function getNextComment(req, res, next) {
     }
 
     try {
-        const currentComment = await getCommentByIdFromDb(currentId);
-
+        const currentComment = await getCommentByIdFromDb(currentId, userId);
         if (!currentComment) {
-            req.nextStatus = 404;
-            req.nextMessage = "ההערה הנוכחית לא נמצאה";
+            req.nextStatus = 403;
+            req.nextMessage = "אין לך גישה להערה הזו";
             req.nextSuccess = false;
             return next();
         }
 
         const projectId = currentComment.project_id;
+
         const query = `
-            SELECT * FROM comments
-            WHERE id > ? AND project_id = ?
-            ORDER BY id ASC
-            LIMIT 1
+            SELECT c.*
+            FROM comments c
+            WHERE c.id > ? AND c.project_id = ?
+            ORDER BY c.id ASC
+                LIMIT 1
         `;
 
         db_pool.query(query, [currentId, projectId], (err, results) => {
@@ -368,6 +463,7 @@ async function getNextComment(req, res, next) {
 async function getPrevComment(req, res, next) {
     const { commentId } = req.params;
     const currentId = parseInt(commentId, 10);
+    const userId = req.user.id;
 
     if (isNaN(currentId)) {
         req.prevStatus = 400;
@@ -377,21 +473,22 @@ async function getPrevComment(req, res, next) {
     }
 
     try {
-        const currentComment = await getCommentByIdFromDb(currentId);
-
+        const currentComment = await getCommentByIdFromDb(currentId, userId);
         if (!currentComment) {
-            req.prevStatus = 404;
-            req.prevMessage = "ההערה הנוכחית לא נמצאה";
+            req.prevStatus = 403;
+            req.prevMessage = "אין לך גישה להערה הזו";
             req.prevSuccess = false;
             return next();
         }
 
         const projectId = currentComment.project_id;
+
         const query = `
-            SELECT * FROM comments
-            WHERE id < ? AND project_id = ?
-            ORDER BY id DESC
-            LIMIT 1
+            SELECT c.*
+            FROM comments c
+            WHERE c.id < ? AND c.project_id = ?
+            ORDER BY c.id DESC
+                LIMIT 1
         `;
 
         db_pool.query(query, [currentId, projectId], (err, results) => {
@@ -424,6 +521,7 @@ async function getPrevComment(req, res, next) {
         next();
     }
 }
+
 
 function getCommentByIdFromDb(commentId) {
     return new Promise((resolve, reject) => {
