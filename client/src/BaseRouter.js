@@ -3,8 +3,12 @@ import * as Imports from "./imports";
 export default function BaseRouter() {
     const router = Imports.createBrowserRouter([
         {
-          path:"/",
-            element:<Imports.AddDepartment/>
+            path: "/",
+            element: <Imports.HomePage />,
+        },
+        {
+            path: "/open-department",
+            element: <Imports.AddDepartment />
         },
         {
             path: "/students",
@@ -41,7 +45,6 @@ export default function BaseRouter() {
                         { path: "comments/:projectId", element: <Imports.PrivateRouteInstructor element={Imports.InstructorComment} /> },
                         { path: "department-instructors", element: <Imports.PrivateRouteInstructor element={Imports.DepartmentInstructors} /> },
                         { path: "AdminTechnologies", element: <Imports.PrivateRouteInstructor element={Imports.AdminTechnologies} /> }
-
                     ],
                 },
             ],

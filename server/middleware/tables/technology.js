@@ -67,7 +67,6 @@ async function updateTechnology(req, res, next) {
     const userId = req.user.id;
     const { technologyId } = req.params;
     const { title, language } = req.body;
-    console.log(title, language);
 
     const checkAdminQuery = `SELECT is_admin FROM instructor WHERE id = ? LIMIT 1`;
 

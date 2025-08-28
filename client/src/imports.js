@@ -1,5 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+//home page
+import HomePage from "./components/base/HomePage";
+
 //add department
 import AddDepartment from "./components/base/addDepartment";
 
@@ -46,6 +49,9 @@ import InstructorComment from "./components/projects/instructorComment";
 
 
 export {
+    // Home page
+    HomePage,
+
     // React Router dependencies
     createBrowserRouter,
     RouterProvider,
