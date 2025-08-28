@@ -120,15 +120,16 @@ const Comment = () => {
 
             <div className="bottom-card">
                 <div className="top-buttons">
+
+                    <button className="prev-button" onClick={fetchPrevComment}>
+                        ← הערה קודמת
+                    </button>
                     <button
                         className="back-button"
                         aria-label="חזרה לכל ההערות"
                         onClick={() => navigate(-1)}
                     >
                         ✖ סגור הערה
-                    </button>
-                    <button className="prev-button" onClick={fetchPrevComment}>
-                        ← הערה קודמת
                     </button>
                     <button className="next-button" onClick={fetchNextComment}>
                         הערה הבאה →

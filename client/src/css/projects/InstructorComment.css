@@ -108,3 +108,33 @@
 .mark-button:hover {
     background: #005fa3;
 }
+
+.prev-button,
+.next-button {
+    min-width: 160px;
+    height: 48px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #4a90e2, #357abd);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.prev-button:hover,
+.next-button:hover {
+    background: linear-gradient(135deg, #357abd, #2d6395);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.prev-button:active,
+.next-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+

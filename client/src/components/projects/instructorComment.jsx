@@ -189,6 +189,9 @@ const InstructorComment = () => {
 
             <div className="bottom-card">
                 <div className="top-buttons">
+                    <button className="prev-button" onClick={fetchPrevComment}>
+                        ← הערה קודמת
+                    </button>
                     <button className="back-button" onClick={() => navigate(-1)} aria-label="חזרה לכל ההערות">
                         ✖ סגור הערה
                     </button>
@@ -201,9 +204,6 @@ const InstructorComment = () => {
                         disabled={currentComment.is_done}
                     >
                         {currentComment.is_done ? "הושלם" : "✏ ערוך הערה"}
-                    </button>
-                    <button className="prev-button" onClick={fetchPrevComment}>
-                        ← הערה קודמת
                     </button>
                     <button className="next-button" onClick={fetchNextComment}>
                         הערה הבאה →
