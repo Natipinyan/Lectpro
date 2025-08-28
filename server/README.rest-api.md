@@ -66,12 +66,13 @@
 
 ## Technologies
 
-| Method | Endpoint                              | Description                        | Request Body         | Response                |
-|--------|----------------------------------------|------------------------------------|----------------------|-------------------------|
-| GET    | /technology/                          | Get all technologies               | -                    | { success, data: technologies } |
-| POST   | /technology/                          | Create a new technology            | Technology fields    | { success, message }    |
-| PUT    | /technology/:technologyId             | Update a technology by ID          | Technology fields    | { success, message }    |
-| DELETE | /technology/:technologyId             | Delete a technology by ID          | -                    | { success, message }    |
+| Method | Endpoint                              | Description                      | Request Body         | Response                |
+|--------|----------------------------------------|----------------------------------|----------------------|-------------------------|
+| GET    | /technology/                          | Get all technologies             | -                    | { success, data: technologies } |
+| GET    | /technology/getAdmin                  | Get all technologies (for admin) | -                    | { success, data: technologies } |
+| POST   | /technology/                          | Create a new technology          | Technology fields    | { success, message }    |
+| PUT    | /technology/:technologyId (for admin) | Update a technology by ID        | Technology fields    | { success, message }    |
+| DELETE | /technology/:technologyId (for admin) | Delete a technology by ID        | -                    | { success, message }    |
 
 ## Email
 

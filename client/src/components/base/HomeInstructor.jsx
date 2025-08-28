@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../css/base/homeStudent.css"
-import {faCheckCircle, faFolderOpen, faSignInAlt, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCheckCircle, faFolderOpen, faSignInAlt, faUser, faCogs} from "@fortawesome/free-solid-svg-icons";
+
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationPopup from "../projects/NotificationPopup";
 
@@ -62,6 +63,7 @@ const HomeStudents = () => {
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
         ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
+        ...(isAdmin ? [{ icon: faCogs, label: 'ניהול טכנולוגיות', page: '/instructor/AdminTechnologies' }] : []),
     ];
 
 

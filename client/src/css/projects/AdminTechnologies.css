@@ -1,0 +1,76 @@
+.admin-tech-container {
+    max-width: 900px;
+    margin: 20px auto;
+    direction: rtl;
+    text-align: center;
+}
+
+.admin-tech-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-tech-table th, .admin-tech-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.admin-tech-table th {
+    background: #f4f4f4;
+}
+
+.btn-edit, .btn-delete {
+    margin: 0 5px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-edit {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-delete {
+    background: #e53935;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #43a047;
+}
+
+.btn-delete:hover {
+    background: #d32f2f;
+}
+
+.edit-tech-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-tech-form input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.form-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}

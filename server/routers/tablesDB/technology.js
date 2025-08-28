@@ -4,6 +4,7 @@ module.exports = router;
 
 const middleTech = require("../../middleware/tables/technology");
 const middleLog = require("../../middleware/login - students/middleWareLogin");
+const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
 
 // REST: Get all technologies
 router.get('/', middleLog.authenticateToken, middleTech.getTechnologies, (req, res) => {
@@ -13,6 +14,16 @@ router.get('/', middleLog.authenticateToken, middleTech.getTechnologies, (req, r
         res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות' });
     }
 });
+
+// REST: Get all technologies for admin
+router.get('/getAdmin', middleLogIns.authenticateToken, middleTech.getTechnologiesAdmin, (req, res) => {
+    try {
+        res.status(200).json({ success: true, data: res.technologyList });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בקבלת טכנולוגיות' });
+    }
+});
+
 // REST: Create a new technology
 router.post('/', middleLog.authenticateToken, middleTech.addTechnology, (req, res) => {
     try {
@@ -21,16 +32,16 @@ router.post('/', middleLog.authenticateToken, middleTech.addTechnology, (req, re
         res.status(500).json({ success: false, message: 'שגיאה ביצירת טכנולוגיה' });
     }
 });
-// REST: Update a technology by ID
-router.put('/:technologyId', middleLog.authenticateToken, middleTech.updateTechnology, (req, res) => {
+// REST: Update a technology by ID (by admin)
+router.put('/:technologyId', middleLogIns.authenticateToken, middleTech.updateTechnology, (req, res) => {
     try {
         res.status(res.updateStatus || 200).json({ success: res.updateStatus === 200, message: res.updateMessage });
     } catch (err) {
         res.status(500).json({ success: false, message: 'שגיאה בעדכון טכנולוגיה' });
     }
 });
-// REST: Delete a technology by ID
-router.delete('/:technologyId', middleLog.authenticateToken, middleTech.deleteTechnology, (req, res) => {
+// REST: Delete a technology by ID (by admin)
+router.delete('/:technologyId', middleLogIns.authenticateToken, middleTech.deleteTechnology, (req, res) => {
     try {
         res.status(res.deleteStatus || 200).json({ success: res.deleteStatus === 200, message: res.deleteMessage });
     } catch (err) {

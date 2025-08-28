@@ -37,6 +37,7 @@ import ProfileINS from "./components/logAndRegInstructor/ProfileINS";
 import SidebarLayoutINS from "./components/layout/SidebarLayoutINS";
 import HomeInstructor from "./components/base/HomeInstructor";
 import DepartmentInstructors from "./components/logAndRegInstructor/DepartmentInstructors";
+import AdminTechnologies from "./components/projects/AdminTechnologies";
 
 // Components for instructors
 import InstructorProjects  from "./components/projects/InstructorProjectsList";
@@ -82,6 +83,7 @@ export {
     SidebarLayoutINS,
     HomeInstructor,
     DepartmentInstructors,
+    AdminTechnologies,
 
     // instructors project components
     InstructorProjects,

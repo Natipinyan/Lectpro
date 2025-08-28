@@ -9,6 +9,16 @@ async function getTechnologies(req, res, next) {
     });
 }
 
+async function getTechnologiesAdmin(req, res, next) {
+    const q = `SELECT * FROM technology_in_use`;
+    db_pool.query(q, function (err, rows) {
+        if (err) {
+            return res.status(500).json({ message: "שגיאה בקבלת טכנולוגיות" });
+        }
+        res.technologyList = rows;
+        next();
+    });
+}
 
 async function addTechnology(req, res, next) {
     const { technologyName, technologyTitle } = req.body;
@@ -53,28 +63,37 @@ async function addTechnology(req, res, next) {
     }
 }
 
-
 async function updateTechnology(req, res, next) {
-    const currentLanguage = req.body.currentLanguage;
-    const newLanguage = req.body.newLanguage;
+    const userId = req.user.id;
+    const { technologyId } = req.params;
+    const { title, language } = req.body;
+    console.log(title, language);
 
-    const selectQuery = `SELECT id FROM technology_in_use WHERE language = ? LIMIT 1`;
+    const checkAdminQuery = `SELECT is_admin FROM instructor WHERE id = ? LIMIT 1`;
 
-    db_pool.query(selectQuery, [currentLanguage], function (err, results) {
+    db_pool.query(checkAdminQuery, [userId], function (err, results) {
         if (err || results.length === 0) {
-            res.updateStatus = 404;
-            res.updateMessage = "לא נמצאה טכנולוגיה עם השפה שצוינה";
+            res.updateStatus = 500;
+            res.updateMessage = "שגיאה באימות המשתמש";
             return next();
         }
 
-        const techId = results[0].id;
+        if (!results[0].is_admin) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך הרשאה לעדכן טכנולוגיות";
+            return next();
+        }
 
-        const updateQuery = `UPDATE technology_in_use SET language = ? WHERE id = ?`;
+        // אם הוא אדמין – נעדכן
+        const updateQuery = `UPDATE technology_in_use SET title = ?, language = ? WHERE id = ?`;
 
-        db_pool.query(updateQuery, [newLanguage, techId], function (err2, result) {
+        db_pool.query(updateQuery, [title, language, technologyId], function (err2, result) {
             if (err2) {
                 res.updateStatus = 500;
                 res.updateMessage = "שגיאה בעדכון טכנולוגיה";
+            } else if (result.affectedRows === 0) {
+                res.updateStatus = 404;
+                res.updateMessage = "הטכנולוגיה לא נמצאה";
             } else {
                 res.updateStatus = 200;
                 res.updateMessage = "הטכנולוגיה עודכנה בהצלחה";
@@ -83,26 +102,40 @@ async function updateTechnology(req, res, next) {
         });
     });
 }
+
 async function deleteTechnology(req, res, next) {
-    const currentLanguage = req.body.currentLanguage;
+    const userId = req.user.id;
+    const { technologyId } = req.params;
 
-    const selectQuery = `SELECT id FROM technology_in_use WHERE language = ? LIMIT 1`;
+    const checkAdminQuery = `SELECT is_admin FROM instructor WHERE id = ? LIMIT 1`;
 
-    db_pool.query(selectQuery, [currentLanguage], function (err, results) {
+    db_pool.query(checkAdminQuery, [userId], function (err, results) {
         if (err || results.length === 0) {
-            res.deleteStatus = 404;
-            res.deleteMessage = "לא נמצאה טכנולוגיה עם השפה שצוינה";
+            res.deleteStatus = 500;
+            res.deleteMessage = "שגיאה באימות המשתמש";
             return next();
         }
 
-        const techId = results[0].id;
+        if (!results[0].is_admin) {
+            res.deleteStatus = 403;
+            res.deleteMessage = "אין לך הרשאה למחוק טכנולוגיות";
+            return next();
+        }
 
         const deleteQuery = `DELETE FROM technology_in_use WHERE id = ?`;
 
-        db_pool.query(deleteQuery, [techId], function (err2, result) {
+        db_pool.query(deleteQuery, [technologyId], function (err2, result) {
             if (err2) {
-                res.deleteStatus = 500;
-                res.deleteMessage = "שגיאה במחיקת טכנולוגיה";
+                if (err2.code === 'ER_ROW_IS_REFERENCED_2') {
+                    res.deleteStatus = 400;
+                    res.deleteMessage = "הטכנולוגיה בשימוש ואינך יכול למחוק אותה, ניתן לערוך בלבד.";
+                } else {
+                    res.deleteStatus = 500;
+                    res.deleteMessage = "שגיאה במחיקת טכנולוגיה";
+                }
+            } else if (result.affectedRows === 0) {
+                res.deleteStatus = 404;
+                res.deleteMessage = "הטכנולוגיה לא נמצאה";
             } else {
                 res.deleteStatus = 200;
                 res.deleteMessage = "הטכנולוגיה נמחקה בהצלחה";
@@ -113,11 +146,9 @@ async function deleteTechnology(req, res, next) {
 }
 
 
-
-
-
 module.exports = {
     getTechnologies,
+    getTechnologiesAdmin,
     addTechnology,
     updateTechnology,
     deleteTechnology
