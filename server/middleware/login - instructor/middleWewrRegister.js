@@ -29,11 +29,6 @@ async function getInstructorsByDepartment(req, res, next) {
 
         const user = userRows[0];
 
-        if (!user.is_admin) {
-            res.instructorsListByDept = [];
-            return next();
-        }
-
         const [instructors] = await db_pool.promise().query(
             `SELECT id, first_name, last_name, user_name, email, phone, is_active
              FROM instructor
@@ -46,6 +41,44 @@ async function getInstructorsByDepartment(req, res, next) {
     } catch (err) {
         console.error(err);
         res.instructorsListByDept = [];
+        next();
+    }
+}
+
+async function getProjectsAndInstructorsByDepartment(req, res, next) {
+    try {
+        const departmentId = req.user.department_id;
+
+        if (!departmentId) {
+            req.projectsListByDept = [];
+            req.instructorsListByDept = [];
+            return next();
+        }
+
+        const promisePool = db_pool.promise();
+
+        const [projects] = await promisePool.query(
+            `SELECT *
+             FROM projects
+             WHERE department_id = ? AND instructor_id IS NULL`,
+            [departmentId]
+        );
+
+        const [instructors] = await promisePool.query(
+            `SELECT id, first_name, last_name
+             FROM instructor
+             WHERE department_id = ? AND is_active = 1`,
+            [departmentId]
+        );
+
+        req.projectsListByDept = projects;
+        req.instructorsListByDept = instructors;
+
+        next();
+    } catch (err) {
+        console.error("שגיאה בטעינת פרויקטים ומרצים:", err);
+        req.projectsListByDept = [];
+        req.instructorsListByDept = [];
         next();
     }
 }
@@ -67,11 +100,6 @@ async function getStudentsByDepartment(req, res, next) {
         }
 
         const user = userRows[0];
-
-        if (!user.is_admin) {
-            res.studentsListByDept = [];
-            return next();
-        }
 
         const [students] = await db_pool.promise().query(
             `SELECT id, first_name, last_name, user_name, email, phone
@@ -274,11 +302,6 @@ async function toggleInstructorStatus(req, res, next) {
 
         const admin = adminRows[0];
 
-        if (!admin.is_admin) {
-            res.toggleStatus = 403;
-            res.toggleMessage = "אין לך הרשאות לשנות סטטוס";
-            return next();
-        }
 
         const [instructorRows] = await promisePool.query(
             `SELECT id, is_active, department_id
@@ -315,6 +338,86 @@ async function toggleInstructorStatus(req, res, next) {
         console.error("שגיאה בשינוי סטטוס:", err);
         res.toggleStatus = 500;
         res.toggleMessage = "שגיאה כללית בשינוי סטטוס";
+        return next();
+    }
+}
+
+async function assignInstructorToProject(req, res, next) {
+    const { projectId, instructorId } = req.body;
+    const adminId = req.user.id;
+
+    if (!projectId || !instructorId) {
+        res.assignStatus = 400;
+        res.assignMessage = "חובה לספק מזהה פרויקט ומזהה מרצה";
+        return next();
+    }
+
+    const promisePool = db_pool.promise();
+
+    try {
+        const [adminRows] = await promisePool.query(
+            `SELECT department_id
+             FROM instructor
+             WHERE id = ? AND is_admin = 1`,
+            [adminId]
+        );
+
+        if (adminRows.length === 0) {
+            res.assignStatus = 403;
+            res.assignMessage = "אין הרשאה לביצוע פעולה זו";
+            return next();
+        }
+
+        const admin = adminRows[0];
+
+
+        const [projectRows] = await promisePool.query(
+            `SELECT id, instructor_id
+             FROM projects
+             WHERE id = ? AND department_id = ?`,
+            [projectId, admin.department_id]
+        );
+
+        if (projectRows.length === 0) {
+            res.assignStatus = 404;
+            res.assignMessage = "פרויקט לא נמצא או לא שייך למגמה שלך";
+            return next();
+        }
+
+        const project = projectRows[0];
+        if (project.instructor_id) {
+            res.assignStatus = 400;
+            res.assignMessage = "הפרויקט כבר משויך למרצה אחר";
+            return next();
+        }
+
+        const [instructorRows] = await promisePool.query(
+            `SELECT id
+             FROM instructor
+             WHERE id = ? AND department_id = ? AND is_active = 1`,
+            [instructorId, admin.department_id]
+        );
+
+        if (instructorRows.length === 0) {
+            res.assignStatus = 404;
+            res.assignMessage = "מרצה לא נמצא, לא פעיל, או לא שייך למגמה שלך";
+            return next();
+        }
+
+        await promisePool.query(
+            `UPDATE projects
+             SET instructor_id = ?
+             WHERE id = ?`,
+            [instructorId, projectId]
+        );
+
+        res.assignStatus = 200;
+        res.assignMessage = "המרצה קושר לפרויקט בהצלחה";
+        return next();
+    } catch (err) {
+        console.error("שגיאה בקישור מרצה לפרויקט:", err);
+        res.assignStatus = 500;
+        res.assignMessage = "שגיאה בקישור מרצה לפרויקט";
         return next();
     }
 }
@@ -513,10 +616,12 @@ function isValidPassword(pass) {
 module.exports = {
     getList,
     getInstructorsByDepartment,
+    getProjectsAndInstructorsByDepartment,
     getStudentsByDepartment,
     Adduser,
     AddAdminInstructor,
     toggleInstructorStatus,
+    assignInstructorToProject,
     UpdateUser,
     delUser,
     getUser,

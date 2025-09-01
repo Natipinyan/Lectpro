@@ -5,6 +5,7 @@ const fs = require('fs');
 const addProject = (req, res) => {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
     const studentId = req.user.id;
+    const departmentId = req.user.department_id;
 
     if (
         !projectName ||
@@ -37,8 +38,8 @@ const addProject = (req, res) => {
             return res.status(409).json({ success: false, message: "פרויקט בשם זה כבר קיים. אנא בחר שם אחר." });
         }
 
-        const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github) VALUES (?, ?, ?, ?)`;
-        db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null], (err, result) => {
+        const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github, department_id) VALUES (?, ?, ?, ?, ?)`;
+        db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null, departmentId], (err, result) => {
             if (err) {
                 console.error("DB Error (projects):", err);
                 return res.status(500).json({ success: false, message: "שגיאה בהוספת פרויקט" });
@@ -126,7 +127,6 @@ const getOneProjectIns = (req, res) => {
         return res.status(200).json({ success: true, data: rows[0] });
     });
 };
-
 
 const getProjectTechnologies = (req, res) => {
     const { projectId } = req.params;
@@ -328,7 +328,6 @@ const getProjectsByInstructor = (req, res, next) => {
         next();
     });
 };
-
 
 module.exports = {
     addProject,

@@ -46,7 +46,7 @@ import AdminTechnologies from "./components/projects/AdminTechnologies";
 import InstructorProjects  from "./components/projects/InstructorProjectsList";
 import InstructorProjectDetails from "./components/projects/InstructorProjectsDetails";
 import InstructorComment from "./components/projects/instructorComment";
-
+import assignInstructor from "./components/projects/AssignInstructor";
 
 export {
     // Home page
@@ -95,6 +95,7 @@ export {
     InstructorProjects,
     InstructorProjectDetails,
     InstructorComment,
+    assignInstructor,
 
 
 };

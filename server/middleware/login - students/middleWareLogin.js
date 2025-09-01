@@ -53,7 +53,9 @@ async function check_login(req, res, next) {
             return next();
         }
 
-        if (rows[0].pass !== password) {
+        const student = rows[0];
+
+        if (student.pass !== password) {
             res.statusCodeToSend = 401;
             res.responseData = {
                 loggedIn: false,
@@ -63,14 +65,19 @@ async function check_login(req, res, next) {
         }
 
         const token = jwt.sign(
-            { userName: uname, id: rows[0].id, Email: rows[0].email, department_id: rows[0].department_id},
+            {
+                userName: student.user_name,
+                id: student.id,
+                Email: student.email,
+                department_id: student.department_id
+            },
             jwtSecret,
             { expiresIn: "1d" }
         );
 
         res.cookie("students", token, {
             httpOnly: true,
-            secure: false,// change to true in production
+            secure: false, // change to true in production
             maxAge: 86400000,
             sameSite: "Lax",
         });
@@ -79,10 +86,11 @@ async function check_login(req, res, next) {
         res.responseData = {
             loggedIn: true,
             message: "התחברת בהצלחה",
-            mustChangePassword: rows[0].must_change_password === 1,
+            mustChangePassword: student.must_change_password === 1,
             user: {
-                id: rows[0].id,
-                userName: rows[0].user_name,
+                id: student.id,
+                userName: student.user_name,
+                department_id: student.department_id
             },
         };
 
@@ -101,14 +109,18 @@ async function check_login(req, res, next) {
 
 function authenticateToken(req, res, next) {
     const token = req.cookies.students;
-    //console.log("Received token in check-auth:", token);
     if (!token) {
         return res.status(401).json({ message: "נדרש להתחבר למערכת" });
     }
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email, department_id: decoded.department_id };
+        req.user = {
+            id: decoded.id,
+            userName: decoded.userName,
+            email: decoded.Email,
+            department_id: decoded.department_id
+        };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
@@ -116,23 +128,28 @@ function authenticateToken(req, res, next) {
     }
 }
 
-
 function externalAuthenticate(req, res, next) {
     const token = req.cookies.students;
 
     if (!token) {
-        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+        return res.status(200).json({ success: true, data: { isAuthenticated: false } });
     }
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = {id: decoded.id, userName: decoded.userName, email: decoded.Email};
+        req.user = {
+            id: decoded.id,
+            userName: decoded.userName,
+            email: decoded.Email,
+            department_id: decoded.department_id
+        };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
-        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+        return res.status(200).json({ success: true, data: { isAuthenticated: false } });
     }
 }
+
 function logout(req, res) {
     res.clearCookie("students", {
         httpOnly: true,
@@ -145,7 +162,6 @@ function logout(req, res) {
         message: "התנתקת בהצלחה",
     });
 }
-
 
 module.exports = {
     check_login,

@@ -53,7 +53,9 @@ async function check_login(req, res, next) {
             return next();
         }
 
-        if (!rows[0].is_active) {
+        const userRow = rows[0];
+
+        if (!userRow.is_active) {
             res.statusCodeToSend = 403;
             res.responseData = {
                 loggedIn: false,
@@ -62,7 +64,7 @@ async function check_login(req, res, next) {
             return next();
         }
 
-        if (rows[0].pass !== password) {
+        if (userRow.pass !== password) {
             res.statusCodeToSend = 401;
             res.responseData = {
                 loggedIn: false,
@@ -72,14 +74,19 @@ async function check_login(req, res, next) {
         }
 
         const token = jwt.sign(
-            { userName: uname, id: rows[0].id, Email: rows[0].email ,department_id: rows[0].department_id},
+            {
+                userName: userRow.user_name,
+                id: userRow.id,
+                Email: userRow.email,
+                department_id: userRow.department_id
+            },
             jwtSecret,
             { expiresIn: "1d" }
         );
 
         res.cookie("instructors", token, {
             httpOnly: true,
-            secure: false,// change to true in production
+            secure: false, // change to true in production
             maxAge: 86400000,
             sameSite: "Lax",
         });
@@ -88,10 +95,11 @@ async function check_login(req, res, next) {
         res.responseData = {
             loggedIn: true,
             message: "התחברת בהצלחה",
-            mustChangePassword: rows[0].must_change_password === 1,
+            mustChangePassword: userRow.must_change_password === 1,
             user: {
-                id: rows[0].id,
-                userName: rows[0].user_name,
+                id: userRow.id,
+                userName: userRow.user_name,
+                department_id: userRow.department_id
             },
         };
 
@@ -116,7 +124,12 @@ function authenticateToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email ,department_id: decoded.department_id};
+        req.user = {
+            id: decoded.id,
+            userName: decoded.userName,
+            email: decoded.Email,
+            department_id: decoded.department_id
+        };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
@@ -128,16 +141,21 @@ function externalAuthenticate(req, res, next) {
     const token = req.cookies.instructors;
 
     if (!token) {
-        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+        return res.status(200).json({ success: true, data: { isAuthenticated: false } });
     }
 
     try {
         const decoded = jwt.verify(token, jwtSecret);
-        req.user = {id: decoded.id, userName: decoded.userName, email: decoded.Email};
+        req.user = {
+            id: decoded.id,
+            userName: decoded.userName,
+            email: decoded.Email,
+            department_id: decoded.department_id
+        };
         next();
     } catch (err) {
         console.error("Token verification failed:", err);
-        return res.status(200).json({success: true, data: {isAuthenticated: false}});
+        return res.status(200).json({ success: true, data: { isAuthenticated: false } });
     }
 }
 
@@ -156,13 +174,14 @@ async function checkAdmin(req, res, next) {
             [decoded.id]
         );
 
-        if (rows.length === 0) {
-            res.isAdmin = false;
-        } else {
-            res.isAdmin = rows[0].is_admin === 1;
-        }
+        res.isAdmin = rows.length > 0 && rows[0].is_admin === 1;
 
-        req.user = { id: decoded.id, userName: decoded.userName, email: decoded.Email };
+        req.user = {
+            id: decoded.id,
+            userName: decoded.userName,
+            email: decoded.Email,
+            department_id: decoded.department_id
+        };
         return next();
     } catch (err) {
         console.error("Token verification failed:", err);
@@ -171,12 +190,10 @@ async function checkAdmin(req, res, next) {
     }
 }
 
-
-
 function logout(req, res) {
     res.clearCookie("instructors", {
         httpOnly: true,
-        secure: false, // change to true in production
+        secure: false,
         sameSite: "Lax",
     });
 

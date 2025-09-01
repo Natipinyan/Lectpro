@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import logo from '../../logoMin.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload  } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 import axios from "axios";
 
@@ -57,6 +57,7 @@ function SidebarSTD(props) {
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/students/MyProjects' },
         { icon: faUpload, label: 'העלה קובץ', page: '/students/UpFile' },
     ];
+
 
     const handleNavigate = (page) => {
         navigate(page);

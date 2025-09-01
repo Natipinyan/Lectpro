@@ -3,7 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import logo from '../../logoMin.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen,faCheckCircle, faCogs} from '@fortawesome/free-solid-svg-icons';
+import {
+    faBars,
+    faHouse,
+    faSignInAlt,
+    faUser,
+    faFolderOpen,
+    faCheckCircle,
+    faCogs,
+    faChalkboardTeacher
+} from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 import axios from "axios";
 
@@ -73,6 +82,7 @@ function SidebarINS(props) {
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
         ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
         ...(isAdmin ? [{ icon: faCogs, label: 'ניהול טכנולוגיות', page: '/instructor/AdminTechnologies' }] : []),
+        ...(isAdmin ? [{ icon: faChalkboardTeacher, label: 'קישור פרויקטים', page: '/instructor/projectManagement'  }] : []),
     ];
 
     const handleNavigate = (page) => {
