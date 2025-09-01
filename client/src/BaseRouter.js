@@ -45,7 +45,8 @@ export default function BaseRouter() {
                         { path: "comments/:projectId", element: <Imports.PrivateRouteInstructor element={Imports.InstructorComment} /> },
                         { path: "department-instructors", element: <Imports.PrivateRouteInstructor element={Imports.DepartmentInstructors} /> },
                         { path: "AdminTechnologies", element: <Imports.PrivateRouteInstructor element={Imports.AdminTechnologies} /> },
-                        { path: "projectManagement", element: <Imports.PrivateRouteInstructor element={Imports.assignInstructor} /> }
+                        { path: "projectManagement", element: <Imports.PrivateRouteInstructor element={Imports.assignInstructor} /> },
+                        { path: "stages", element: <Imports.PrivateRouteInstructor element={Imports.stagesManager} /> }
                     ],
                 },
             ],

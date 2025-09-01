@@ -11,7 +11,7 @@ import {
     faFolderOpen,
     faCheckCircle,
     faCogs,
-    faChalkboardTeacher
+    faChalkboardTeacher, faListAlt
 } from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 import axios from "axios";
@@ -83,6 +83,8 @@ function SidebarINS(props) {
         ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
         ...(isAdmin ? [{ icon: faCogs, label: 'ניהול טכנולוגיות', page: '/instructor/AdminTechnologies' }] : []),
         ...(isAdmin ? [{ icon: faChalkboardTeacher, label: 'קישור פרויקטים', page: '/instructor/projectManagement'  }] : []),
+        ...(isAdmin ? [{ icon: faListAlt, label: 'ניהול שלבים', page: '/instructor/Stages' }] : []),
+
     ];
 
     const handleNavigate = (page) => {

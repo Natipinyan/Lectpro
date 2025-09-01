@@ -1,0 +1,73 @@
+.stages-container {
+    width: 70%;
+    margin: 2rem auto;
+    font-family: 'Rubik', Arial, sans-serif;
+}
+
+.stages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stages-title {
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.btn-add-stage {
+    background-color: #3085d6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.btn-add-stage:hover {
+    background-color: #2672c1;
+}
+
+.stages-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stages-table th, .stages-table td {
+    border: 1px solid #ddd;
+    padding: 0.7rem;
+    text-align: center;
+}
+
+.stages-table th {
+    background-color: #f4f4f4;
+    font-weight: 500;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}

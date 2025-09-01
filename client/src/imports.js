@@ -47,6 +47,7 @@ import InstructorProjects  from "./components/projects/InstructorProjectsList";
 import InstructorProjectDetails from "./components/projects/InstructorProjectsDetails";
 import InstructorComment from "./components/projects/instructorComment";
 import assignInstructor from "./components/projects/AssignInstructor";
+import stagesManager from "./components/projects/StagesManager";
 
 export {
     // Home page
@@ -96,6 +97,7 @@ export {
     InstructorProjectDetails,
     InstructorComment,
     assignInstructor,
+    stagesManager,
 
 
 };

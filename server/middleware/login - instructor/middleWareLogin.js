@@ -159,13 +159,13 @@ function externalAuthenticate(req, res, next) {
     }
 }
 
+// Middleware to check if the user is an admin
 async function checkAdmin(req, res, next) {
     const token = req.cookies.instructors;
     if (!token) {
         res.isAdmin = false;
         return next();
     }
-
     try {
         const decoded = jwt.verify(token, jwtSecret);
         const promisePool = db_pool.promise();
@@ -190,6 +190,35 @@ async function checkAdmin(req, res, next) {
     }
 }
 
+//use on server routes that require admin access
+async function ensureAdmin(req, res, next) {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "לא נמצא מזהה משתמש" });
+        }
+
+        const promisePool = db_pool.promise();
+        const [rows] = await promisePool.query(
+            `SELECT is_admin FROM instructor WHERE id = ?`,
+            [userId]
+        );
+
+        if (!rows.length || rows[0].is_admin !== 1) {
+            return res.status(403).json({ success: false, message: "אין הרשאות מנהל" });
+        }
+
+        next();
+    } catch (err) {
+        console.error("שגיאה בבדיקת אדמין:", err);
+        res.status(500).json({ success: false, message: "שגיאה בשרת" });
+    }
+}
+
+module.exports = ensureAdmin;
+
+
+
 function logout(req, res) {
     res.clearCookie("instructors", {
         httpOnly: true,
@@ -210,4 +239,5 @@ module.exports = {
     externalAuthenticate,
     logout,
     checkAdmin,
+    ensureAdmin,
 };

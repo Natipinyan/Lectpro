@@ -8,6 +8,7 @@ import {
     faUser,
     faCogs,
     faChalkboardTeacher,
+    faListAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -55,6 +56,7 @@ const HomeStudents = () => {
                 } else {
                     setIsAdmin(false);
                 }
+                console.log(response);
             } catch (error) {
                 setIsAdmin(false);
             }
@@ -71,8 +73,10 @@ const HomeStudents = () => {
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
         ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
         ...(isAdmin ? [{ icon: faCogs, label: 'ניהול טכנולוגיות', page: '/instructor/AdminTechnologies' }] : []),
-        ...(isAdmin ? [{ icon: faChalkboardTeacher, label: 'קישור פרויקטים', page: '/instructor/projectManagement'  }] : []),
+        ...(isAdmin ? [{ icon: faChalkboardTeacher, label: 'קישור פרויקטים', page: '/instructor/projectManagement' }] : []),
+        ...(isAdmin ? [{ icon: faListAlt, label: 'ניהול שלבים', page: '/instructor/Stages' }] : []),
     ];
+
 
 
 
