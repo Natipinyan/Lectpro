@@ -13,24 +13,6 @@ router.get('/', middleLog.authenticateToken, middleReg.getList, (req, res) => {
     }
 });
 
-// REST: Get all instructors in the department of the admin
-router.get('/insByDep', middleLog.authenticateToken, middleReg.getInstructorsByDepartment, (req, res) => {
-    try {
-        res.status(200).json({ success: true, data: res.instructorsListByDept });
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בקבלת מרצים לפי מגמה' });
-    }
-});
-
-// REST: Get all students in the department of the admin
-router.get('/stdByDep', middleLog.authenticateToken, middleReg.getStudentsByDepartment, (req, res) => {
-    try {
-        res.status(200).json({ success: true, data: res.studentsListByDept });
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בקבלת סטודנטים לפי מגמה' });
-    }
-});
-
 
 // REST: Register new instructor
 router.post('/', middleReg.Adduser, (req, res) => {
@@ -49,17 +31,6 @@ router.post('/administrator', middleReg.AddAdminInstructor, (req, res) => {
         res.status(500).json({ success: false, message: 'שגיאה בהרשמת מרצה' });
     }
 });
-
-// REST: Toggle instructor active status
-router.put('/toggle-status/:id', middleLog.authenticateToken, middleReg.toggleInstructorStatus, (req, res) => {
-    try {
-        res.status(res.toggleStatus || 200).json({success: res.toggleStatus === 200, message: res.toggleMessage
-        });
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בשינוי סטטוס מרצה' });
-    }
-});
-
 
 // REST: Update current instructor
 router.put('/me', middleLog.authenticateToken, middleReg.UpdateUser, (req, res) => {

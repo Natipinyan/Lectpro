@@ -43,6 +43,7 @@ const techRouter = require("./routers/tablesDB/technology");
 const EmailRouter = require("./routers/email/email");
 const commentsRouter = require("./routers/tablesDB/comments");
 const departmentsRouter = require("./routers/tablesDB/departments");
+const adminRouter = require("./routers/users/admin");
 
 app.use("/students", studentsRouter);
 app.use("/instructor", instructorRouter);
@@ -54,6 +55,7 @@ app.use("/technology", techRouter);
 app.use("/Email", EmailRouter);
 app.use("/comments", commentsRouter);
 app.use("/departments", departmentsRouter);
+app.use("/admin", adminRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

@@ -29,7 +29,7 @@ const DepartmentInstructors = () => {
                 return;
             }
 
-            const instructorsRes = await fetch(`${process.env.REACT_APP_BASE_URL}/instructor/register/insByDep`, {
+            const instructorsRes = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/insByDep`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -40,7 +40,7 @@ const DepartmentInstructors = () => {
             }
             setInstructors(instructorsData.data);
 
-            const studentsRes = await fetch(`${process.env.REACT_APP_BASE_URL}/instructor/register/stdByDep`, {
+            const studentsRes = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/stdByDep`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -72,7 +72,7 @@ const DepartmentInstructors = () => {
 
     const toggleStatus = async (id) => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_BASE_URL}/instructor/register/toggle-status/${id}`, {
+            const res = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/toggle-status/${id}`, {
                 method: "PUT",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
