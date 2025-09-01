@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import axios from "axios";
 import Modal from "../base/Modal";
 import EditStageForm from "./EditStageForm";
 import AddStageForm from "./AddStageForm";
@@ -13,10 +14,23 @@ const StagesManager = () => {
     const [editingStage, setEditingStage] = useState(null);
     const [addingStage, setAddingStage] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [department, setDepartment] = useState(null);
 
     useEffect(() => {
+        fetchDepartment();
         fetchStages();
     }, []);
+
+    const fetchDepartment = async () => {
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/departments/`, { withCredentials: true });
+            if (res.data && res.data.data) {
+                setDepartment(res.data.data);
+            }
+        } catch (err) {
+            console.error("שגיאה בטעינת המגמה:", err);
+        }
+    };
 
     const fetchStages = async () => {
         setLoading(true);
@@ -80,7 +94,7 @@ const StagesManager = () => {
     return (
         <div className="stages-container">
             <div className="stages-header">
-                <h2 className="stages-title">רשימת שלבים</h2>
+                <h2 className="stages-title">רשימת שלבים {department ? `- ${department.name}` : ""}</h2>
                 <button className="btn-add-stage" onClick={() => setAddingStage(true)}>
                     ➕ הוסף שלב חדש
                 </button>

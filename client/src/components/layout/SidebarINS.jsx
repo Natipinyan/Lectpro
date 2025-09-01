@@ -4,15 +4,7 @@ import '../../css/layuot/sideBar.css';
 import logo from '../../logoMin.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faBars,
-    faHouse,
-    faSignInAlt,
-    faUser,
-    faFolderOpen,
-    faCheckCircle,
-    faCogs,
-    faChalkboardTeacher, faListAlt
-} from '@fortawesome/free-solid-svg-icons';
+faBars, faHouse, faSignInAlt, faUser, faFolderOpen, faCheckCircle, faCogs, faChalkboardTeacher, faListAlt} from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 import axios from "axios";
 
@@ -102,6 +94,8 @@ function SidebarINS(props) {
                 {department && (
                     <h2 style={{ marginTop: 'auto', textAlign: 'center',}}> {department.name}</h2>
                 )}
+                <img src={logo} alt="Logo" className="side-logo-min" />
+
             </div>
 
             <div className="right">
