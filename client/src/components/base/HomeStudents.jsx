@@ -4,6 +4,8 @@ import "../../css/base/homeStudent.css"
 import {faFolderOpen, faPlusCircle, faSignInAlt, faUpload, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationPopup from "../projects/NotificationPopup";
+import logo from '../../logoMin.png'
+
 
 const HomeStudents = () => {
     const navigate = useNavigate();
@@ -47,7 +49,7 @@ const HomeStudents = () => {
 
     return (
         <div className="main-section-home">
-            <h1>lectpro</h1>
+            <img src={logo} alt="Logo" className="home-logo" />
             <nav className="buttons-home">
                 <div className="button-row-home">
                     {buttons.slice(0, 2).map((btn, index) => (

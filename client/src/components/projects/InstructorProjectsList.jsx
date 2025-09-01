@@ -53,7 +53,6 @@ const InstructorProjectsList = () => {
                     ) : (
                         projects.map((project) => (
                             <div key={project.id} className={styles["project-item"]}>
-                                {/* טקסט הפרויקט — ימני */}
                                 <div className={styles["project-text"]}>
                                     <div className={styles["project-name"]}>
                                         {project.title || "פרויקט ללא שם"}
@@ -61,7 +60,6 @@ const InstructorProjectsList = () => {
 
                                     {project.description && <div>{project.description}</div>}
 
-                                    {/* שמות הסטודנטים */}
                                     <>
                                         {(project.student1_first_name || project.student1_last_name) && (
                                             <div style={{ marginTop: "8px", fontStyle: "italic", color: "#555" }}>
@@ -105,7 +103,6 @@ const InstructorProjectsList = () => {
                                     )}
                                 </div>
 
-                                {/* כפתור צמוד לשמאל */}
                                 <button
                                     className={styles['project-button']}
                                     onClick={() => navigate(`/instructor/project/${project.id}`)}

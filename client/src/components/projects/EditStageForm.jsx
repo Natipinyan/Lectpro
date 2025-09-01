@@ -3,7 +3,6 @@ import React, { useState } from "react";
 const EditStageForm = ({ stage, stages, onClose, onSave }) => {
     const [title, setTitle] = useState(stage.title);
     const sortedStages = stages ? [...stages].sort((a, b) => a.position - b.position) : [];
-    // שמירת המיקום הנוכחי של השלב כערך ההתחלתי
     const [position, setPosition] = useState(stage.position);
 
     const handleSubmit = async (e) => {
@@ -38,16 +37,12 @@ const EditStageForm = ({ stage, stages, onClose, onSave }) => {
 
             <label>
                 מיקום:
-                {/* שינוי כאן: יצירת אופציות עבור כל מיקום אפשרי מ-1 ועד סוף הרשימה */}
                 <select value={position} onChange={(e) => setPosition(Number(e.target.value))}>
                     {sortedStages.map((s, index) => (
-                        // חשוב: השתמש ב-index + 1 כערך המיקום, כי מערכים מתחילים מ-0 ומיקומים מ-1.
                         <option key={s.id} value={index + 1}>
-                            {/* הצגת המיקום ומולו השם של השלב שכבר נמצא שם */}
                             {`מיקום ${index + 1}: ${s.title}`}
                         </option>
                     ))}
-                    {/* אופציה מיוחדת להזזת השלב לסוף הרשימה */}
                     <option value={sortedStages.length + 1}>
                         בסוף הרשימה (מיקום {sortedStages.length + 1})
                     </option>

@@ -108,7 +108,6 @@ const AssignInstructor = () => {
                     )}
                 </div>
 
-                {/* חלק המרצים יופיע רק אם יש פרויקטים */}
                 {projects.length > 0 && (
                     <div className={styles["instructor-section"]}>
                         <h2 className={styles["formLabel"]}>בחירת מרצה</h2>

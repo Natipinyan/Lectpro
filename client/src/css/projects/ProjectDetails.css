@@ -81,7 +81,7 @@
     padding: 20px;
     text-align: right;
     color: #333;
-    flex: 3 1 0%; /* 30% מהגובה */
+    flex: 3 1 0%;
     overflow-y: auto;
 }
 
@@ -92,7 +92,7 @@
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    height: 100%; /* תופס את הגובה המלא של content-wrapper */
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -309,7 +309,6 @@
     text-align: center;
 }
 
-/* רספונסיביות */
 @media screen and (max-width: 1000px) {
     .content-wrapper {
         flex-direction: column;
@@ -391,7 +390,6 @@
     outline-offset: 2px;
 }
 
-/* סטיילינג לטקסטים ספציפיים */
 .notes-container div {
     color: #555;
     font-weight: 500;

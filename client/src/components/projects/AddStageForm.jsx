@@ -39,7 +39,6 @@ const AddStageForm = ({ stages, onClose, onSave }) => {
             <label>
                 מיקום:
                 <select value={position} onChange={(e) => setPosition(Number(e.target.value))}>
-                    {/* Generates an option for each possible position (from 1 to the end) */}
                     {Array.from({ length: sortedStages.length + 1 }, (_, index) => {
                         const newPos = index + 1;
                         let optionText = `מיקום ${newPos}`;

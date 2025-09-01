@@ -27,7 +27,6 @@ const EditProject = () => {
             try {
                 setLoading(true);
 
-                // טענת פרטי פרויקט
                 const projectResponse = await fetch(
                     `${process.env.REACT_APP_BASE_URL}/projects/${projectId}`,
                     { method: "GET", credentials: "include" }
@@ -36,7 +35,6 @@ const EditProject = () => {
                 if (!projectResponse.ok || !projectDataJson.success)
                     throw new Error(projectDataJson.message || "שגיאה בטעינת פרטי הפרויקט");
 
-                // טענת טכנולוגיות הפרויקט
                 const projectTechResponse = await fetch(
                     `${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`,
                     { method: "GET", credentials: "include" }
@@ -55,7 +53,6 @@ const EditProject = () => {
                     })),
                 });
 
-                // טענת כל הטכנולוגיות
                 const techResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/technology/`, {
                     method: "GET",
                     credentials: "include",
@@ -74,7 +71,7 @@ const EditProject = () => {
         };
 
         fetchProjectAndTech();
-    }, [projectId]); // אין יותר warning כי הפונקציות מוגדרות בתוך useEffect
+    }, [projectId]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

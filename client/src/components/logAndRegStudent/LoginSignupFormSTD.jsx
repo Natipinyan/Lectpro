@@ -128,7 +128,6 @@ const LoginSignupFormSTD = () => {
     return (
         <div className="bodyLogReg">
             <div className={`container ${isActive ? 'active' : ''}`}>
-                {/* LOGIN */}
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
                         <h1>כניסה</h1>
@@ -168,7 +167,6 @@ const LoginSignupFormSTD = () => {
                     </form>
                 </div>
 
-                {/* REGISTER */}
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
                         <h1>הרשמה - סטודנטים</h1>
@@ -264,7 +262,6 @@ const LoginSignupFormSTD = () => {
                     </form>
                 </div>
 
-                {/* TOGGLE PANELS */}
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
                         <FontAwesomeIcon icon={faUser} className="toggle-icon" />

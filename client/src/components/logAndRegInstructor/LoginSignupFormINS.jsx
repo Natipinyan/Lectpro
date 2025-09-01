@@ -129,7 +129,6 @@ const LoginSignupFormINS = () => {
     return (
         <div className="bodyLogReg">
             <div className={`container ${isActive ? 'active' : ''}`}>
-                {/* טופס כניסה */}
                 <div className="form-box login">
                     <form onSubmit={handleSubmitLogin}>
                         <h1>כניסה</h1>
@@ -171,7 +170,6 @@ const LoginSignupFormINS = () => {
                     </form>
                 </div>
 
-                {/* טופס הרשמה */}
                 <div className="form-box register">
                     <form onSubmit={handleSubmitRegister}>
                         <h1>הרשמה - מרצים</h1>
@@ -269,7 +267,6 @@ const LoginSignupFormINS = () => {
                     </form>
                 </div>
 
-                {/* toggle בין כניסה להרשמה */}
                 <div className="toggle-box">
                     <div className="toggle-panel toggle-left">
                         <FontAwesomeIcon icon={faUser} className="toggle-icon" />

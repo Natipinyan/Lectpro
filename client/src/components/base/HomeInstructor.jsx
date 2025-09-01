@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../css/base/homeStudent.css"
+import logo from '../../logoMin.png'
+
 import {
     faCheckCircle,
     faFolderOpen,
@@ -56,7 +58,6 @@ const HomeStudents = () => {
                 } else {
                     setIsAdmin(false);
                 }
-                console.log(response);
             } catch (error) {
                 setIsAdmin(false);
             }
@@ -82,7 +83,7 @@ const HomeStudents = () => {
 
     return (
         <div className="main-section-home">
-            <h1>lectpro</h1>
+            <img src={logo} alt="Logo" className="home-logo" />
             <nav className="buttons-home">
                 <div className="button-row-home">
                     {buttons.slice(0, 2).map((btn, index) => (

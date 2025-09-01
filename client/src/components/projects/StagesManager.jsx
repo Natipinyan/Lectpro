@@ -24,7 +24,6 @@ const StagesManager = () => {
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/stages`, { credentials: "include" });
             const data = await response.json();
             if (response.ok && data.success) {
-                // מיון לפי position
                 const sortedStages = data.data.sort((a, b) => a.position - b.position);
                 setStages(sortedStages);
             } else {
