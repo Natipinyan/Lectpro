@@ -115,15 +115,24 @@ const getOneProject = (req, res) => {
 
 const getOneProjectIns = (req, res) => {
     const projectId = req.params.projectId;
-    const q = `SELECT * FROM projects WHERE id = ?`;
-    db_pool.query(q, [projectId], function (err, rows) {
+    const instructorId = req.user?.id; // מניח שזה מגיע מה-token או מה-middleware שלך
+
+    if (!instructorId) {
+        return res.status(401).json({ success: false, message: "לא נמצא מזהה מרצה" });
+    }
+
+    const q = `SELECT * FROM projects WHERE id = ? AND instructor_id = ?`;
+
+    db_pool.query(q, [projectId, instructorId], (err, rows) => {
         if (err) {
             console.error("Error fetching project:", err);
             return res.status(500).json({ success: false, message: "שגיאה בקבלת פרויקט" });
         }
+
         if (!rows || rows.length === 0) {
-            return res.status(404).json({ success: false, message: "הפרויקט לא נמצא" });
+            return res.status(403).json({ success: false, message: "אין לך גישה לפרויקט זה" });
         }
+
         return res.status(200).json({ success: true, data: rows[0] });
     });
 };
@@ -286,19 +295,46 @@ const deleteProject = (req, res) => {
 
 const getProjectFile = (req, res) => {
     const projectId = req.params.projectId;
+    const userId = req.user?.id;
+
     if (!projectId || isNaN(projectId)) {
-        return res.status(400).json({ message: 'מזהה פרויקט לא תקין' });
+        return res.status(400).json({ message: "מזהה פרויקט לא תקין" });
     }
-    const fileName = `${projectId}.pdf`;
-    const filePath = path.join(__dirname, '..', '..', 'filesApp', fileName);
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: `לא נמצא קובץ PDF עבור מזהה פרויקט: ${fileName}` });
+
+    if (!userId) {
+        return res.status(401).json({ message: "לא נמצא מזהה משתמש" });
     }
-    return res.sendFile(filePath, (err) => {
+
+    const q = `
+        SELECT id 
+        FROM projects 
+        WHERE id = ? 
+          AND (instructor_id = ? OR student_id1 = ? OR student_id2 = ?)
+    `;
+
+    db_pool.query(q, [projectId, userId, userId, userId], (err, rows) => {
         if (err) {
-            console.error('Error sending file:', err);
-            return res.status(500).json({ message: 'שגיאה בשליחת קובץ' });
+            console.error("Error checking project access:", err);
+            return res.status(500).json({ message: "שגיאה בבדיקת הרשאות לפרויקט" });
         }
+
+        if (!rows || rows.length === 0) {
+            return res.status(403).json({ message: "אין לך גישה לפרויקט זה" });
+        }
+
+        const fileName = `${projectId}.pdf`;
+        const filePath = path.join(__dirname, "..", "..", "filesApp", fileName);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: `לא נמצא קובץ PDF עבור מזהה פרויקט: ${fileName}` });
+        }
+
+        return res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error("Error sending file:", err);
+                return res.status(500).json({ message: "שגיאה בשליחת קובץ" });
+            }
+        });
     });
 };
 
