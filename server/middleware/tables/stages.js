@@ -216,9 +216,44 @@ async function deleteStage(req, res, next) {
     );
 }
 
+async function getProjectStages(req, res, next) {
+    const { projectId } = req.params;
+
+    const projectQuery = `SELECT id, department_id, stage_count FROM projects WHERE id = ?`;
+    db_pool.query(projectQuery, [projectId], (err, projects) => {
+        if (err || projects.length === 0) {
+            res.allStages = [];
+            res.currentStage = null;
+            res.errorMessage = "פרויקט לא נמצא";
+            return next();
+        }
+
+        const departmentId = projects[0].department_id;
+        const currentStageNumber = projects[0].stage_count;
+
+        const stagesQuery = `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`;
+        db_pool.query(stagesQuery, [departmentId], (err2, stages) => {
+            if (err2) {
+                res.allStages = [];
+                res.currentStage = null;
+                res.errorMessage = "שגיאה בשליפת השלבים";
+                return next();
+            }
+
+            const currentStage = stages.find(s => s.position === currentStageNumber) || null;
+
+            res.allStages = stages;
+            res.currentStage = currentStage;
+            next();
+        });
+    });
+}
+
+
 module.exports = {
     getStages,
     addStage,
     updateStage,
-    deleteStage
+    deleteStage,
+    getProjectStages
 };

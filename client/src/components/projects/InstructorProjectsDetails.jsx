@@ -6,6 +6,7 @@ import CommentsProject from "./CommentsProject";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import axios from "axios";
+import Grades from "./grades";
 
 const ProjectDetails = () => {
     const { projectId } = useParams();
@@ -202,80 +203,91 @@ const ProjectDetails = () => {
                     <h2 className="department-name">{department.name}</h2>
                 )}
             </div>
-            <div className="content-wrapper">
-                <div className="right-column">
-                    <div className="project-details-container">
-                        <div className="button-container">
-                            <button className="back-button" onClick={() => navigate(-1)}>
-                                חזרה לכל הפרוייקטים
-                            </button>
+
+            <div className="project-main">
+                <div className="project-grades-top">
+                    <Grades projectId={projectId} user="ins" />
+                </div>
+                <div className="project-grades-button">
+                    <div className="content-wrapper">
+                        <div className="right-column">
+                            <div className="project-details-container">
+                                <div className="button-container">
+                                    <button className="back-button" onClick={() => navigate(-1)}>
+                                        חזרה לכל הפרוייקטים
+                                    </button>
+                                </div>
+
+                                <div className="project-title">{project.title}</div>
+                                <div className="project-description">{project.description}</div>
+
+                                <div className="project-github">
+                                    <div>קישור לגיטהאב</div>
+                                    {project.link_to_github ? (
+                                        <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
+                                            {project.link_to_github}
+                                        </a>
+                                    ) : (
+                                        <span>לא הוזן קישור לגיטהאב</span>
+                                    )}
+                                </div>
+
+                                {project.technologies?.length > 0 && (
+                                    <div className="project-technologies">
+                                        <h4>טכנולוגיות בפרויקט:</h4>
+                                        <ul>
+                                            {project.technologies.map((tech) => (
+                                                <li key={tech.id}>
+                                                    {tech.language} {tech.language && `(${tech.title})`}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="notes-container">
+                                {commentsLoading ? (
+                                    <div>טוען סיכום הערות...</div>
+                                ) : commentsError ? (
+                                    <div className="error">{commentsError}</div>
+                                ) : commentsSummary ? (
+                                    <>
+                                        <h4>סה"כ הערות: </h4>
+                                        <div>בוצעו והושלמו: {commentsSummary.doneAndCompleted?.length || 0}</div>
+                                        <div>בוצעו וממתינים לאישור: {commentsSummary.doneButNotCompleted?.length || 0}</div>
+                                        <div>ממתינים לטיפול: {commentsSummary.notDone?.length || 0}</div>
+
+                                        <div className="button-container" style={{ marginTop: "10px", justifyContent: "space-between" }}>
+                                            <button onClick={() => setShowComments(true)}>תצוגה מפורטת</button>
+                                            <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div>אין הערות לפרויקט זה</div>
+                                )}
+
+                                {!commentsLoading && !commentsError && commentsSummary?.totalCount === 0 && (
+                                    <div className="button-container" style={{ marginTop: "10px" }}>
+                                        <button className="back-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="project-title">{project.title}</div>
-                        <div className="project-description">{project.description}</div>
-
-                        <div className="project-github">
-                            <div>קישור לגיטהאב</div>
-                            {project.link_to_github ? (
-                                <a href={project.link_to_github} target="_blank" rel="noopener noreferrer">
-                                    {project.link_to_github}
-                                </a>
+                        <div className="pdfView">
+                            {pdfUrl ? (
+                                <iframe src={pdfUrl} title="Project PDF" className="pdf-iframe" />
                             ) : (
-                                <span>לא הוזן קישור לגיטהאב</span>
+                                <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
                             )}
                         </div>
-
-                        {project.technologies?.length > 0 && (
-                            <div className="project-technologies">
-                                <h4>טכנולוגיות בפרויקט:</h4>
-                                <ul>
-                                    {project.technologies.map((tech) => (
-                                        <li key={tech.id}>
-                                            {tech.language} {tech.language && `(${tech.title})`}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="notes-container">
-                        {commentsLoading ? (
-                            <div>טוען סיכום הערות...</div>
-                        ) : commentsError ? (
-                            <div className="error">{commentsError}</div>
-                        ) : commentsSummary ? (
-                            <>
-                                <h4>סה"כ הערות: </h4>
-                                <div>בוצעו והושלמו: {commentsSummary.doneAndCompleted?.length || 0}</div>
-                                <div>בוצעו וממתינים לאישור: {commentsSummary.doneButNotCompleted?.length || 0}</div>
-                                <div>ממתינים לטיפול: {commentsSummary.notDone?.length || 0}</div>
 
-                                <div className="button-container" style={{ marginTop: "10px", justifyContent: "space-between" }}>
-                                    <button onClick={() => setShowComments(true)}>תצוגה מפורטת</button>
-                                    <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
-                                </div>
-                            </>
-                        ) : (
-                            <div>אין הערות לפרויקט זה</div>
-                        )}
-
-                        {!commentsLoading && !commentsError && commentsSummary?.totalCount === 0 && (
-                            <div className="button-container" style={{ marginTop: "10px" }}>
-                                <button className="back-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="pdfView">
-                    {pdfUrl ? (
-                        <iframe src={pdfUrl} title="Project PDF" className="pdf-iframe" />
-                    ) : (
-                        <div className="no-pdf-message">לפרויקט זה לא נוסף מסמך</div>
-                    )}
                 </div>
             </div>
+
 
             {showComments && (
                 <Modal onClose={() => setShowComments(false)} width="70vw">
