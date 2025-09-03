@@ -5,29 +5,28 @@ const Grades = ({ projectId, user }) => {
     const [stages, setStages] = useState([]);
     const [currentStage, setCurrentStage] = useState(null);
 
-
-    const fetchProjectStages = async () => {
-        try {
-            const url =
-                user === "ins"
-                    ? `${process.env.REACT_APP_BASE_URL}/stages/ins/projectStages/${projectId}`
-                    : `${process.env.REACT_APP_BASE_URL}/stages/projectStages/${projectId}`;
-
-            const res = await fetch(url, {
-                method: "GET",
-                credentials: "include",
-            });
-
-            const data = await res.json();
-
-            setStages(data.data.allStages || []);
-            setCurrentStage(data.data.currentStage || null);
-        } catch (err) {
-            console.error("שגיאה בשליפת שלבים:", err);
-        }
-    };
-
     useEffect(() => {
+        const fetchProjectStages = async () => {
+            try {
+                const url =
+                    user === "ins"
+                        ? `${process.env.REACT_APP_BASE_URL}/stages/ins/projectStages/${projectId}`
+                        : `${process.env.REACT_APP_BASE_URL}/stages/projectStages/${projectId}`;
+
+                const res = await fetch(url, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                const data = await res.json();
+
+                setStages(data.data.allStages || []);
+                setCurrentStage(data.data.currentStage || null);
+            } catch (err) {
+                console.error("שגיאה בשליפת שלבים:", err);
+            }
+        };
+
         if (projectId) fetchProjectStages();
     }, [projectId, user]);
 
@@ -37,7 +36,7 @@ const Grades = ({ projectId, user }) => {
 
     return (
         <div className="progress-container">
-            <h3 className="left-grades">התחלת פרויקט</h3>
+            <h3 className="left-grades">פתיחת פרויקט</h3>
             <div className="main-grades">
                 <div className="progress-line"></div>
                 {stages.map((stage, index) => {

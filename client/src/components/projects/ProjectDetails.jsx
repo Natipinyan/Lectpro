@@ -212,9 +212,9 @@ const ProjectDetails = () => {
 
             </div>
             <div className="project-header">
-                <h1 className="project-title-label">פרטי הפרויקט</h1>
+                <h2 className="project-title-label-de">פרטי הפרויקט</h2>
                 {department && (
-                    <h1 className="department-name-de">{department.name}</h1>
+                    <h2 className="department-name-label-de">{department.name}</h2>
                 )}
             </div>
             <div className="project-main">

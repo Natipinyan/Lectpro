@@ -64,9 +64,9 @@ const AddStageForm = ({ stages, onClose, onSave }) => {
                 </select>
             </label>
 
-            <div className="form-buttons">
-                <button type="submit">הוסף</button>
-                <button type="button" onClick={onClose}>ביטול</button>
+            <div className="popup-buttons">
+                <button type="submit" className="save-btn">הוסף</button>
+                <button type="button" className="cancel-btn" onClick={onClose}>ביטול</button>
             </div>
         </form>
     );

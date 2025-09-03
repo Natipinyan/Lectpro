@@ -36,4 +36,9 @@ router.get('/projectStages/:projectId', middleLog.authenticateToken, middleStage
         success: true, data: {allStages: res.allStages, currentStage: res.currentStage}});
 });
 
+// Update current stage for a specific project(instructor)
+router.put('/updateProjectStage/:projectId', middleLogIns.authenticateToken, middleStages.updateProjectStage, (req, res) => {
+    res.status(res.updateStatus || 200).json({success: res.updateStatus === 200, message: res.updateMessage});
+});
+
 module.exports = router;

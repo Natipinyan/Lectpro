@@ -123,13 +123,6 @@
     border: none;
 }
 
-.project-title {
-    font-size: 28px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 15px;
-}
-
 .project-description {
     font-size: 16px;
     color: #888;

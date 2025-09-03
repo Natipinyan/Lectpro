@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import AddNote from "./AddNote";
 import CommentsProject from "./CommentsProject";
+import UpdateProjectStage from "./UpdateProjectStage";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import axios from "axios";
@@ -24,8 +25,11 @@ const ProjectDetails = () => {
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
     const [showComments, setShowComments] = useState(false);
+    const [showUpdateStage, setShowUpdateStage] = useState(false);
 
     const [department, setDepartment] = useState(null);
+
+    const [gradesRefresh, setGradesRefresh] = useState(false);
 
 
     const fetchProjectDetails = async () => {
@@ -198,16 +202,17 @@ const ProjectDetails = () => {
             )}
 
             <div className="project-header">
-                <h2 className="project-title-label">פרטי הפרויקט</h2>
+                <h2 className="project-title-label-de">פרטי הפרויקט</h2>
                 {department && (
-                    <h2 className="department-name">{department.name}</h2>
+                    <h2 className="department-name-label-de">{department.name}</h2>
                 )}
             </div>
 
             <div className="project-main">
                 <div className="project-grades-top">
-                    <Grades projectId={projectId} user="ins" />
+                    <Grades key={gradesRefresh} projectId={projectId} user="ins" />
                 </div>
+
                 <div className="project-grades-button">
                     <div className="content-wrapper">
                         <div className="right-column">
@@ -215,6 +220,9 @@ const ProjectDetails = () => {
                                 <div className="button-container">
                                     <button className="back-button" onClick={() => navigate(-1)}>
                                         חזרה לכל הפרוייקטים
+                                    </button>
+                                    <button className="back-button" onClick={() => setShowUpdateStage(true)}>
+                                        עדכן שלב פרויקט
                                     </button>
                                 </div>
 
@@ -304,6 +312,17 @@ const ProjectDetails = () => {
                     />
                 </Modal>
             )}
+
+            {showUpdateStage && (
+                <Modal onClose={() => setShowUpdateStage(false)} width="40vw">
+                    <UpdateProjectStage
+                        projectId={projectId}
+                        onClose={() => setShowUpdateStage(false)}
+                        onUpdate={() => setGradesRefresh(prev => !prev)}
+                    />
+                </Modal>
+            )}
+
         </div>
     );
 };

@@ -279,11 +279,55 @@ async function getProjectStages(req, res, next) {
     });
 }
 
+async function updateProjectStage(req, res, next) {
+    const { projectId } = req.params;
+    const { stage } = req.body;
+    const instructorDepartment = req.user.department_id;
+
+    if (!stage || isNaN(stage) || stage < 1) {
+        res.updateStatus = 400;
+        res.updateMessage = "יש להזין מספר שלב תקין";
+        return next();
+    }
+
+    db_pool.query(
+        `SELECT id, department_id FROM projects WHERE id = ? AND department_id = ?`,
+        [projectId, instructorDepartment],
+        (err, projects) => {
+            if (err) {
+                res.updateStatus = 500;
+                res.updateMessage = "שגיאה בשליפת הפרויקט";
+                return next();
+            }
+            if (projects.length === 0) {
+                res.updateStatus = 403;
+                res.updateMessage = "אין גישה לעדכן פרויקט זה";
+                return next();
+            }
+
+            db_pool.query(
+                `UPDATE projects SET stage_count = ? WHERE id = ?`,
+                [stage, projectId],
+                (err2) => {
+                    if (err2) {
+                        res.updateStatus = 500;
+                        res.updateMessage = "שגיאה בעדכון שלב הפרויקט";
+                    } else {
+                        res.updateStatus = 200;
+                        res.updateMessage = "שלב הפרויקט עודכן בהצלחה";
+                    }
+                    next();
+                }
+            );
+        }
+    );
+}
 
 module.exports = {
     getStages,
     addStage,
     updateStage,
     deleteStage,
-    getProjectStages
+    getProjectStages,
+    updateProjectStage
 };
