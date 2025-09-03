@@ -312,7 +312,6 @@ const ProjectDetails = () => {
                     />
                 </Modal>
             )}
-
             {showUpdateStage && (
                 <Modal onClose={() => setShowUpdateStage(false)} width="40vw">
                     <UpdateProjectStage
