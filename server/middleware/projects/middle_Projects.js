@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-
+const middleRole = require("../role");
 //role only for students//
 async function addProject(req, res, next) {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
@@ -164,7 +164,7 @@ async function getOneProject(req, res, next) {
     const type = req.user.role;
 
     try {
-        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
 
         if (!accessInfo.hasAccess) {
             res.getStatus = 403;
@@ -251,7 +251,7 @@ async function editProject(req, res, next) {
 
     try {
         console.log(userId, type, projectId);
-        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
         console.log(accessInfo);
 
         if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
@@ -339,7 +339,7 @@ async function deleteProject(req, res, next) {
     }
 
     try {
-        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
 
         if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
             res.deleteStatus = 403;
@@ -408,7 +408,7 @@ async function getProjectTechnologies(req, res, next) {
     }
 
     try {
-        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
 
         if (!accessInfo.hasAccess) {
             res.getStatus = 403;
@@ -461,7 +461,7 @@ async function getProjectFile(req, res, next) {
     }
 
     try {
-        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
 
         if (!accessInfo.hasAccess) {
             res.getStatus = 403;
@@ -489,51 +489,6 @@ async function getProjectFile(req, res, next) {
     }
 }
 
-//access control function
-async function checkUserProjectAccess(userId, type, projectId) {
-    const promisePool = db_pool.promise();
-
-    if (type === "student") {
-        const [rows] = await promisePool.query(
-            `SELECT id FROM projects WHERE id = ? AND (student_id1 = ? OR student_id2 = ?)`,
-            [projectId, userId, userId]
-        );
-
-        return {
-            role: "student",
-            hasAccess: rows.length > 0
-        };
-
-    } else if (type === "instructor") {
-        const [instructorRows] = await promisePool.query(
-            `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
-            [userId]
-        );
-
-        if (instructorRows.length === 0) {
-            return { role: "null", hasAccess: false, isAdmin: false };
-        }
-
-        const isAdmin = instructorRows[0].is_admin === 1;
-        const departmentId = instructorRows[0].department_id;
-
-        if (isAdmin) {
-            const [rows] = await promisePool.query(
-                `SELECT id FROM projects WHERE id = ? AND department_id = ?`,
-                [projectId, departmentId]
-            );
-            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
-        } else {
-            const [rows] = await promisePool.query(
-                `SELECT id FROM projects WHERE id = ? AND instructor_id = ?`,
-                [projectId, userId]
-            );
-            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
-        }
-    } else {
-        return { role: null, hasAccess: false };
-    }
-}
 
 module.exports = {
     addProject,

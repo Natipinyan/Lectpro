@@ -46,4 +46,141 @@ async function getRole(req, res, next) {
         return res.status(403).json({ message: "טוקן לא תקין או שפג תוקפו" });
     }
 }
-module.exports = { getRole };
+
+//access control function for projects
+async function checkUserProjectAccess(userId, type, projectId) {
+    const promisePool = db_pool.promise();
+
+    if (type === "student") {
+        const [rows] = await promisePool.query(
+            `SELECT id FROM projects WHERE id = ? AND (student_id1 = ? OR student_id2 = ?)`,
+            [projectId, userId, userId]
+        );
+
+        return {
+            role: "student",
+            hasAccess: rows.length > 0
+        };
+
+    } else if (type === "instructor") {
+        const [instructorRows] = await promisePool.query(
+            `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
+            [userId]
+        );
+
+        if (instructorRows.length === 0) {
+            return { role: "null", hasAccess: false, isAdmin: false };
+        }
+
+        const isAdmin = instructorRows[0].is_admin === 1;
+        const departmentId = instructorRows[0].department_id;
+
+        if (isAdmin) {
+            const [rows] = await promisePool.query(
+                `SELECT id FROM projects WHERE id = ? AND department_id = ?`,
+                [projectId, departmentId]
+            );
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
+        } else {
+            const [rows] = await promisePool.query(
+                `SELECT id FROM projects WHERE id = ? AND instructor_id = ?`,
+                [projectId, userId]
+            );
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
+        }
+    } else {
+        return { role: null, hasAccess: false };
+    }
+}
+
+//access control function for comments
+async function checkUserCommentAccess(userId, type, commentId) {
+    const promisePool = db_pool.promise();
+
+    if (type === "student") {
+        const [rows] = await promisePool.query(
+            `SELECT c.id
+             FROM comments c
+             JOIN projects p ON c.project_id = p.id
+             WHERE c.id = ? AND (p.student_id1 = ? OR p.student_id2 = ?)`,
+            [commentId, userId, userId]
+        );
+
+        return {
+            role: "student",
+            hasAccess: rows.length > 0
+        };
+
+    } else if (type === "instructor") {
+        const [instructorRows] = await promisePool.query(
+            `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
+            [userId]
+        );
+
+        if (instructorRows.length === 0) {
+            return { role: null, hasAccess: false, isAdmin: false };
+        }
+
+        const isAdmin = instructorRows[0].is_admin === 1;
+        const departmentId = instructorRows[0].department_id;
+
+        if (isAdmin) {
+            const [rows] = await promisePool.query(
+                `SELECT c.id
+                 FROM comments c
+                 JOIN projects p ON c.project_id = p.id
+                 WHERE c.id = ? AND p.department_id = ?`,
+                [commentId, departmentId]
+            );
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
+        } else {
+            const [rows] = await promisePool.query(
+                `SELECT c.id
+                 FROM comments c
+                 JOIN projects p ON c.project_id = p.id
+                 WHERE c.id = ? AND p.instructor_id = ?`,
+                [commentId, userId]
+            );
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
+        }
+    } else {
+        return { role: null, hasAccess: false };
+    }
+}
+
+
+// Access control for performing actions on comments (add, update, delete)
+async function checkUserCommentActionAccess(userId, type, { commentId = null, projectId = null } = {}) {
+    const promisePool = db_pool.promise();
+
+    if (type !== "instructor") return { role: type, hasAccess: false };
+    console.log(userId, type, { commentId, projectId });
+
+    let rows = [];
+    if (commentId) {
+        [rows] = await promisePool.query(
+            `SELECT c.id
+             FROM comments c
+             JOIN projects p ON c.project_id = p.id
+             WHERE c.id = ? AND p.instructor_id = ?`,
+            [commentId, userId]
+        );
+    } else if (projectId) {
+        [rows] = await promisePool.query(
+            `SELECT id
+             FROM projects
+             WHERE id = ? AND instructor_id = ?`,
+            [projectId, userId]
+        );
+    }
+
+    return { role: "instructor", hasAccess: rows.length > 0 };
+}
+
+
+module.exports = {
+    getRole,
+    checkUserProjectAccess,
+    checkUserCommentAccess,
+    checkUserCommentActionAccess
+};

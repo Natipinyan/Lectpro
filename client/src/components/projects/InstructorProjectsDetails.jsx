@@ -82,7 +82,7 @@ const ProjectDetails = () => {
     const fetchCommentsSummary = async () => {
         try {
             setCommentsLoading(true);
-            const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/project/${projectId}`, {
+            const res = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/project/${projectId}`, {
                 method: "GET",
                 credentials: "include",
             });

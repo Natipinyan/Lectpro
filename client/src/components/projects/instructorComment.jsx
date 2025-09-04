@@ -26,7 +26,7 @@ const InstructorComment = () => {
 
         const fetchComment = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/${commentID}`, {
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/${commentID}`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -49,7 +49,7 @@ const InstructorComment = () => {
 
     const fetchNextComment = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/next/${currentComment.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/next/${currentComment.id}`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -69,7 +69,7 @@ const InstructorComment = () => {
 
     const fetchPrevComment = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/ins/prev/${currentComment.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/comments/prev/${currentComment.id}`, {
                 method: "GET",
                 credentials: "include",
             });
