@@ -34,7 +34,7 @@ const ProjectDetails = () => {
 
     const fetchProjectDetails = async () => {
         try {
-            const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}`, {
+            const resProject = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}`, {
                 method: "GET",
                 credentials: 'include',
             });
@@ -43,7 +43,7 @@ const ProjectDetails = () => {
                 throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
             }
 
-            const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/technologies`, {
+            const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`, {
                 method: "GET",
                 credentials: 'include',
             });
@@ -53,7 +53,7 @@ const ProjectDetails = () => {
             }
 
             let newPdfUrl = null;
-            const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins/${projectId}/file`, {
+            const resPdf = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/file`, {
                 method: "GET",
                 credentials: 'include',
             });

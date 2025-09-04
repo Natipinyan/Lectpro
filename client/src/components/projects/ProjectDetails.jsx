@@ -37,6 +37,7 @@ const ProjectDetails = () => {
                     credentials: 'include',
                 });
                 const techData = await resTech.json();
+                console.log(techData);
                 if (!resTech.ok || !techData.success) throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
 
                 let newPdfUrl = null;

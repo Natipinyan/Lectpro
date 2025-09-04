@@ -12,11 +12,12 @@ const InstructorProjectsList = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/ins`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/projects`, {
                 method: "GET",
                 credentials: "include",
             });
             const data = await response.json();
+            console.log("Response data:", data);
             if (response.ok && data.success) {
                 setProjects(data.data || []);
             } else {

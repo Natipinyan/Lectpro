@@ -90,7 +90,7 @@ const OpenPro = () => {
                 }),
             });
             const data = await response.json();
-            if (response.ok && data.success) {
+            if (response.ok && data.success === 201) {
                 showNotification("הפרויקט נוסף בהצלחה! מעביר אותך לדף העלאת מסמך", "success");
                 resetProjectData();
                 setTimeout(() => navigate("/students/UpFile"), 3000);

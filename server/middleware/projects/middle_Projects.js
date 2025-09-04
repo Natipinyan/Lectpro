@@ -1,11 +1,19 @@
 const path = require('path');
 const fs = require('fs');
 
-//role only for students
+//role only for students//
 async function addProject(req, res, next) {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
-    const studentId = req.user.id;
-    const departmentId = req.user.department_id;
+    const user = req.user;
+
+    if (req.user.role !== "student") {
+        res.getStatus = 403;
+        res.getMessage = "רק סטודנט יכול להוסיף פרויקט";
+        return next();
+    }
+
+    const studentId = user.id;
+    const departmentId = user.department_id;
 
     if (
         !projectName ||
@@ -16,108 +24,78 @@ async function addProject(req, res, next) {
         selectedTechnologies.length === 0 ||
         selectedTechnologies.some(tech => !tech.id)
     ) {
-        res.addStatus = 400;
-        res.addMessage = "חסרים פרטי פרויקט, טכנולוגיות או מזהה משתמש";
+        res.getStatus = 400;
+        res.getMessage = "חסרים פרטי פרויקט, טכנולוגיות או מזהה משתמש";
         return next();
     }
 
     if (projectName.length > 25) {
-        res.addStatus = 400;
-        res.addMessage = "שם הפרויקט לא יכול להיות ארוך מ-25 תווים";
+        res.getStatus = 400;
+        res.getMessage = "שם הפרויקט לא יכול להיות ארוך מ-25 תווים";
         return next();
     }
 
     if (linkToGithub && !/^https:\/\/github\.com\/.+$/.test(linkToGithub)) {
-        res.addStatus = 400;
-        res.addMessage = "יש להזין קישור תקין ל-GitHub";
+        res.getStatus = 400;
+        res.getMessage = "יש להזין קישור תקין ל-GitHub";
         return next();
     }
-
-    const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ?`;
-    db_pool.query(queryCheckDuplicate, [projectName], (err, results) => {
-        if (err) {
-            res.addStatus = 500;
-            res.addMessage = "שגיאה בבדיקת שם פרויקט";
-            return next();
-        }
-
-        if (results.length > 0) {
-            res.addStatus = 409;
-            res.addMessage = "פרויקט בשם זה כבר קיים. אנא בחר שם אחר.";
-            return next();
-        }
-
-        const queryProject = `INSERT INTO projects (title, description, student_id1, link_to_github, department_id) VALUES (?, ?, ?, ?, ?)`;
-        db_pool.query(queryProject, [projectName, projectDesc, studentId, linkToGithub || null, departmentId], (err, result) => {
-            if (err) {
-                res.addStatus = 500;
-                res.addMessage = "שגיאה בהוספת פרויקט";
-                return next();
-            }
-
-            const projectId = result.insertId;
-
-            const queryUpdateStudent = `UPDATE students SET project_id = ? WHERE id = ?`;
-            db_pool.query(queryUpdateStudent, [projectId, studentId], (err2) => {
-                if (err2) {
-                    res.addStatus = 500;
-                    res.addMessage = "שגיאה בעדכון סטודנט";
-                    return next();
-                }
-
-                const technologyPromises = selectedTechnologies.map(({ id }) => {
-                    const queryTechnology = `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`;
-                    return new Promise((resolve, reject) => {
-                        db_pool.query(queryTechnology, [projectId, id], (err3) => {
-                            if (err3) {
-                                return reject({ message: `שגיאה בהוספת טכנולוגיה מזהה ${id}: ${err3.message}` });
-                            }
-                            resolve();
-                        });
-                    });
-                });
-
-                Promise.all(technologyPromises)
-                    .then(() => {
-                        const getProjectQuery = `SELECT * FROM projects WHERE id = ?`;
-                        db_pool.query(getProjectQuery, [projectId], (err, rows) => {
-                            if (err || !rows || rows.length === 0) {
-                                res.addStatus = 201;
-                                res.addMessage = "הפרויקט נוצר, אך לא ניתן היה לקבל את פרטי הפרויקט";
-                                res.projectData = null;
-                            } else {
-                                res.addStatus = 201;
-                                res.addMessage = "הפרויקט נוצר בהצלחה!";
-                                res.projectData = rows[0];
-                            }
-                            next();
-                        });
-                    })
-                    .catch(error => {
-                        res.addStatus = 500;
-                        res.addMessage = error.message || "שגיאה בהוספת טכנולוגיות";
-                        next();
-                    });
-            });
-        });
-    });
-}
-
-//role for student instructor admin
-async function getProjects(req, res, next) {
-    const userId = req.user?.id;
-    if (!userId) {
-        res.getStatus = 401;
-        res.getMessage = "נדרש להתחבר";
-        return next();
-    }
-
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
 
     try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, null);
+        const [existing] = await db_pool.promise().query(
+            `SELECT id FROM projects WHERE title = ?`,
+            [projectName]
+        );
 
+        if (existing.length > 0) {
+            res.getStatus = 409;
+            res.getMessage = "פרויקט בשם זה כבר קיים. אנא בחר שם אחר.";
+            return next();
+        }
+
+        const [result] = await db_pool.promise().query(
+            `INSERT INTO projects (title, description, student_id1, link_to_github, department_id) VALUES (?, ?, ?, ?, ?)`,
+            [projectName, projectDesc, studentId, linkToGithub || null, departmentId]
+        );
+
+        const projectId = result.insertId;
+
+        await db_pool.promise().query(
+            `UPDATE students SET project_id = ? WHERE id = ?`,
+            [projectId, studentId]
+        );
+
+        const technologyPromises = selectedTechnologies.map(({ id }) =>
+            db_pool.promise().query(
+                `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`,
+                [projectId, id]
+            )
+        );
+        await Promise.all(technologyPromises);
+
+        res.getStatus = 201;
+        res.getMessage = "הפרויקט נוצר בהצלחה!";
+        next();
+
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה ביצירת הפרויקט";
+        next();
+    }
+}
+
+//role for student instructor admin//
+async function getProjects(req, res, next) {
+    const user = req.user;
+
+    if (!user) {
+        res.getStatus = 401;
+        res.getMessage = "נדרש להתחבר";
+        res.data = [];
+        return next();
+    }
+
+    try {
         let query = `
             SELECT p.*,
                    s1.first_name AS student1_first_name, s1.last_name AS student1_last_name,
@@ -128,18 +106,19 @@ async function getProjects(req, res, next) {
         `;
         const params = [];
 
-        if (accessInfo.role === 'student') {
+        if (user.role === "student") {
             query += ` WHERE p.student_id1 = ? OR p.student_id2 = ?`;
-            params.push(userId, userId);
-        } else if (accessInfo.role === 'instructor' && !accessInfo.isAdmin) {
+            params.push(user.id, user.id);
+        } else if (user.role === "instructor" && !user.isAdmin) {
             query += ` WHERE p.instructor_id = ?`;
-            params.push(userId);
-        } else if (accessInfo.isAdmin) {
+            params.push(user.id);
+        } else if (user.role === "instructor" && user.isAdmin) {
             query += ` WHERE p.department_id = ?`;
-            params.push(accessInfo.department_id);
+            params.push(user.department_id);
         } else {
             res.getStatus = 403;
             res.getMessage = "אין לך הרשאה לצפות בפרויקטים";
+            res.data = [];
             return next();
         }
 
@@ -147,22 +126,25 @@ async function getProjects(req, res, next) {
             if (err) {
                 res.getStatus = 500;
                 res.getMessage = "שגיאה בקבלת פרויקטים";
+                res.data = [];
                 return next();
             }
 
             res.getStatus = 200;
-            res.projectsList = rows;
+            res.getMessage = "הצלחה בהחזרת נתונים";
+            res.data = rows;
             next();
         });
 
     } catch (err) {
         res.getStatus = 500;
         res.getMessage = "שגיאה בבדיקת הרשאות";
+        res.data = [];
         next();
     }
 }
 
-//role for student instructor admin
+//role for student instructor admin//
 async function getOneProject(req, res, next) {
     const userId = req.user?.id;
     const projectId = req.params.projectId;
@@ -172,31 +154,35 @@ async function getOneProject(req, res, next) {
         res.getMessage = "נדרש להתחבר";
         return next();
     }
+
     if (!projectId || isNaN(projectId)) {
         res.getStatus = 400;
         res.getMessage = "מזהה פרויקט לא תקין";
         return next();
     }
 
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
+    const type = req.user.role;
 
     try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, projectId);
+        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
 
-        if (!accessInfo.hasAccessToProject) {
+        if (!accessInfo.hasAccess) {
             res.getStatus = 403;
             res.getMessage = "אין לך גישה לפרויקט זה";
             return next();
         }
 
-        let query = `SELECT p.*,
-                            s1.first_name AS student1_first_name, s1.last_name AS student1_last_name,
-                            s2.first_name AS student2_first_name, s2.last_name AS student2_last_name
-                     FROM projects p
-                              LEFT JOIN students s1 ON p.student_id1 = s1.id
-                              LEFT JOIN students s2 ON p.student_id2 = s2.id
-                     WHERE p.id = ?`;
+        let query = `
+            SELECT p.*,
+                   s1.first_name AS student1_first_name,
+                   s1.last_name AS student1_last_name,
+                   s2.first_name AS student2_first_name,
+                   s2.last_name AS student2_last_name
+            FROM projects p
+                     LEFT JOIN students s1 ON p.student_id1 = s1.id
+                     LEFT JOIN students s2 ON p.student_id2 = s2.id
+            WHERE p.id = ?`;
+
         const params = [projectId];
 
         if (accessInfo.role === 'student') {
@@ -207,7 +193,7 @@ async function getOneProject(req, res, next) {
             params.push(userId);
         } else if (accessInfo.isAdmin) {
             query += ` AND p.department_id = ?`;
-            params.push(accessInfo.department_id);
+            params.push(accessInfo.departmentId);
         }
 
         db_pool.query(query, params, (err, rows) => {
@@ -216,6 +202,7 @@ async function getOneProject(req, res, next) {
                 res.getMessage = "שגיאה בקבלת פרויקט";
                 return next();
             }
+
             if (!rows || rows.length === 0) {
                 res.getStatus = 404;
                 res.getMessage = "הפרויקט לא נמצא";
@@ -223,7 +210,7 @@ async function getOneProject(req, res, next) {
             }
 
             res.getStatus = 200;
-            res.projectData = rows[0];
+            res.data = rows[0];
             next();
         });
 
@@ -234,64 +221,12 @@ async function getOneProject(req, res, next) {
     }
 }
 
-//role for student instructor admin
-async function getProjectTechnologies(req, res, next) {
-    const { projectId } = req.params;
-    const userId = req.user?.id;
-
-    if (!userId) {
-        res.getStatus = 401;
-        res.getMessage = "נדרש להתחבר";
-        return next();
-    }
-    if (!projectId || isNaN(projectId)) {
-        res.getStatus = 400;
-        res.getMessage = "מזהה פרויקט לא תקין";
-        return next();
-    }
-
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
-
-    try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, projectId);
-
-        if (!accessInfo.hasAccessToProject) {
-            res.getStatus = 403;
-            res.getMessage = "אין לך גישה לפרויקט זה";
-            return next();
-        }
-
-        const q = `
-            SELECT t.id, t.title, t.language
-            FROM projects_technologies pt
-                     JOIN technology_in_use t ON pt.technology_id = t.id
-            WHERE pt.project_id = ?
-        `;
-        db_pool.query(q, [projectId], (err, rows) => {
-            if (err) {
-                res.getStatus = 500;
-                res.getMessage = "שגיאה בקבלת טכנולוגיות לפרויקט";
-                return next();
-            }
-
-            res.getStatus = 200;
-            res.technologies = rows;
-            next();
-        });
-
-    } catch (err) {
-        res.getStatus = 500;
-        res.getMessage = "שגיאה בבדיקת הרשאות";
-        next();
-    }
-}
-
-//role only for students
+// role only for students//
 async function editProject(req, res, next) {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
     const projectId = req.params.projectId;
     const userId = req.user?.id;
+    const type = req.user?.role;
 
     if (
         !projectId ||
@@ -314,83 +249,76 @@ async function editProject(req, res, next) {
         return next();
     }
 
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
-
     try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, projectId);
+        console.log(userId, type, projectId);
+        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+        console.log(accessInfo);
 
-        if (!accessInfo.hasAccessToProject || accessInfo.role !== 'student') {
+        if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
             res.updateStatus = 403;
             res.updateMessage = "אין לך הרשאה לערוך את הפרויקט הזה";
             return next();
         }
 
-        const queryCheckDuplicate = `SELECT id FROM projects WHERE title = ? AND id != ?`;
-        db_pool.query(queryCheckDuplicate, [projectName, projectId], (err, results) => {
-            if (err) {
-                res.updateStatus = 500;
-                res.updateMessage = "שגיאה בבדיקת שם פרויקט";
-                return next();
-            }
-            if (results.length > 0) {
-                res.updateStatus = 409;
-                res.updateMessage = "פרויקט בשם זה כבר קיים. אנא בחר שם אחר.";
-                return next();
-            }
-
-            const queryUpdateProject = `UPDATE projects SET title = ?, description = ?, link_to_github = ? WHERE id = ?`;
-            db_pool.query(queryUpdateProject, [projectName, projectDesc, linkToGithub || null, projectId], (err) => {
+        db_pool.query(
+            `SELECT id FROM projects WHERE title = ? AND id != ?`,
+            [projectName, projectId],
+            (err, results) => {
                 if (err) {
                     res.updateStatus = 500;
-                    res.updateMessage = "שגיאה בעדכון פרטי פרויקט";
+                    res.updateMessage = "שגיאה בבדיקת שם פרויקט";
+                    return next();
+                }
+                if (results.length > 0) {
+                    res.updateStatus = 409;
+                    res.updateMessage = "פרויקט בשם זה כבר קיים. אנא בחר שם אחר.";
                     return next();
                 }
 
-                const queryDeleteTechnologies = `DELETE FROM projects_technologies WHERE project_id = ?`;
-                db_pool.query(queryDeleteTechnologies, [projectId], (err) => {
-                    if (err) {
-                        res.updateStatus = 500;
-                        res.updateMessage = "שגיאה במחיקת טכנולוגיות קיימות";
-                        return next();
-                    }
+                db_pool.query(
+                    `UPDATE projects SET title = ?, description = ?, link_to_github = ? WHERE id = ?`,
+                    [projectName, projectDesc, linkToGithub || null, projectId],
+                    (err) => {
+                        if (err) {
+                            res.updateStatus = 500;
+                            res.updateMessage = "שגיאה בעדכון פרטי פרויקט";
+                            return next();
+                        }
 
-                    const technologyPromises = selectedTechnologies.map(({ id }) => {
-                        return new Promise((resolve, reject) => {
-                            db_pool.query(
-                                `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`,
-                                [projectId, id],
-                                (err3) => {
-                                    if (err3) return reject(err3);
-                                    resolve();
-                                }
-                            );
-                        });
-                    });
+                        db_pool.query(`DELETE FROM projects_technologies WHERE project_id = ?`, [projectId], (err) => {
+                            if (err) {
+                                res.updateStatus = 500;
+                                res.updateMessage = "שגיאה במחיקת טכנולוגיות קיימות";
+                                return next();
+                            }
 
-                    Promise.all(technologyPromises)
-                        .then(() => {
-                            db_pool.query(`SELECT * FROM projects WHERE id = ?`, [projectId], (err, rows) => {
-                                if (err || !rows || rows.length === 0) {
-                                    res.updateStatus = 200;
-                                    res.updateMessage = "הפרויקט עודכן, אך לא ניתן היה לקבל את פרטי הפרויקט";
-                                    res.projectData = null;
-                                } else {
+                            const techPromises = selectedTechnologies.map(({ id }) => {
+                                return new Promise((resolve, reject) => {
+                                    db_pool.query(
+                                        `INSERT INTO projects_technologies (project_id, technology_id) VALUES (?, ?)`,
+                                        [projectId, id],
+                                        (err3) => err3 ? reject(err3) : resolve()
+                                    );
+                                });
+                            });
+
+                            Promise.all(techPromises)
+                                .then(() => {
                                     res.updateStatus = 200;
                                     res.updateMessage = "הפרויקט עודכן בהצלחה!";
-                                    res.projectData = rows[0];
-                                }
-                                next();
-                            });
-                        })
-                        .catch(error => {
-                            res.updateStatus = 500;
-                            res.updateMessage = error.message || "שגיאה בהוספת טכנולוגיות";
-                            next();
+                                    next();
+                                })
+                                .catch(error => {
+                                    res.updateStatus = 500;
+                                    res.updateMessage = error.message || "שגיאה בהוספת טכנולוגיות";
+                                    next();
+                                });
                         });
-                });
-            });
-        });
+                    }
+                );
+            }
+        );
+
     } catch (err) {
         res.updateStatus = 500;
         res.updateMessage = "שגיאה בבדיקת הרשאות";
@@ -398,10 +326,11 @@ async function editProject(req, res, next) {
     }
 }
 
-//role only for students
+// role only for students//
 async function deleteProject(req, res, next) {
     const projectId = req.params.projectId;
     const userId = req.user?.id;
+    const type = req.user?.role;
 
     if (!projectId || isNaN(projectId)) {
         res.deleteStatus = 400;
@@ -409,66 +338,50 @@ async function deleteProject(req, res, next) {
         return next();
     }
 
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
-
     try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, projectId);
+        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
 
-        if (!accessInfo.hasAccessToProject || accessInfo.role !== 'student') {
+        if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
             res.deleteStatus = 403;
             res.deleteMessage = "אין לך הרשאה למחוק את הפרויקט הזה";
             return next();
         }
 
-        db_pool.query(
-            `UPDATE students SET project_id = NULL WHERE id = ? AND project_id = ?`,
-            [userId, projectId],
-            (err) => {
+        db_pool.query(`UPDATE students SET project_id = NULL WHERE id = ? AND project_id = ?`, [userId, projectId], (err) => {
+            if (err) {
+                res.deleteStatus = 500;
+                res.deleteMessage = "שגיאה בעדכון סטודנט";
+                return next();
+            }
+
+            db_pool.query(`DELETE FROM projects_technologies WHERE project_id = ?`, [projectId], (err) => {
                 if (err) {
                     res.deleteStatus = 500;
-                    res.deleteMessage = "שגיאה בעדכון סטודנט";
+                    res.deleteMessage = "שגיאה במחיקת טכנולוגיות";
                     return next();
                 }
 
-                db_pool.query(
-                    `DELETE FROM projects_technologies WHERE project_id = ?`,
-                    [projectId],
-                    (err) => {
-                        if (err) {
-                            res.deleteStatus = 500;
-                            res.deleteMessage = "שגיאה במחיקת טכנולוגיות";
-                            return next();
-                        }
-
-                        db_pool.query(
-                            `DELETE FROM projects WHERE id = ?`,
-                            [projectId],
-                            (err) => {
-                                if (err) {
-                                    res.deleteStatus = 500;
-                                    res.deleteMessage = "שגיאה במחיקת פרויקט";
-                                    return next();
-                                }
-
-                                const filePath = path.join(__dirname, '..', '..', 'filesApp', `${projectId}.pdf`);
-                                fs.unlink(filePath, (err) => {
-                                    if (err && err.code !== 'ENOENT') {
-                                        res.deleteStatus = 500;
-                                        res.deleteMessage = "הפרויקט נמחק, אך שגיאה במחיקת קובץ הפרויקט";
-                                    } else {
-                                        res.deleteStatus = 200;
-                                        res.deleteMessage = "הפרויקט נמחק בהצלחה!";
-                                        res.deletedProject = { id: projectId };
-                                    }
-                                    next();
-                                });
-                            }
-                        );
+                db_pool.query(`DELETE FROM projects WHERE id = ?`, [projectId], (err) => {
+                    if (err) {
+                        res.deleteStatus = 500;
+                        res.deleteMessage = "שגיאה במחיקת פרויקט";
+                        return next();
                     }
-                );
-            }
-        );
+
+                    const filePath = path.join(__dirname, '..', '..', 'filesApp', `${projectId}.pdf`);
+                    fs.unlink(filePath, (err) => {
+                        if (err && err.code !== 'ENOENT') {
+                            res.deleteStatus = 500;
+                            res.deleteMessage = "הפרויקט נמחק, אך שגיאה במחיקת קובץ הפרויקט";
+                        } else {
+                            res.deleteStatus = 200;
+                            res.deleteMessage = "הפרויקט נמחק בהצלחה!";
+                        }
+                        next();
+                    });
+                });
+            });
+        });
 
     } catch (err) {
         res.deleteStatus = 500;
@@ -477,10 +390,63 @@ async function deleteProject(req, res, next) {
     }
 }
 
-//role for student instructor admin
+// role for student, instructor, admin
+async function getProjectTechnologies(req, res, next) {
+    const { projectId } = req.params;
+    const userId = req.user?.id;
+    const type = req.user?.role;
+
+    if (!userId) {
+        res.getStatus = 401;
+        res.getMessage = "נדרש להתחבר";
+        return next();
+    }
+    if (!projectId || isNaN(projectId)) {
+        res.getStatus = 400;
+        res.getMessage = "מזהה פרויקט לא תקין";
+        return next();
+    }
+
+    try {
+        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
+
+        if (!accessInfo.hasAccess) {
+            res.getStatus = 403;
+            res.getMessage = "אין לך גישה לפרויקט זה";
+            return next();
+        }
+
+        const q = `
+            SELECT t.id, t.title, t.language
+            FROM projects_technologies pt
+                     JOIN technology_in_use t ON pt.technology_id = t.id
+            WHERE pt.project_id = ?
+        `;
+        db_pool.query(q, [projectId], (err, rows) => {
+            if (err) {
+                res.getStatus = 500;
+                res.getMessage = "שגיאה בקבלת טכנולוגיות לפרויקט";
+                return next();
+            }
+
+            res.getStatus = 200;
+            res.data = rows;
+            res.getMessage = "טכנולוגיות נטענו בהצלחה";
+            next();
+        });
+
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה בבדיקת הרשאות";
+        next();
+    }
+}
+
+// role for student, instructor, admin
 async function getProjectFile(req, res, next) {
     const projectId = req.params.projectId;
     const userId = req.user?.id;
+    const type = req.user?.role;
 
     if (!projectId || isNaN(projectId)) {
         res.getStatus = 400;
@@ -494,13 +460,10 @@ async function getProjectFile(req, res, next) {
         return next();
     }
 
-    const cookieNames = Object.keys(req.cookies);
-    const type = cookieNames[0];
-
     try {
-        const accessInfo = await getUserRoleAndProjectAccess(userId, type, projectId);
+        const accessInfo = await checkUserProjectAccess(userId, type, projectId);
 
-        if (!accessInfo.hasAccessToProject) {
+        if (!accessInfo.hasAccess) {
             res.getStatus = 403;
             res.getMessage = "אין לך הרשאה לגשת לקובץ הפרויקט הזה";
             return next();
@@ -526,56 +489,50 @@ async function getProjectFile(req, res, next) {
     }
 }
 
-async function getUserRoleAndProjectAccess(userId, cookieName, projectId = null) {
+//access control function
+async function checkUserProjectAccess(userId, type, projectId) {
     const promisePool = db_pool.promise();
 
-    if (cookieName.toLowerCase() === 'students') {
-        if (projectId) {
-            const [projectRows] = await promisePool.query(
-                `SELECT * FROM projects WHERE id = ? AND (student_id1 = ? OR student_id2 = ?)`,
-                [projectId, userId, userId]
-            );
-            return { role: 'student', isAdmin: false, hasAccessToProject: projectRows.length > 0 };
-        } else {
-            return { role: 'student', isAdmin: false };
-        }
-    }
+    if (type === "student") {
+        const [rows] = await promisePool.query(
+            `SELECT id FROM projects WHERE id = ? AND (student_id1 = ? OR student_id2 = ?)`,
+            [projectId, userId, userId]
+        );
 
-    if (cookieName.toLowerCase() === 'instructors') {
+        return {
+            role: "student",
+            hasAccess: rows.length > 0
+        };
+
+    } else if (type === "instructor") {
         const [instructorRows] = await promisePool.query(
             `SELECT is_admin, department_id FROM instructor WHERE id = ?`,
             [userId]
         );
 
         if (instructorRows.length === 0) {
-            return { role: 'unknown', isAdmin: false, hasAccessToProject: false };
+            return { role: "null", hasAccess: false, isAdmin: false };
         }
 
         const isAdmin = instructorRows[0].is_admin === 1;
-        const instructorDept = instructorRows[0].department_id;
+        const departmentId = instructorRows[0].department_id;
 
-        if (projectId) {
-            const [projectRows] = await promisePool.query(
-                `SELECT instructor_id, department_id FROM projects WHERE id = ?`,
-                [projectId]
+        if (isAdmin) {
+            const [rows] = await promisePool.query(
+                `SELECT id FROM projects WHERE id = ? AND department_id = ?`,
+                [projectId, departmentId]
             );
-
-            if (projectRows.length === 0) {
-                return { role: 'instructor', isAdmin, hasAccessToProject: false, department_id: instructorDept };
-            }
-
-            const project = projectRows[0];
-            let hasAccess = false;
-            if (isAdmin && project.department_id === instructorDept) hasAccess = true;
-            else if (project.instructor_id === userId) hasAccess = true;
-
-            return { role: 'instructor', isAdmin, hasAccessToProject: hasAccess, department_id: instructorDept };
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
         } else {
-            return { role: 'instructor', isAdmin, department_id: instructorDept };
+            const [rows] = await promisePool.query(
+                `SELECT id FROM projects WHERE id = ? AND instructor_id = ?`,
+                [projectId, userId]
+            );
+            return { role: "instructor", hasAccess: rows.length > 0, isAdmin, departmentId };
         }
+    } else {
+        return { role: null, hasAccess: false };
     }
-
-    return { role: 'unknown', isAdmin: false };
 }
 
 module.exports = {
