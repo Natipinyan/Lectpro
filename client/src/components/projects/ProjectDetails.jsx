@@ -37,7 +37,6 @@ const ProjectDetails = () => {
                     credentials: 'include',
                 });
                 const techData = await resTech.json();
-                console.log(techData);
                 if (!resTech.ok || !techData.success) throw new Error(techData.message || "שגיאה בטעינת טכנולוגיות");
 
                 let newPdfUrl = null;
@@ -220,7 +219,7 @@ const ProjectDetails = () => {
             </div>
             <div className="project-main">
                 <div className="project-grades-top">
-                    <Grades projectId={projectId} user="student" />
+                    <Grades projectId={projectId}/>
                 </div>
                 <div className="project-grades-button">
                     <div className="content-wrapper">

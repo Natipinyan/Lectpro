@@ -32,7 +32,6 @@ const LoginSignupFormINS = () => {
                 if (response.data.success) {
                     setDepartments(response.data.data);
                 }
-                console.log(response.data);
             } catch (err) {
                 console.error("שגיאה בטעינת מגמות:", err);
             }

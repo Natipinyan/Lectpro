@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
 import '../../css/projects/grades.css';
 
-const Grades = ({ projectId, user }) => {
+const Grades = ({ projectId }) => {
     const [stages, setStages] = useState([]);
     const [currentStage, setCurrentStage] = useState(null);
 
     useEffect(() => {
         const fetchProjectStages = async () => {
             try {
-                const url =
-                    user === "ins"
-                        ? `${process.env.REACT_APP_BASE_URL}/stages/ins/projectStages/${projectId}`
-                        : `${process.env.REACT_APP_BASE_URL}/stages/projectStages/${projectId}`;
-
+                const url = `${process.env.REACT_APP_BASE_URL}/stages/projectStages/${projectId}`
                 const res = await fetch(url, {
                     method: "GET",
                     credentials: "include",
@@ -28,7 +24,7 @@ const Grades = ({ projectId, user }) => {
         };
 
         if (projectId) fetchProjectStages();
-    }, [projectId, user]);
+    }, [projectId]);
 
     const currentIndex = currentStage
         ? stages.findIndex(s => s.id === currentStage.id)

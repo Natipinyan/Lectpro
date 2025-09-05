@@ -3,16 +3,28 @@ const router = express.Router();
 const middleStages = require("../../middleware/tables/stages");
 const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
 const middleLog = require("../../middleware/login - students/middleWareLogin");
+const middleRole = require("../../middleware/role");
+const middleResponse = require("../../middleware/response");
 
-// Get all stages for user's department
-router.get('/', middleLogIns.authenticateToken, middleStages.getStages, (req, res) => {
-    res.status(200).json({ success: true, data: res.stagesList });
-});
+// REST: Get all stages department (only department manager)
+router.get('/',
+    middleRole.getRole,
+    middleStages.getStagesByDepartment,
+    (req, res) => {
+        middleResponse.sendResponse(res);
+    }
+);
 
-// Add new stage (administrator)
-router.post('/', middleLogIns.authenticateToken, middleLogIns.ensureAdmin, middleStages.addStage, (req, res) => {
-    res.status(res.addStatus || 200).json({ success: res.addStatus === 200, message: res.addMessage });
-});
+// REST: Add new stage (only department manager)
+router.post(
+    '/',
+    middleRole.getRole,
+    middleStages.addStageByDepartment,
+    (req, res) => {
+        middleResponse.sendResponse(res);
+    }
+);
+
 
 // Update stage (administrator)
 router.put('/:stageId', middleLogIns.authenticateToken, middleLogIns.ensureAdmin, middleStages.updateStage, (req, res) => {
@@ -24,20 +36,17 @@ router.delete('/:stageId', middleLogIns.authenticateToken, middleLogIns.ensureAd
     res.status(res.deleteStatus || 200).json({ success: res.deleteStatus === 200, message: res.deleteMessage });
 });
 
-// Get all stages and current stage for a specific project(instructor)
-router.get('/ins/projectStages/:projectId', middleLogIns.authenticateToken, middleStages.getProjectStages, (req, res) => {
-    res.status(200).json({
-        success: true, data: {allStages: res.allStages, currentStage: res.currentStage}});
-});
+// Get all stages and current stage for a specific project (instructor and student)
+router.get('/projectStages/:projectId',
+    middleRole.getRole,
+    middleStages.getProjectStages,
+    (req, res) => {
+        middleResponse.sendResponse(res);
+    }
+);
 
-// Get all stages and current stage for a specific project(student)
-router.get('/projectStages/:projectId', middleLog.authenticateToken, middleStages.getProjectStages, (req, res) => {
-    res.status(200).json({
-        success: true, data: {allStages: res.allStages, currentStage: res.currentStage}});
-});
-
-// Update current stage for a specific project(instructor)
-router.put('/updateProjectStage/:projectId', middleLogIns.authenticateToken, middleStages.updateProjectStage, (req, res) => {
+// Update current stage for a specific project(instructor only)
+router.put('/updateProjectStage/:projectId', middleRole.getRole, middleStages.updateProjectStage, (req, res) => {
     res.status(res.updateStatus || 200).json({success: res.updateStatus === 200, message: res.updateMessage});
 });
 

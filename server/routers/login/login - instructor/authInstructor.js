@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const middleLog = require("../../../middleware/login - instructor/middleWareLogin");
+const middleRole = require("../../../middleware/role");
 
 // REST: Check if instructor is admin
 router.get('/', middleLog.checkAdmin, (req, res) => {
@@ -43,6 +44,16 @@ router.post('/logout', middleLog.authenticateToken, (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ success: false, message: 'שגיאה ביציאה מהמערכת' });
+    }
+});
+
+
+// REST: Check if instructor is associated with a specific project
+router.get('/checkInstructor/:projectId',middleRole.getRole, middleLog.checkProjectInstructor, (req, res) => {
+    try {
+        res.status(200).json(res.checkProjectInstructor);
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'שגיאה בבדיקת מרצה הפרויקט' });
     }
 });
 

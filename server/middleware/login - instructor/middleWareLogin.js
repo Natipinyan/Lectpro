@@ -159,6 +159,20 @@ function externalAuthenticate(req, res, next) {
     }
 }
 
+function logout(req, res) {
+    res.clearCookie("instructors", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "Lax",
+    });
+
+    res.status(200).json({
+        loggedOut: true,
+        message: "התנתקת בהצלחה",
+    });
+}
+
+
 // Middleware to check if the user is an admin
 async function checkAdmin(req, res, next) {
     const token = req.cookies.instructors;
@@ -215,22 +229,53 @@ async function ensureAdmin(req, res, next) {
     }
 }
 
-module.exports = ensureAdmin;
+// Middleware to check if the user is the instructor of a specific project
+async function checkProjectInstructor(req, res, next) {
+    const { projectId } = req.params;
+    const userId = req.user?.id;
 
+    if (!userId) {
+        res.checkProjectInstructor = { success: false, message: "משתמש לא מזוהה", isProjectInstructor: false };
+        return next();
+    }
 
+    try {
+        const promisePool = db_pool.promise();
 
-function logout(req, res) {
-    res.clearCookie("instructors", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-    });
+        const [projects] = await promisePool.query(
+            `SELECT instructor_id, department_id FROM projects WHERE id = ?`,
+            [projectId]
+        );
 
-    res.status(200).json({
-        loggedOut: true,
-        message: "התנתקת בהצלחה",
-    });
+        if (projects.length === 0) {
+            res.checkProjectInstructor = { success: false, message: "פרויקט לא נמצא", isProjectInstructor: false };
+            return next();
+        }
+
+        const project = projects[0];
+
+        if (project.instructor_id === userId) {
+            res.checkProjectInstructor = { success: true, isProjectInstructor: true };
+            return next();
+        }
+
+        const [instructorRows] = await promisePool.query(
+            `SELECT is_admin FROM instructor WHERE id = ? AND department_id = ?`,
+            [userId, project.department_id]
+        );
+
+        const isAdminOnly = instructorRows.length > 0 && instructorRows[0].is_admin === 1;
+
+        res.checkProjectInstructor = { success: true, isProjectInstructor: false, isAdminOnly };
+        next();
+
+    } catch (err) {
+        console.error("Error checking project instructor:", err);
+        res.checkProjectInstructor = { success: false, message: "שגיאה בבדיקת הרשאות", isProjectInstructor: false };
+        next();
+    }
 }
+
 
 module.exports = {
     check_login,
@@ -240,4 +285,5 @@ module.exports = {
     logout,
     checkAdmin,
     ensureAdmin,
+    checkProjectInstructor,
 };

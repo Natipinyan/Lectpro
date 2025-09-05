@@ -48,7 +48,6 @@ const AddStageForm = ({ stages, onClose, onSave }) => {
                         } else if (newPos === sortedStages.length + 1) {
                             optionText += " (סוף)";
                         } else {
-                            // Find the stage that will be at the position *after* the new stage
                             const nextStage = sortedStages.find(s => s.position === newPos);
                             if (nextStage) {
                                 optionText += ` (לפני ${nextStage.title})`;

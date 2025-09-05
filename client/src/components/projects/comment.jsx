@@ -65,7 +65,6 @@ const Comment = () => {
             } else {
                 setNotification({ message: data.message || "אין הערה הבאה", type: "info" });
             }
-            console.log("Next comment data:", data);
         } catch (err) {
             setNotification({ message: "שגיאה בטעינת ההערה הבאה", type: "error" });
         }

@@ -250,9 +250,7 @@ async function editProject(req, res, next) {
     }
 
     try {
-        console.log(userId, type, projectId);
         const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
-        console.log(accessInfo);
 
         if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
             res.updateStatus = 403;

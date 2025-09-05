@@ -1,88 +1,154 @@
-async function getStages(req, res, next) {
-    const userDepartment = req.user.department_id;
-    const query = `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`;
-    db_pool.query(query, [userDepartment], (err, rows) => {
-        if (err) {
-            console.error("Error fetching stages:", err);
-            res.stagesList = [];
-            res.errorMessage = "שגיאה בקבלת השלבים";
-        } else {
-            res.stagesList = rows;
-        }
-        next();
-    });
-}
+const middleRole = require('../role');
 
-async function addStage(req, res, next) {
-    const { title, position } = req.body;
-    const userDepartment = req.user.department_id;
+//role admin only(to manage stages)//
+async function getStagesByDepartment(req, res, next) {
+    const userId = req.user?.id;
+    const userDepartment = req.user?.department_id;
+    const type = req.user?.role;
+    const isAdmin = req.user?.isAdmin;
 
-    if (!title || title.trim() === "") {
-        res.addStatus = 400;
-        res.addMessage = "שדה הכותרת חובה";
+    if (!userId) {
+        res.getStatus = 401;
+        res.getMessage = "נדרש להתחבר";
         return next();
     }
 
-    db_pool.query(
-        `SELECT MAX(position) AS maxPos FROM stages WHERE department_id = ?`,
-        [userDepartment],
-        (err, rows) => {
+    if (!userDepartment) {
+        res.getStatus = 400;
+        res.getMessage = "לא נמצא מזהה מגמה";
+        return next();
+    }
+
+    try {
+        const accessInfo = await middleRole.checkUserStageAccess(
+            userId,
+            type,
+            userDepartment,
+            { stageId: null, projectId: null }
+        );
+
+        if (!isAdmin || !accessInfo.hasAccess) {
+            res.getStatus = 403;
+            res.getMessage = "אין לך הרשאה לצפות בשלבים של מגמה זו";
+            return next();
+        }
+
+        const query = `
+            SELECT id, title, department_id,position
+            FROM stages
+            WHERE department_id = ?
+            ORDER BY position ASC
+        `;
+
+        db_pool.query(query, [userDepartment], (err, rows) => {
             if (err) {
-                res.addStatus = 500;
-                res.addMessage = "שגיאה בבדיקת מיקום השלבים";
+                res.getStatus = 500;
+                res.getMessage = "שגיאה בקבלת השלבים";
                 return next();
             }
 
-            const maxPos = rows[0].maxPos || 0;
-            let newPos = parseInt(position);
-            if (isNaN(newPos) || newPos < 1) newPos = 1;
-            else if (newPos > maxPos + 1) newPos = maxPos + 1;
-
-            db_pool.query(
-                `UPDATE stages SET position = position + 1 WHERE department_id = ? AND position >= ?`,
-                [userDepartment, newPos],
-                (err2) => {
-                    if (err2) {
-                        res.addStatus = 500;
-                        res.addMessage = "שגיאה בהזזת השלבים";
-                        return next();
-                    }
-
-                    db_pool.query(
-                        `UPDATE projects SET stage_count = stage_count + 1 WHERE department_id = ? AND stage_count >= ?`,
-                        [userDepartment, newPos],
-                        (errProj) => {
-                            if (errProj) {
-                                res.addStatus = 500;
-                                res.addMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
-                                return next();
-                            }
-
-                            db_pool.query(
-                                `INSERT INTO stages (title, department_id, position) VALUES (?, ?, ?)`,
-                                [title.trim(), userDepartment, newPos],
-                                (err3) => {
-                                    if (err3) {
-                                        res.addStatus = 500;
-                                        res.addMessage = "שגיאה בהוספת השלב";
-                                    } else {
-                                        res.addStatus = 200;
-                                        res.addMessage = "השלב נוסף בהצלחה";
-                                    }
-                                    next();
-                                }
-                            );
-                        }
-                    );
-                }
-            );
-        }
-    );
+            res.getStatus = 200;
+            res.data = rows || [];
+            next();
+        });
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה פנימית בבדיקת הרשאות";
+        next();
+    }
 }
 
+//role admin only//
+async function addStageByDepartment(req, res, next) {
+    const { title, position } = req.body;
+    const userId = req.user.id;
+    const type = req.user.role;
+    const userDepartment = req.user.department_id;
+
+    try {
+        const accessInfo = await middleRole.checkUserStageActionAccess(userId, type, userDepartment);
+
+        if (!accessInfo.hasAccess || !accessInfo.isAdmin) {
+            res.getStatus = 403;
+            res.getMessage = "אין לך הרשאה להוסיף שלבים במגמה זו";
+            return next();
+        }
+
+        if (!title || title.trim() === "") {
+            res.getStatus = 400;
+            res.getMessage = "שדה הכותרת חובה";
+            return next();
+        }
+
+        db_pool.query(
+            `SELECT MAX(position) AS maxPos FROM stages WHERE department_id = ?`,
+            [userDepartment],
+            (err, rows) => {
+                if (err) {
+                    res.getStatus = 500;
+                    res.getMessage = "שגיאה בבדיקת מיקום השלבים";
+                    return next();
+                }
+
+                const maxPos = rows[0].maxPos || 0;
+                let newPos = parseInt(position);
+                if (isNaN(newPos) || newPos < 1) newPos = 1;
+                else if (newPos > maxPos + 1) newPos = maxPos + 1;
+
+                db_pool.query(
+                    `UPDATE stages SET position = position + 1 WHERE department_id = ? AND position >= ?`,
+                    [userDepartment, newPos],
+                    (err2) => {
+                        if (err2) {
+                            res.getStatus = 500;
+                            res.getMessage = "שגיאה בהזזת השלבים";
+                            return next();
+                        }
+
+                        db_pool.query(
+                            `UPDATE projects SET stage_count = stage_count + 1 WHERE department_id = ? AND stage_count >= ?`,
+                            [userDepartment, newPos],
+                            (errProj) => {
+                                if (errProj) {
+                                    res.getStatus = 500;
+                                    res.getMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
+                                    return next();
+                                }
+
+                                db_pool.query(
+                                    `INSERT INTO stages (title, department_id, position) VALUES (?, ?, ?)`,
+                                    [title.trim(), userDepartment, newPos],
+                                    (err3) => {
+                                        if (err3) {
+                                            res.getStatus = 500;
+                                            res.getMessage = "שגיאה בהוספת השלב";
+                                        } else {
+                                            res.getStatus = 200;
+                                            res.getMessage = "השלב נוסף בהצלחה";
+                                        }
+                                        next();
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה פנימית";
+        next();
+    }
+}
+
+//role admin only//
 async function updateStage(req, res, next) {
     const { stageId } = req.params;
     const { title, position } = req.body;
+    const userId = req.user.id;
+    const type = req.user.role;
     const userDepartment = req.user.department_id;
 
     if (!title || title.trim() === "") {
@@ -91,198 +157,257 @@ async function updateStage(req, res, next) {
         return next();
     }
 
-    db_pool.query(
-        `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`,
-        [userDepartment],
-        (err, stages) => {
-            if (err) {
-                res.updateStatus = 500;
-                res.updateMessage = "שגיאה בשליפת השלבים";
-                return next();
-            }
+    try {
+        const accessInfo = await middleRole.checkUserStageActionAccess(userId, type, userDepartment);
 
-            const stageToUpdate = stages.find(s => s.id == stageId);
-            if (!stageToUpdate) {
-                res.updateStatus = 403;
-                res.updateMessage = "אין לך גישה לעדכן שלב זה";
-                return next();
-            }
+        if (!accessInfo.hasAccess || !accessInfo.isAdmin) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך הרשאה לעדכן שלב במגמה זו";
+            return next();
+        }
 
-            const oldPos = stageToUpdate.position;
-            const newPos = parseInt(position);
-
-            if (oldPos === newPos) {
-                db_pool.query(
-                    `UPDATE stages SET title = ? WHERE id = ?`,
-                    [title.trim(), stageId],
-                    (err) => {
-                        if (err) {
-                            res.updateStatus = 500;
-                            res.updateMessage = "שגיאה בעדכון השלב";
-                        } else {
-                            res.updateStatus = 200;
-                            res.updateMessage = "השלב עודכן בהצלחה";
-                        }
-                        return next();
-                    }
-                );
-                return;
-            }
-
-            let updateQuery, updateParams, projectUpdateQuery, projectUpdateParams;
-
-            if (newPos < oldPos) {
-                updateQuery = `
-                    UPDATE stages SET position = position + 1
-                    WHERE department_id = ? AND position >= ? AND position < ?`;
-                updateParams = [userDepartment, newPos, oldPos];
-
-                projectUpdateQuery = `
-                    UPDATE projects SET stage_count = stage_count + 1
-                    WHERE department_id = ? AND stage_count >= ? AND stage_count < ?`;
-                projectUpdateParams = [userDepartment, newPos, oldPos];
-            } else {
-                updateQuery = `
-                    UPDATE stages SET position = position - 1
-                    WHERE department_id = ? AND position > ? AND position <= ?`;
-                updateParams = [userDepartment, oldPos, newPos];
-
-                projectUpdateQuery = `
-                    UPDATE projects SET stage_count = stage_count - 1
-                    WHERE department_id = ? AND stage_count > ? AND stage_count <= ?`;
-                projectUpdateParams = [userDepartment, oldPos, newPos];
-            }
-
-            db_pool.query(updateQuery, updateParams, (err2) => {
-                if (err2) {
+        db_pool.query(
+            `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`,
+            [userDepartment],
+            (err, stages) => {
+                if (err) {
                     res.updateStatus = 500;
-                    res.updateMessage = "שגיאה בעדכון סדר השלבים";
+                    res.updateMessage = "שגיאה בשליפת השלבים";
                     return next();
                 }
 
-                db_pool.query(projectUpdateQuery, projectUpdateParams, (errProj) => {
-                    if (errProj) {
-                        res.updateStatus = 500;
-                        res.updateMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
-                        return next();
-                    }
+                const stageToUpdate = stages.find(s => s.id == stageId);
+                if (!stageToUpdate) {
+                    res.updateStatus = 403;
+                    res.updateMessage = "אין לך גישה לעדכן שלב זה";
+                    return next();
+                }
 
+                const oldPos = stageToUpdate.position;
+                const newPos = parseInt(position);
+
+                if (oldPos === newPos) {
                     db_pool.query(
-                        `UPDATE stages SET title = ?, position = ? WHERE id = ?`,
-                        [title.trim(), newPos, stageId],
-                        (err3) => {
-                            if (err3) {
+                        `UPDATE stages SET title = ? WHERE id = ?`,
+                        [title.trim(), stageId],
+                        (err) => {
+                            if (err) {
                                 res.updateStatus = 500;
                                 res.updateMessage = "שגיאה בעדכון השלב";
                             } else {
                                 res.updateStatus = 200;
                                 res.updateMessage = "השלב עודכן בהצלחה";
                             }
-                            next();
+                            return next();
                         }
                     );
-                });
-            });
-        }
-    );
-}
-
-async function deleteStage(req, res, next) {
-    const { stageId } = req.params;
-    const userDepartment = req.user.department_id;
-
-    db_pool.query(
-        `SELECT position FROM stages WHERE id = ? AND department_id = ?`,
-        [stageId, userDepartment],
-        (err, rows) => {
-            if (err) {
-                res.deleteStatus = 500;
-                res.deleteMessage = "שגיאה בבדיקת ההרשאה";
-                return next();
-            }
-            if (rows.length === 0) {
-                res.deleteStatus = 403;
-                res.deleteMessage = "אין לך גישה למחוק שלב זה";
-                return next();
-            }
-
-            const deletedPos = rows[0].position;
-
-            db_pool.query(`DELETE FROM stages WHERE id = ?`, [stageId], (err2) => {
-                if (err2) {
-                    res.deleteStatus = 500;
-                    res.deleteMessage = "שגיאה במחיקת השלב";
-                    return next();
+                    return;
                 }
 
-                db_pool.query(
-                    `UPDATE stages SET position = position - 1 WHERE department_id = ? AND position > ?`,
-                    [userDepartment, deletedPos],
-                    (err3) => {
-                        if (err3) {
-                            res.deleteStatus = 500;
-                            res.deleteMessage = "שגיאה בעדכון סדר השלבים";
+                let updateQuery, updateParams, projectUpdateQuery, projectUpdateParams;
+
+                if (newPos < oldPos) {
+                    updateQuery = `
+                        UPDATE stages SET position = position + 1
+                        WHERE department_id = ? AND position >= ? AND position < ?`;
+                    updateParams = [userDepartment, newPos, oldPos];
+
+                    projectUpdateQuery = `
+                        UPDATE projects SET stage_count = stage_count + 1
+                        WHERE department_id = ? AND stage_count >= ? AND stage_count < ?`;
+                    projectUpdateParams = [userDepartment, newPos, oldPos];
+                } else {
+                    updateQuery = `
+                        UPDATE stages SET position = position - 1
+                        WHERE department_id = ? AND position > ? AND position <= ?`;
+                    updateParams = [userDepartment, oldPos, newPos];
+
+                    projectUpdateQuery = `
+                        UPDATE projects SET stage_count = stage_count - 1
+                        WHERE department_id = ? AND stage_count > ? AND stage_count <= ?`;
+                    projectUpdateParams = [userDepartment, oldPos, newPos];
+                }
+
+                db_pool.query(updateQuery, updateParams, (err2) => {
+                    if (err2) {
+                        res.updateStatus = 500;
+                        res.updateMessage = "שגיאה בעדכון סדר השלבים";
+                        return next();
+                    }
+
+                    db_pool.query(projectUpdateQuery, projectUpdateParams, (errProj) => {
+                        if (errProj) {
+                            res.updateStatus = 500;
+                            res.updateMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
                             return next();
                         }
 
                         db_pool.query(
-                            `UPDATE projects SET stage_count = stage_count - 1 WHERE department_id = ? AND stage_count > ?`,
-                            [userDepartment, deletedPos],
-                            (errProj) => {
-                                if (errProj) {
-                                    res.deleteStatus = 500;
-                                    res.deleteMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
+                            `UPDATE stages SET title = ?, position = ? WHERE id = ?`,
+                            [title.trim(), newPos, stageId],
+                            (err3) => {
+                                if (err3) {
+                                    res.updateStatus = 500;
+                                    res.updateMessage = "שגיאה בעדכון השלב";
                                 } else {
-                                    res.deleteStatus = 200;
-                                    res.deleteMessage = "השלב נמחק בהצלחה";
+                                    res.updateStatus = 200;
+                                    res.updateMessage = "השלב עודכן בהצלחה";
                                 }
                                 next();
                             }
                         );
-                    }
-                );
-            });
-        }
-    );
+                    });
+                });
+            }
+        );
+
+    } catch (err) {
+        res.updateStatus = 500;
+        res.updateMessage = "שגיאה פנימית";
+        next();
+    }
 }
 
-async function getProjectStages(req, res, next) {
-    const { projectId } = req.params;
+//role admin only//
+async function deleteStage(req, res, next) {
+    const { stageId } = req.params;
+    const userId = req.user.id;
+    const type = req.user.role;
+    const userDepartment = req.user.department_id;
 
-    const projectQuery = `SELECT id, department_id, stage_count FROM projects WHERE id = ?`;
-    db_pool.query(projectQuery, [projectId], (err, projects) => {
-        if (err || projects.length === 0) {
-            res.allStages = [];
-            res.currentStage = null;
-            res.errorMessage = "פרויקט לא נמצא";
+    try {
+        const accessInfo = await middleRole.checkUserStageActionAccess(userId, type, userDepartment);
+
+        if (!accessInfo.hasAccess || !accessInfo.isAdmin) {
+            res.deleteStatus = 403;
+            res.deleteMessage = "אין לך הרשאה למחוק שלב במגמה זו";
             return next();
         }
 
-        const departmentId = projects[0].department_id;
-        const currentStageNumber = projects[0].stage_count;
+        db_pool.query(
+            `SELECT position FROM stages WHERE id = ? AND department_id = ?`,
+            [stageId, userDepartment],
+            (err, rows) => {
+                if (err) {
+                    res.deleteStatus = 500;
+                    res.deleteMessage = "שגיאה בבדיקת ההרשאה";
+                    return next();
+                }
+                if (rows.length === 0) {
+                    res.deleteStatus = 403;
+                    res.deleteMessage = "אין לך גישה למחוק שלב זה";
+                    return next();
+                }
 
-        const stagesQuery = `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`;
-        db_pool.query(stagesQuery, [departmentId], (err2, stages) => {
-            if (err2) {
-                res.allStages = [];
-                res.currentStage = null;
-                res.errorMessage = "שגיאה בשליפת השלבים";
-                return next();
+                const deletedPos = rows[0].position;
+
+                db_pool.query(`DELETE FROM stages WHERE id = ?`, [stageId], (err2) => {
+                    if (err2) {
+                        res.deleteStatus = 500;
+                        res.deleteMessage = "שגיאה במחיקת השלב";
+                        return next();
+                    }
+
+                    db_pool.query(
+                        `UPDATE stages SET position = position - 1 WHERE department_id = ? AND position > ?`,
+                        [userDepartment, deletedPos],
+                        (err3) => {
+                            if (err3) {
+                                res.deleteStatus = 500;
+                                res.deleteMessage = "שגיאה בעדכון סדר השלבים";
+                                return next();
+                            }
+
+                            db_pool.query(
+                                `UPDATE projects SET stage_count = stage_count - 1 WHERE department_id = ? AND stage_count > ?`,
+                                [userDepartment, deletedPos],
+                                (errProj) => {
+                                    if (errProj) {
+                                        res.deleteStatus = 500;
+                                        res.deleteMessage = "שגיאה בעדכון שלב הפרויקטים הקיימים";
+                                    } else {
+                                        res.deleteStatus = 200;
+                                        res.deleteMessage = "השלב נמחק בהצלחה";
+                                    }
+                                    next();
+                                }
+                            );
+                        }
+                    );
+                });
             }
-
-            const currentStage = stages.find(s => s.position === currentStageNumber) || null;
-
-            res.allStages = stages;
-            res.currentStage = currentStage;
-            next();
-        });
-    });
+        );
+    } catch (err) {
+        res.deleteStatus = 500;
+        res.deleteMessage = "שגיאה פנימית";
+        next();
+    }
 }
 
+//role instructor and student//
+async function getProjectStages(req, res, next) {
+    const { projectId } = req.params;
+    const userId = req.user.id;
+    const type = req.user.role;
+    const userDepartment = req.user.department_id;
+
+    try {
+        const accessInfo = await middleRole.checkUserStageAccess(userId, type, userDepartment);
+
+        if (!accessInfo.hasAccess) {
+            res.getStatus = 403;
+            res.getMessage = "אין לך הרשאה לצפות בשלבים של פרויקט זה";
+            res.allStages = [];
+            res.currentStage = null;
+            return next();
+        }
+
+        const [projects] = await db_pool.promise().query(
+            `SELECT stage_count FROM projects WHERE id = ? AND department_id = ?`,
+            [projectId, userDepartment]
+        );
+
+        if (projects.length === 0) {
+            res.getStatus = 404;
+            res.getMessage = "פרויקט לא נמצא במגמה שלך";
+            res.allStages = [];
+            res.currentStage = null;
+            return next();
+        }
+
+        const currentStageNumber = projects[0].stage_count;
+
+        const [stages] = await db_pool.promise().query(
+            `SELECT * FROM stages WHERE department_id = ? ORDER BY position ASC`,
+            [userDepartment]
+        );
+
+        const currentStage = stages.find(s => s.position === currentStageNumber) || null;
+
+        res.data = {
+            allStages: stages,
+            currentStage: currentStage
+        };
+        res.getStatus = 200;
+        res.getMessage = "שלבים נשלפו בהצלחה";
+        next();
+
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה פנימית בשליפת השלבים";
+        res.allStages = [];
+        res.currentStage = null;
+        next();
+    }
+}
+
+//role instructor only//
 async function updateProjectStage(req, res, next) {
     const { projectId } = req.params;
     const { stage } = req.body;
-    const instructorDepartment = req.user.department_id;
+    const userId = req.user.id;
+    const userType = req.user.role;
+    const userDepartment = req.user.department_id;
 
     if (!stage || isNaN(stage) || stage < 1) {
         res.updateStatus = 400;
@@ -290,42 +415,40 @@ async function updateProjectStage(req, res, next) {
         return next();
     }
 
-    db_pool.query(
-        `SELECT id, department_id FROM projects WHERE id = ? AND department_id = ?`,
-        [projectId, instructorDepartment],
-        (err, projects) => {
-            if (err) {
-                res.updateStatus = 500;
-                res.updateMessage = "שגיאה בשליפת הפרויקט";
-                return next();
-            }
-            if (projects.length === 0) {
-                res.updateStatus = 403;
-                res.updateMessage = "אין גישה לעדכן פרויקט זה";
-                return next();
-            }
+    try {
+        const accessInfo = await middleRole.checkUserStageUpdateAccess(userId, userType, userDepartment, { projectId });
 
-            db_pool.query(
-                `UPDATE projects SET stage_count = ? WHERE id = ?`,
-                [stage, projectId],
-                (err2) => {
-                    if (err2) {
-                        res.updateStatus = 500;
-                        res.updateMessage = "שגיאה בעדכון שלב הפרויקט";
-                    } else {
-                        res.updateStatus = 200;
-                        res.updateMessage = "שלב הפרויקט עודכן בהצלחה";
-                    }
-                    next();
-                }
-            );
+        if (!accessInfo.hasAccess) {
+            res.updateStatus = 403;
+            res.updateMessage = "אין לך הרשאה לעדכן שלב בפרויקט זה";
+            return next();
         }
-    );
+
+        db_pool.query(
+            `UPDATE projects SET stage_count = ? WHERE id = ?`,
+            [stage, projectId],
+            (err) => {
+                if (err) {
+                    res.updateStatus = 500;
+                    res.updateMessage = "שגיאה בעדכון שלב הפרויקט";
+                } else {
+                    res.updateStatus = 200;
+                    res.updateMessage = "שלב הפרויקט עודכן בהצלחה";
+                }
+                next();
+            }
+        );
+
+    } catch (err) {
+        res.updateStatus = 500;
+        res.updateMessage = "שגיאה פנימית בעדכון שלב הפרויקט";
+        next();
+    }
 }
 
 module.exports = {
-    getStages,
-    addStage,
+    getStagesByDepartment,
+    addStageByDepartment,
     updateStage,
     deleteStage,
     getProjectStages,

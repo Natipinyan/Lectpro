@@ -17,7 +17,6 @@ const InstructorProjectsList = () => {
                 credentials: "include",
             });
             const data = await response.json();
-            console.log("Response data:", data);
             if (response.ok && data.success) {
                 setProjects(data.data || []);
             } else {

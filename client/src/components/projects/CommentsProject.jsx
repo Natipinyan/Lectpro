@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../css/projects/CommentsProject.css";
 
-const CommentsProject = ({ comments ,nav}) => {
+const CommentsProject = ({ comments ,nav, isProjectInstructor }) => {
     const [activeTab, setActiveTab] = useState("all");
     const  navUrl = nav;
     const navigate = useNavigate();
@@ -122,7 +122,8 @@ const CommentsProject = ({ comments ,nav}) => {
                                                     is_done,
                                                     done_by_user,
                                                     user_response
-                                                }
+                                                },
+                                                isProjectInstructor: navUrl === "instructor" ? isProjectInstructor : false
                                             }
                                         });
                                     }}

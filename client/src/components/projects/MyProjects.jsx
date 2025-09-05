@@ -16,8 +16,6 @@ const ProjectList = () => {
                     credentials: 'include',
                 });
                 const data = await response.json();
-                console.log(data)
-                console.log("Data fetched:", data);
                 if (response.ok && data.success) {
                     setProjects(data.data || []);
                     setLoading(false);

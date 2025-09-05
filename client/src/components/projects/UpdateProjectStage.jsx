@@ -17,7 +17,7 @@ const UpdateProjectStage = ({ projectId, onClose, onUpdate }) => {
             try {
                 setLoading(true);
                 const res = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/stages/ins/projectStages/${projectId}`,
+                    `${process.env.REACT_APP_BASE_URL}/stages/projectStages/${projectId}`,
                     { withCredentials: true }
                 );
 
@@ -51,19 +51,18 @@ const UpdateProjectStage = ({ projectId, onClose, onUpdate }) => {
 
             if (res.data.success) {
                 setNotification({ message: "שלב הפרויקט עודכן בהצלחה!", type: "success" });
-
                 onUpdate?.();
-
                 setTimeout(() => {
                     onClose();
                     setNotification(null);
                 }, 1500);
-            } else {
-                setNotification({ message: res.data.message || "שגיאה בעדכון השלב", type: "error" });
             }
         } catch (err) {
             console.error(err);
-            setNotification({ message: "שגיאה בעדכון השלב", type: "error" });
+
+            // אם השרת החזיר תגובה, נקבל את ההודעה ממנה
+            const message = err.response?.data?.message || "שגיאה בעדכון השלב";
+            setNotification({ message, type: "error" });
         }
     };
 

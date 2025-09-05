@@ -10,12 +10,14 @@ const InstructorComment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const commentID = location.state?.comment?.id ?? null;
+    const isProjectInstructor = location.state?.isProjectInstructor ?? false;
 
     const [currentComment, setCurrentComment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState(null);
     const [error, setError] = useState(null);
     const [showEdit, setShowEdit] = useState(false);
+
 
     useEffect(() => {
         if (!commentID) {
@@ -44,6 +46,7 @@ const InstructorComment = () => {
             }
         };
 
+
         fetchComment();
     }, [commentID]);
 
@@ -61,7 +64,6 @@ const InstructorComment = () => {
             } else {
                 setNotification({ message: data.message || "אין הערה הבאה", type: "info" });
             }
-            console.log("Next comment data:", data);
         } catch (err) {
             setNotification({ message: "שגיאה בטעינת ההערה הבאה", type: "error" });
         }
@@ -195,16 +197,20 @@ const InstructorComment = () => {
                     <button className="back-button" onClick={() => navigate(-1)} aria-label="חזרה לכל ההערות">
                         ✖ סגור הערה
                     </button>
-                    <button className="delete-button" onClick={handleDelete}>
-                        🗑 מחק הערה
-                    </button>
-                    <button
-                        className="edit-button"
-                        onClick={handleEditClick}
-                        disabled={currentComment.is_done}
-                    >
-                        {currentComment.is_done ? "הושלם" : "✏ ערוך הערה"}
-                    </button>
+                    {isProjectInstructor && (
+                        <>
+                            <button className="delete-button" onClick={handleDelete}>
+                                🗑 מחק הערה
+                            </button>
+                            <button
+                                className="edit-button"
+                                onClick={handleEditClick}
+                                disabled={currentComment.is_done}
+                            >
+                                {currentComment.is_done ? "הושלם" : "✏ ערוך הערה"}
+                            </button>
+                        </>
+                    )}
                     <button className="next-button" onClick={fetchNextComment}>
                         הערה הבאה →
                     </button>
@@ -239,20 +245,22 @@ const InstructorComment = () => {
                         </div>
                     )}
 
-                <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-                    <button
-                        className="mark-button"
-                        style={{ width: "200px" }}
-                        onClick={handleMarkDone}
-                        disabled={!currentComment.done_by_user || currentComment.is_done}
-                    >
-                        {currentComment.done_by_user
-                            ? currentComment.is_done
-                                ? "הושלם"
-                                : "סמן כבוצע"
-                            : "לא בוצע"}
-                    </button>
-                </div>
+                {isProjectInstructor && (
+                    <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+                        <button
+                            className="mark-button"
+                            style={{ width: "200px" }}
+                            onClick={handleMarkDone}
+                            disabled={!currentComment.done_by_user || currentComment.is_done}
+                        >
+                            {currentComment.done_by_user
+                                ? currentComment.is_done
+                                    ? "הושלם"
+                                    : "סמן כבוצע"
+                                : "לא בוצע"}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {showEdit && (

@@ -173,7 +173,6 @@ async function forgot_password(req, res) {
     const email = req.body.email;
     const code = () => Math.floor(100000 + Math.random() * 900000).toString();
     const resetCode = code();
-    console.log(email)
 
     const selectQuery = `SELECT * FROM students WHERE email = ?`;
     db_pool.query(selectQuery, [email], function (err, result) {

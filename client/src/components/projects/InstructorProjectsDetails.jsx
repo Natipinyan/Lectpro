@@ -28,6 +28,7 @@ const ProjectDetails = () => {
     const [showUpdateStage, setShowUpdateStage] = useState(false);
 
     const [department, setDepartment] = useState(null);
+    const [isProjectInstructor, setIsProjectInstructor] = useState(false);
 
     const [gradesRefresh, setGradesRefresh] = useState(false);
 
@@ -110,10 +111,33 @@ const ProjectDetails = () => {
         }
     }
 
+    const fetchIsProjectInstructor = async () => {
+        try {
+            const res = await fetch(
+                `${process.env.REACT_APP_BASE_URL}/apiInstructor/checkInstructor/${projectId}`,
+                {
+                    method: "GET",
+                    credentials: "include",
+                }
+            );
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || "שגיאה בבדיקת המרצה של הפרויקט");
+            }
+
+            setIsProjectInstructor(data.isProjectInstructor);
+
+        } catch (err) {
+            console.error("שגיאה בבדיקת המרצה של הפרויקט:", err);
+        }
+    };
+
     useEffect(() => {
         departmentName();
         fetchProjectDetails();
         fetchCommentsSummary();
+        fetchIsProjectInstructor();
     }, [projectId]);
 
     useEffect(() => {
@@ -210,7 +234,8 @@ const ProjectDetails = () => {
 
             <div className="project-main">
                 <div className="project-grades-top">
-                    <Grades key={gradesRefresh} projectId={projectId} user="ins" />
+                    <Grades key={gradesRefresh} projectId={projectId}
+                    />
                 </div>
 
                 <div className="project-grades-button">
@@ -221,9 +246,11 @@ const ProjectDetails = () => {
                                     <button className="back-button" onClick={() => navigate(-1)}>
                                         חזרה לכל הפרוייקטים
                                     </button>
-                                    <button className="back-button" onClick={() => setShowUpdateStage(true)}>
-                                        עדכן שלב פרויקט
-                                    </button>
+                                    {isProjectInstructor && (
+                                        <button className="back-button" onClick={() => setShowUpdateStage(true)}>
+                                            עדכן שלב פרויקט
+                                        </button>
+                                    )}
                                 </div>
 
                                 <div className="project-title">{project.title}</div>
@@ -268,7 +295,9 @@ const ProjectDetails = () => {
 
                                         <div className="button-container" style={{ marginTop: "10px", justifyContent: "space-between" }}>
                                             <button onClick={() => setShowComments(true)}>תצוגה מפורטת</button>
-                                            <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                            {isProjectInstructor && (
+                                                <button className="add-note-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                            )}
                                         </div>
                                     </>
                                 ) : (
@@ -277,7 +306,11 @@ const ProjectDetails = () => {
 
                                 {!commentsLoading && !commentsError && commentsSummary?.totalCount === 0 && (
                                     <div className="button-container" style={{ marginTop: "10px" }}>
-                                        <button className="back-button" onClick={() => setShowAddNote(true)}>➕ הוסף הערה</button>
+                                        {isProjectInstructor && (
+                                            <button className="add-note-button" onClick={() => setShowAddNote(true)}>
+                                                ➕ הוסף הערה
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -299,7 +332,7 @@ const ProjectDetails = () => {
 
             {showComments && (
                 <Modal onClose={() => setShowComments(false)} width="70vw">
-                    <CommentsProject comments={commentsSummary} nav="instructor" />
+                    <CommentsProject comments={commentsSummary} nav="instructor"  isProjectInstructor={isProjectInstructor} />
                 </Modal>
             )}
 
