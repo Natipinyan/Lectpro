@@ -50,4 +50,15 @@ router.put('/updateProjectStage/:projectId', middleRole.getRole, middleStages.up
     res.status(res.updateStatus || 200).json({success: res.updateStatus === 200, message: res.updateMessage});
 });
 
+// REST: approve Upload file for a project (instructor only)
+router.post(
+    '/approveDocument/:projectId',
+    middleRole.getRole,
+    middleStages.approveDocument,
+    (req, res) => {
+        middleResponse.sendResponse(res);
+    }
+);
+
+
 module.exports = router;

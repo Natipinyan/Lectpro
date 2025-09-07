@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "../../css/projects/AssignInstructor.module.css";
+import NotificationPopup from "./NotificationPopup";
 
 const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
     const [instructors, setInstructors] = useState([]);
     const [selectedInstructor, setSelectedInstructor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentInstructor, setCurrentInstructor] = useState(null);
+    const [notification, setNotification] = useState(null);
 
     useEffect(() => {
         const fetchInstructors = async () => {
@@ -16,66 +18,72 @@ const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
                     `${process.env.REACT_APP_BASE_URL}/admin/insByDep`,
                     { withCredentials: true }
                 );
-                console.log(response);
                 const instructorsData = response.data.data || [];
                 setInstructors(instructorsData);
-                console.log(instructorsData);
 
                 const curr = instructorsData.find((ins) => ins.id === instructorId);
                 setCurrentInstructor(curr || null);
             } catch (err) {
                 console.error("שגיאה בטעינת מרצים:", err);
+                setNotification({ message: "שגיאה בטעינת מרצים", type: "error" });
             } finally {
                 setLoading(false);
             }
         };
-
         fetchInstructors();
     }, [instructorId]);
 
     const handleUpdate = async () => {
         if (!selectedInstructor) {
-            alert("אנא בחר מרצה חדש לפני השמירה.");
+            setNotification({ message: "אנא בחר מרצה חדש לפני השמירה.", type: "error" });
             return;
         }
+
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/admin/assignProjectInstructor`,
-                {
-                    projectId,
-                    instructorId: selectedInstructor.id,
-                },
+                { projectId, instructorId: selectedInstructor.id },
                 { withCredentials: true }
             );
 
             if (response.data.success) {
+                setNotification({ message: "המרצה עודכן בהצלחה!", type: "success" });
                 if (onUpdated) await onUpdated();
-                onClose();
+
+                setTimeout(() => {
+                    onClose();
+                }, 1500);
             } else {
-                alert(response.data.message || "שגיאה בעדכון המרצה.");
+                setNotification({ message: response.data.message || "שגיאה בעדכון המרצה.", type: "error" });
             }
         } catch (err) {
             console.error("שגיאת רשת:", err);
-            alert("שגיאת רשת בעדכון המרצה.");
+            setNotification({ message: "שגיאת רשת בעדכון המרצה.", type: "error" });
         }
     };
 
     return (
         <div className={styles["update-wrapper"]}>
+            {notification && (
+                <NotificationPopup
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+
             <h2 className={styles["formLabel"]}>עדכון מרצה</h2>
             <div className={styles["current-instructor"]}>
                 <strong>מרצה נוכחי:</strong>{" "}
                 <div>
                     {currentInstructor
                         ? `${currentInstructor.first_name} ${currentInstructor.last_name}`
-                        : "לא משויך"}
+                        : "בטיפול"}
                 </div>
                 <div>
                     <strong>בחר מרצה חדש:</strong>
                 </div>
-
             </div>
-
 
             {loading ? (
                 <div className={styles["loading"]}>טוען מרצים...</div>

@@ -9,6 +9,7 @@ import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import axios from "axios";
 import Grades from "./grades";
+import Swal from "sweetalert2";
 
 const ProjectDetails = () => {
     const { projectId } = useParams();
@@ -190,6 +191,37 @@ const ProjectDetails = () => {
         }
     };
 
+    const handleApproveDocument = async (projectId) => {
+        try {
+            const result = await Swal.fire({
+                title: "אישור מסמך וחתימה",
+                text: "בלחיצה על אישור זה יופיע לסטודנט אפשרות להעלות מסמך הפרויקט בפורמט וורד ודוגמת חתימה. האם לאשר?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "אישור",
+                cancelButtonText: "ביטול",
+            });
+
+            if (result.isConfirmed) {
+                const res = await fetch(`${process.env.REACT_APP_BASE_URL}/stages/approveDocument/${projectId}`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+                const data = await res.json();
+                console.log(data);
+
+                if (res.ok && data.success) {
+                    Swal.fire("בוצע!", "סטודנט יוכל להעלות את המסמך כעת.", "success");
+                } else {
+                    Swal.fire("שגיאה", data.message || "שגיאה באישור המסמך", "error");
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire("שגיאה", "שגיאת תקשורת עם השרת", "error");
+        }
+    };
+
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -259,6 +291,15 @@ const ProjectDetails = () => {
                                             עדכן שלב פרויקט
                                         </button>
                                     )}
+                                    {isProjectInstructor && (
+                                        <button
+                                            className="back-button"
+                                            onClick={() => handleApproveDocument(projectId)}
+                                        >
+                                            אישור מסמך וחתימה
+                                        </button>
+                                    )}
+
                                     {!isProjectInstructor && (
                                         <button className="back-button" onClick={() => setShowUpdateInstructor(true)}>
                                             שנה מנחה

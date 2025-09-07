@@ -446,11 +446,54 @@ async function updateProjectStage(req, res, next) {
     }
 }
 
+//role instructor only//
+async function approveDocument(req, res, next) {
+    const { projectId } = req.params;
+    const { id: userId, role: userRole, department_id: userDepartment } = req.user;
+
+    try {
+        const accessInfo = await middleRole.checkUserStageUpdateAccess(
+            userId,
+            userRole,
+            userDepartment,
+            { projectId }
+        );
+
+        if (!accessInfo.hasAccess) {
+            res.statusCode = 403;
+            res.message = "אין לך הרשאה לאשר מסמך עבור פרויקט זה";
+            return next();
+        }
+
+        db_pool.query(
+            "UPDATE projects SET status = 1 WHERE id = ?",
+            [projectId],
+            (err) => {
+                if (err) {
+                    res.getStatus = 500;
+                    res.getMessage = "שגיאה בעדכון";
+                } else {
+                    res.getStatus = 200;
+                    res.getMessage = "עדכון בוצע בהצלחה";
+                }
+                next();
+            }
+        );
+
+    } catch (err) {
+        console.error(err);
+        res.statusCode = 500;
+        res.message = "שגיאה פנימית באישור המסמך";
+        next();
+    }
+}
+
 module.exports = {
     getStagesByDepartment,
     addStageByDepartment,
     updateStage,
     deleteStage,
     getProjectStages,
-    updateProjectStage
+    updateProjectStage,
+    approveDocument
 };

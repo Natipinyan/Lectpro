@@ -58,7 +58,6 @@ const UpdateProjectStage = ({ projectId, onClose, onUpdate }) => {
                 }, 1500);
             }
         } catch (err) {
-            console.error(err);
 
             const message = err.response?.data?.message || "שגיאה בעדכון השלב";
             setNotification({ message, type: "error" });
