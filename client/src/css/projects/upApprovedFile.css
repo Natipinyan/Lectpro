@@ -1,0 +1,77 @@
+.apSignWord {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.apSignWord h2,
+.apSignWord h3 {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.upload-container,
+#upload-container-sign {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #7494ec;
+    border-radius: 8px;
+    padding: 30px;
+    width: 80%;
+    max-width: 500px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.upload-container:hover,
+#upload-container-sign:hover {
+    background-color: #f0f4ff;
+    border-color: #4a7fe0;
+}
+
+.upload-text {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+    word-break: break-word;
+}
+
+.upload-submit-btn {
+    padding: 10px 25px;
+    font-size: 16px;
+    background-color: #7494ec;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+.upload-submit-btn:hover {
+    background-color: #5c78c5;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

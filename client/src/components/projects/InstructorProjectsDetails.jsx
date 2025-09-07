@@ -208,7 +208,6 @@ const ProjectDetails = () => {
                     credentials: "include",
                 });
                 const data = await res.json();
-                console.log(data);
 
                 if (res.ok && data.success) {
                     Swal.fire("בוצע!", "סטודנט יוכל להעלות את המסמך כעת.", "success");

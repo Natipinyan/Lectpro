@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NotificationPopup from "../projects/NotificationPopup";
 import CommentsProject from "./CommentsProject";
+import ApprovedUploadModal from "./ApprovedUploadModal";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import Swal from 'sweetalert2';
@@ -19,6 +20,7 @@ const ProjectDetails = () => {
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [commentsError, setCommentsError] = useState(null);
     const [showComments, setShowComments] = useState(false);
+    const [showUpload, setShowUpload] = useState(false);
     const [department, setDepartment] = useState(null);
     const navigate = useNavigate();
 
@@ -31,6 +33,7 @@ const ProjectDetails = () => {
                 });
                 const dataProject = await resProject.json();
                 if (!resProject.ok || !dataProject.success) throw new Error(dataProject.message || "שגיאה בטעינת פרטי הפרויקט");
+                console.log(dataProject);
 
                 const resTech = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/${projectId}/technologies`, {
                     method: "GET",
@@ -229,6 +232,9 @@ const ProjectDetails = () => {
                                     <button className="back-button" onClick={() => navigate(-1)}>חזור</button>
                                     <button className="edit-button" onClick={handleEditClick}>עריכה</button>
                                     <button className="delete-button" onClick={handleDeleteClick}>מחיקה</button>
+                                    {project.status === 1 && (
+                                        <button className="back-button" onClick={() => setShowUpload(true)}>העלאת מסמך מאושר</button>
+                                    )}
                                 </div>
                                 <h2 className="project-title">{project.title}</h2>
                                 <div className="project-title">
@@ -310,6 +316,12 @@ const ProjectDetails = () => {
                     <CommentsProject comments={commentsSummary} nav={'students'}  />
                 </Modal>
             )}
+            {showUpload && (
+                <Modal onClose={() => setShowUpload(false)} width="50vw">
+                    <ApprovedUploadModal project={project} onClose={() => setShowUpload(false)} />
+                </Modal>
+            )}
+
         </div>
     );
 };
