@@ -221,6 +221,31 @@ const ProjectDetails = () => {
         }
     };
 
+
+    const handleDownloadApproved = async (projectId) => {
+        try {
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/projects/${projectId}/downloadFiles`,
+                { responseType: 'blob', withCredentials: true }
+            );
+            console.log(response);
+
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `project_${projectId}_files.zip`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error(err);
+            alert("שגיאה בהורדת הקבצים");
+        }
+    };
+
+
+
     if (loading) {
         return (
             <div className="project-details-wrapper">
@@ -290,20 +315,40 @@ const ProjectDetails = () => {
                                             עדכן שלב פרויקט
                                         </button>
                                     )}
-                                    {isProjectInstructor && (
-                                        <button
-                                            className="back-button"
-                                            onClick={() => handleApproveDocument(projectId)}
-                                        >
-                                            אישור מסמך וחתימה
-                                        </button>
-                                    )}
 
                                     {!isProjectInstructor && (
                                         <button className="back-button" onClick={() => setShowUpdateInstructor(true)}>
                                             שנה מנחה
                                         </button>
                                     )}
+
+                                    {isProjectInstructor ? (
+                                        project.status === 1 ? (
+                                            <button
+                                                className="back-button"
+                                                onClick={() => handleDownloadApproved(projectId)}
+                                            >
+                                                הורדת מסמך וחתימה
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="back-button"
+                                                onClick={() => handleApproveDocument(projectId)}
+                                            >
+                                                אישור מסמך וחתימה
+                                            </button>
+                                        )
+                                    ) : (
+                                        project.status === 1 && (
+                                            <button
+                                                className="back-button"
+                                                onClick={() => handleDownloadApproved(projectId)}
+                                            >
+                                                הורדת מסמך וחתימה
+                                            </button>
+                                        )
+                                    )}
+
                                 </div>
 
                                 <h2 className="project-title">{project.title}</h2>

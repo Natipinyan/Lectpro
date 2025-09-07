@@ -61,6 +61,10 @@ const handleTwoFileUpload = async (req, res, next) => {
     const type = req.user?.role;
     const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
 
+    if (!projectId) {
+        return res.status(400).json({ success: false, message: "לא נמצא מזהה פרויקט תקין" });
+    }
+
     if (!accessInfo.hasAccess || accessInfo.role !== 'student') {
         return res.status(403).json({
             success: false,
@@ -68,13 +72,20 @@ const handleTwoFileUpload = async (req, res, next) => {
         });
     }
 
+    const [rows] = await db_pool.promise().query(
+        "SELECT status FROM projects WHERE id = ?",
+        [projectId]
+    );
+
+    if (rows.length === 0) {
+        return res.status(404).json({ success: false, message: "הפרויקט לא נמצא" });
+    }
+
+    if (rows[0].status !== 1) {
+        return res.status(400).json({ success: false, message: "סטטוס הפרויקט אינו מאפשר העלאה" });
+    }
 
     try {
-        const projectId = req.params.projectId;
-        if (!projectId) {
-            return res.status(400).json({ success: false, message: "לא נמצא מזהה פרויקט תקין" });
-        }
-
         if (!req.files || !req.files.proposal || !req.files.signature) {
             return res.status(400).json({ success: false, message: "אנא העלה את שני הקבצים" });
         }
@@ -82,12 +93,22 @@ const handleTwoFileUpload = async (req, res, next) => {
         const wordFile = req.files.proposal[0];
         const signatureFile = req.files.signature[0];
 
-        const wordExt = path.extname(wordFile.originalname);
+        const allowedWordExt = ['.doc', '.docx'];
+        const wordExt = path.extname(wordFile.originalname).toLowerCase();
+        if (!allowedWordExt.includes(wordExt)) {
+            return res.status(400).json({ success: false, message: "קובץ הצעה חייב להיות Word (.doc או .docx)" });
+        }
+
+        const allowedImageExt = ['.png', '.jpg', '.jpeg'];
+        const signatureExt = path.extname(signatureFile.originalname).toLowerCase();
+        if (!allowedImageExt.includes(signatureExt)) {
+            return res.status(400).json({ success: false, message: "דוגמת חתימה חייבת להיות תמונה (.png, .jpg, .jpeg )" });
+        }
+
         const wordName = `${projectId}${wordExt}`;
         const wordPath = path.join('server/wordFilesApp', wordName);
         await fs.promises.writeFile(wordPath, wordFile.buffer);
 
-        const signatureExt = path.extname(signatureFile.originalname);
         const signatureName = `${projectId}${signatureExt}`;
         const signaturePath = path.join('server/signatureImgApp', signatureName);
         await fs.promises.writeFile(signaturePath, signatureFile.buffer);

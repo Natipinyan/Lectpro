@@ -5,6 +5,9 @@ const middleLogIns = require("../../middleware/login - instructor/middleWareLogi
 const middlePro = require("../../middleware/projects/middle_Projects");
 const middleRole = require("../../middleware/role");
 const middleResponse = require("../../middleware/response");
+const archiver = require('archiver');
+const path = require('path');
+
 
 // REST: Get all projects (for students and instructors)
 router.get(
@@ -80,5 +83,25 @@ router.get('/:projectId/file',middleRole.getRole, middlePro.getProjectFile, (req
         res.status(500).json({ success: false, message: 'שגיאה בשליחת קובץ' });
     }
 });
+
+// REST: Download Word + Signature files for project (instructor/admin)
+
+router.get('/:projectId/downloadFiles', middleRole.getRole, middlePro.getProjecFilesZip, (req, res) => {
+    const { projectName, proposalFilePath, wordFilePath, signatureFilePath } = res.zipFiles;
+
+    res.setHeader('Content-Disposition', `attachment; filename=${projectName}_files.zip`);
+    res.setHeader('Content-Type', 'application/zip');
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    archive.pipe(res);
+
+    if (proposalFilePath) archive.file(proposalFilePath, { name: `${projectName}/${projectName}.pdf` });
+    if (wordFilePath) archive.file(wordFilePath, { name: `${projectName}/${projectName}.docx` });
+    if (signatureFilePath) archive.file(signatureFilePath, { name: `${projectName}/${projectName}${path.extname(signatureFilePath)}` });
+
+    archive.finalize();
+});
+
+
 
 module.exports = router;

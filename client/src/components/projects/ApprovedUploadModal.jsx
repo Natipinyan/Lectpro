@@ -56,6 +56,18 @@ const ApprovedUploadModal = ({ project, onClose }) => {
             return;
         }
 
+        const wordExt = wordFile.name.split('.').pop().toLowerCase();
+        if (!['doc', 'docx'].includes(wordExt)) {
+            showNotification("קובץ ההצעה חייב להיות Word (.doc או .docx).", "error");
+            return;
+        }
+
+        const signatureExt = signatureFile.name.split('.').pop().toLowerCase();
+        if (!['jpg', 'jpeg', 'png'].includes(signatureExt)) {
+            showNotification("דוגמת החתימה חייבת להיות תמונה (.jpg או .png בלבד).", "error");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("proposal", wordFile);
         formData.append("signature", signatureFile);
@@ -82,7 +94,7 @@ const ApprovedUploadModal = ({ project, onClose }) => {
                 showNotification(response.data.message || "אירעה שגיאה בהעלאה", "error");
             }
         } catch (err) {
-            if (err.response && err.response.data && err.response.data.message) {
+            if (err.response?.data?.message) {
                 showNotification(err.response.data.message, "error");
             } else {
                 showNotification("שגיאת רשת בשליחת הקבצים", "error");
@@ -140,11 +152,14 @@ const ApprovedUploadModal = ({ project, onClose }) => {
                             type="file"
                             ref={signatureInputRef}
                             style={{ display: "none" }}
-                            accept="image/*"
+                            accept=".jpg,.jpeg,.png"
                             onChange={handleFileChange(
                                 setSignatureFile,
                                 setSignatureFileName,
-                                (file) => file.type.startsWith("image/")
+                                (file) => {
+                                    const ext = file.name.split('.').pop().toLowerCase();
+                                    return ['jpg', 'jpeg', 'png'].includes(ext);
+                                }
                             )}
                         />
                         <div className="upload-text">{signatureFileName}</div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import styles from "../../css/projects/AssignInstructor.module.css";
 import NotificationPopup from "./NotificationPopup";
+import '../../css/projects/UpdateInstructor.css'
 
 const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
     const [instructors, setInstructors] = useState([]);
@@ -63,7 +63,7 @@ const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
     };
 
     return (
-        <div className={styles["update-wrapper"]}>
+        <div className="update-wrapper">
             {notification && (
                 <NotificationPopup
                     message={notification.message}
@@ -72,8 +72,8 @@ const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
                 />
             )}
 
-            <h2 className={styles["formLabel"]}>עדכון מרצה</h2>
-            <div className={styles["current-instructor"]}>
+            <h2 className="form-label">עדכון מרצה</h2>
+            <div className="current-instructor">
                 <strong>מרצה נוכחי:</strong>{" "}
                 <div>
                     {currentInstructor
@@ -86,20 +86,18 @@ const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
             </div>
 
             {loading ? (
-                <div className={styles["loading"]}>טוען מרצים...</div>
+                <div className="loading">טוען מרצים...</div>
             ) : (
-                <div className={styles["items-container"]}>
+                <div className="items-container">
                     {instructors
                         .filter((ins) => ins.id !== currentInstructor?.id)
                         .map((ins) => (
                             <div
                                 key={ins.id}
-                                className={`${styles["item"]} ${
-                                    selectedInstructor?.id === ins.id ? styles["selected"] : ""
-                                }`}
+                                className={`item ${selectedInstructor?.id === ins.id ? "selected" : ""}`}
                                 onClick={() => setSelectedInstructor(ins)}
                             >
-                                <div className={styles["item-text"]}>
+                                <div className="item-text">
                                     {ins.first_name} {ins.last_name}
                                 </div>
                             </div>

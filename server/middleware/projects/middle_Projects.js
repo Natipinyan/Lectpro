@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
+const archiver = require('archiver');
 const middleRole = require("../role");
+
 //role only for students//
 async function addProject(req, res, next) {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
@@ -494,6 +496,81 @@ async function getProjectFile(req, res, next) {
     }
 }
 
+// role only for instructor, admin
+async function getProjecFilesZip(req, res, next) {
+    const projectId = req.params.projectId;
+    const userId = req.user?.id;
+    const type = req.user?.role;
+
+    if (!projectId || isNaN(projectId)) {
+        res.getStatus = 400;
+        res.getMessage = "מזהה פרויקט לא תקין";
+        return next();
+    }
+
+    if (!userId) {
+        res.getStatus = 401;
+        res.getMessage = "לא נמצא מזהה משתמש";
+        return next();
+    }
+
+    try {
+        const accessInfo = await middleRole.checkUserProjectAccess(userId, type, projectId);
+
+        if (!accessInfo.hasAccess || (accessInfo.role !== 'instructor' && accessInfo.role !== 'admin')) {
+            res.getStatus = 403;
+            res.getMessage = "אין לך הרשאה להוריד קבצים אלה";
+            return next();
+        }
+
+        const [projectRow] = await db_pool.promise().query(
+            "SELECT title FROM projects WHERE id = ?",
+            [projectId]
+        );
+
+        if (!projectRow.length) {
+            res.getStatus = 404;
+            res.getMessage = "הפרויקט לא נמצא במסד הנתונים";
+            return next();
+        }
+
+        const projectName = projectRow[0].title;
+
+        const pdfFilePath = path.join(__dirname, "..", "..", "filesApp", `${projectId}.pdf`);
+        const wordFilePath = path.join(__dirname, "..", "..", "wordFilesApp", `${projectId}.docx`);
+
+        const imageExtensions = ['.jpg', '.jpeg', '.png'];
+        let signatureFilePath = null;
+        for (const ext of imageExtensions) {
+            const tempPath = path.join(__dirname, "..", "..", "signatureImgApp", `${projectId}${ext}`);
+            if (fs.existsSync(tempPath)) {
+                signatureFilePath = tempPath;
+                break;
+            }
+        }
+
+        if (!fs.existsSync(pdfFilePath) && !fs.existsSync(wordFilePath) && !signatureFilePath) {
+            res.getStatus = 404;
+            res.getMessage = "לא נמצאו קבצים להורדה עבור הפרויקט הזה";
+            return next();
+        }
+
+        res.getStatus = 200;
+        res.zipFiles = {
+            projectName,
+            proposalFilePath: fs.existsSync(pdfFilePath) ? pdfFilePath : null,
+            wordFilePath: fs.existsSync(wordFilePath) ? wordFilePath : null,
+            signatureFilePath: signatureFilePath
+        };
+
+        next();
+    } catch (err) {
+        res.getStatus = 500;
+        res.getMessage = "שגיאה בהורדת הקבצים";
+        next();
+    }
+}
+
 
 module.exports = {
     addProject,
@@ -503,4 +580,5 @@ module.exports = {
     getProjectFile,
     editProject,
     deleteProject,
+    getProjecFilesZip
 };

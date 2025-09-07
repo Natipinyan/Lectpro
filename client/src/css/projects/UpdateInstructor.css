@@ -1,0 +1,83 @@
+
+.update-wrapper {
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+.form-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.current-instructor {
+    margin-bottom: 20px;
+}
+
+.current-instructor div {
+    margin-top: 5px;
+}
+
+.loading {
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+    margin: 10px 0;
+}
+.items-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+    flex-grow: 1;
+    align-content: flex-start;
+}
+
+.item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    width: calc(50% - 15px);
+    height: 150px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.item:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.item.selected {
+    border: 2px solid #7494ec;
+    background: #e6ecff;
+    transform: scale(1.02);
+}
+
+.item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.item-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* טקסט בתוך פריט */
+.item-text {
+    font-size: 16px;
+}
+

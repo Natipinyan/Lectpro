@@ -49,9 +49,9 @@ const EditStageForm = ({ stage, stages, onClose, onSave }) => {
                 </select>
             </label>
 
-            <div className="form-buttons">
-                <button type="submit">שמור</button>
-                <button type="button" onClick={onClose}>ביטול</button>
+            <div className="popup-buttons">
+                <button className="save-btn" type="submit">שמור</button>
+                <button className="cancel-btn" type="button" onClick={onClose}>ביטול</button>
             </div>
         </form>
     );
