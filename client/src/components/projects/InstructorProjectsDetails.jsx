@@ -5,6 +5,7 @@ import AddNote from "./AddNote";
 import CommentsProject from "./CommentsProject";
 import UpdateProjectStage from "./UpdateProjectStage";
 import UpdateInstructor from "./UpdateInstructor";
+import AddStudentToProject from "./AddStudentToProject";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import axios from "axios";
@@ -29,9 +30,11 @@ const ProjectDetails = () => {
     const [showComments, setShowComments] = useState(false);
     const [showUpdateStage, setShowUpdateStage] = useState(false);
     const [showUpdateInstructor, setShowUpdateInstructor] = useState(false);
+    const [showAddStudents, setShowAddStudents] = useState(false);
 
     const [department, setDepartment] = useState(null);
     const [isProjectInstructor, setIsProjectInstructor] = useState(false);
+
 
     const [gradesRefresh, setGradesRefresh] = useState(false);
 
@@ -354,10 +357,13 @@ const ProjectDetails = () => {
                                 <h2 className="project-title">{project.title}</h2>
                                 <div className="project-title">
                                     סטודנט: {project.student1_first_name} {project.student1_last_name}
-                                    {project.student2_first_name && project.student2_last_name && (
+                                    {project.student2_first_name && project.student2_last_name ? (
                                         <> | {project.student2_first_name} {project.student2_last_name}</>
+                                    ) : (
+                                        <button onClick={()=>setShowAddStudents(true)} className="add-student-btn">להוספת סטודנט לפרויקט</button>
                                     )}
                                 </div>
+
                                 <div className="project-title">
                                     מנחה: {project.instructor_first_name && project.instructor_last_name
                                     ? `${project.instructor_first_name} ${project.instructor_last_name}`
@@ -470,6 +476,17 @@ const ProjectDetails = () => {
                         instructorId={project.instructor_id}
                         onClose={() => setShowUpdateInstructor(false)}
                         onUpdated={refreshProject}
+                    />
+                </Modal>
+            )}
+
+            {showAddStudents && (
+                <Modal onClose={() => setShowAddStudents(false)} width="40vw">
+                    <AddStudentToProject
+                        onClose={() => setShowAddStudents(false)}
+                        onUpdated={refreshProject}
+                        projectId={projectId}
+                        studentId={project.student_id1}
                     />
                 </Modal>
             )}

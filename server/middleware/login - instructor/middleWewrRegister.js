@@ -414,7 +414,6 @@ async function assignInstructorToProject(req, res, next) {
     }
 }
 
-
 async function UpdateUser(req, res, next) {
     const id = req.user.id;
     const { user_name, first_name, last_name, email, phone, pass } = req.body;
@@ -600,6 +599,65 @@ function renderMessagePage(res, statusCode, message, color = 'black') {
     `);
 }
 
+async function addStudentToProject(req, res, next) {
+    const { projectId } = req.params;
+    const { studentId } = req.body;
+
+    if (!projectId || isNaN(projectId)) {
+        res.addStudentStatus = 400;
+        res.addStudentMessage = "מזהה פרויקט לא תקין";
+        return next();
+    }
+
+    if (!studentId || isNaN(studentId)) {
+        res.addStudentStatus = 400;
+        res.addStudentMessage = "מזהה סטודנט לא תקין";
+        return next();
+    }
+
+    try {
+        const [projRows] = await db_pool.promise().query(
+            `SELECT student_id1, student_id2 FROM projects WHERE id = ?`,
+            [projectId]
+        );
+
+        if (!projRows.length) {
+            res.addStudentStatus = 404;
+            res.addStudentMessage = "פרויקט לא נמצא";
+            return next();
+        }
+
+        // בדיקה אם הסטודנט כבר נמצא בפרויקט
+        if (projRows[0].student_id1 === Number(studentId) || projRows[0].student_id2 === Number(studentId)) {
+            res.addStudentStatus = 400;
+            res.addStudentMessage = "סטודנט כבר קיים בפרויקט";
+            return next();
+        }
+
+        if (projRows[0].student_id2 !== null) {
+            res.addStudentStatus = 400;
+            res.addStudentMessage = "כבר קיימים שני סטודנטים בפרויקט";
+            return next();
+        }
+
+        await db_pool.promise().query(
+            `UPDATE projects
+             SET student_id2 = ?
+             WHERE id = ?`,
+            [studentId, projectId]
+        );
+
+        res.addStudentStatus = 200;
+        res.addStudentMessage = "סטודנט נוסף בהצלחה";
+        next();
+    } catch (err) {
+        console.error("שגיאה בהוספת סטודנט לפרויקט:", err);
+        res.addStudentStatus = 500;
+        res.addStudentMessage = "שגיאה בשרת";
+        next();
+    }
+}
+
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 function isValidPassword(pass) {
@@ -619,5 +677,6 @@ module.exports = {
     delUser,
     getUser,
     forgot_password,
-    resetPassword
+    resetPassword,
+    addStudentToProject
 };

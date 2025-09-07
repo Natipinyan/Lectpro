@@ -53,6 +53,19 @@ router.post('/assignProjectInstructor', middleLog.authenticateToken, middleLog.e
     }
 );
 
+router.post(
+    "/:projectId/addStudent", middleLog.authenticateToken, middleLog.ensureAdmin, middleReg.addStudentToProject, (req, res) => {
+        try {
+            res.status(res.addStudentStatus || 200).json({success: res.addStudentStatus === 200, message: res.addStudentMessage,
+            });
+        } catch (err) {
+            res.status(500).json({success: false, message: 'שגיאה בהוספת סטודנט לפרויקט'
+            });
+        }
+    }
+);
+
+
 
 
 module.exports = router;

@@ -58,7 +58,6 @@ const InstructorProjectsList = () => {
                                         {project.title || "פרויקט ללא שם"}
                                     </div>
 
-                                    {project.description && <div>{project.description}</div>}
 
                                     <>
                                         {(project.student1_first_name || project.student1_last_name) && (
@@ -89,18 +88,6 @@ const InstructorProjectsList = () => {
                                         )}
                                     </>
 
-                                    {project.link_to_github && (
-                                        <div>
-                                            <a
-                                                href={project.link_to_github}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                style={{ color: "#7494ec" }}
-                                            >
-                                                קישור ל-GitHub
-                                            </a>
-                                        </div>
-                                    )}
                                 </div>
 
                                 <button
