@@ -177,14 +177,19 @@ async function getOneProject(req, res, next) {
                    s1.first_name AS student1_first_name,
                    s1.last_name AS student1_last_name,
                    s2.first_name AS student2_first_name,
-                   s2.last_name AS student2_last_name
+                   s2.last_name AS student2_last_name,
+                   i.first_name AS instructor_first_name,
+                   i.last_name AS instructor_last_name
             FROM projects p
                      LEFT JOIN students s1 ON p.student_id1 = s1.id
                      LEFT JOIN students s2 ON p.student_id2 = s2.id
-            WHERE p.id = ?`;
+                     LEFT JOIN instructor i ON p.instructor_id = i.id
+            WHERE p.id = ?
+        `;
 
         const params = [projectId];
 
+        // התאמות לפי סוג המשתמש
         if (accessInfo.role === 'student') {
             query += ` AND (p.student_id1 = ? OR p.student_id2 = ?)`;
             params.push(userId, userId);
@@ -198,6 +203,7 @@ async function getOneProject(req, res, next) {
 
         db_pool.query(query, params, (err, rows) => {
             if (err) {
+                console.log(err);
                 res.getStatus = 500;
                 res.getMessage = "שגיאה בקבלת פרויקט";
                 return next();
@@ -215,6 +221,7 @@ async function getOneProject(req, res, next) {
         });
 
     } catch (err) {
+        console.error(err);
         res.getStatus = 500;
         res.getMessage = "שגיאה בבדיקת הרשאות";
         next();

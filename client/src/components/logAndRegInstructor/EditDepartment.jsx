@@ -17,7 +17,7 @@ const EditDepartment = ({ currentName, currentID, onClose, onSave }) => {
                 method: "PUT",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ newName: name, currentID }) // <-- כאן העדכון
+                body: JSON.stringify({ newName: name, currentID })
             });
 
             const data = await res.json();

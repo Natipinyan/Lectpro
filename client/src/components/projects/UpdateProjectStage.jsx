@@ -60,7 +60,6 @@ const UpdateProjectStage = ({ projectId, onClose, onUpdate }) => {
         } catch (err) {
             console.error(err);
 
-            // אם השרת החזיר תגובה, נקבל את ההודעה ממנה
             const message = err.response?.data?.message || "שגיאה בעדכון השלב";
             setNotification({ message, type: "error" });
         }

@@ -184,6 +184,8 @@ async function checkUserCommentActionAccess(userId, type, { commentId = null, pr
 
 //-------------comments access control functions------------------//
 
+//-------------stages access control functions------------------//
+
 async function checkUserStageAccess(userId, type, departmentId) {
     const promisePool = db_pool.promise();
 
@@ -217,11 +219,9 @@ async function checkUserStageAccess(userId, type, departmentId) {
         const instructorDepartmentId = instructorRows[0].department_id;
 
         if (isAdmin) {
-            // אם האדמין הוא של המגמה הנתונה
             const hasAccess = instructorDepartmentId === departmentId;
             return { role: "admin", hasAccess, isAdmin };
         } else {
-            // מרצה רגיל – רק אם הוא שייך למגמה הזו
             const hasAccess = instructorDepartmentId === departmentId;
             return { role: "instructor", hasAccess, isAdmin };
         }
@@ -273,6 +273,10 @@ async function checkUserStageUpdateAccess(userId, type, departmentId, { stageId 
 
     return { role: "instructor", hasAccess: rows.length > 0 };
 }
+
+//-------------stages access control functions------------------//
+
+
 
 
 

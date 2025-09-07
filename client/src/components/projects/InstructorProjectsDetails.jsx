@@ -4,6 +4,7 @@ import NotificationPopup from "../projects/NotificationPopup";
 import AddNote from "./AddNote";
 import CommentsProject from "./CommentsProject";
 import UpdateProjectStage from "./UpdateProjectStage";
+import UpdateInstructor from "./UpdateInstructor";
 import Modal from "../base/Modal";
 import "../../css/projects/ProjectDetails.css";
 import axios from "axios";
@@ -26,11 +27,18 @@ const ProjectDetails = () => {
     const [commentsError, setCommentsError] = useState(null);
     const [showComments, setShowComments] = useState(false);
     const [showUpdateStage, setShowUpdateStage] = useState(false);
+    const [showUpdateInstructor, setShowUpdateInstructor] = useState(false);
 
     const [department, setDepartment] = useState(null);
     const [isProjectInstructor, setIsProjectInstructor] = useState(false);
 
     const [gradesRefresh, setGradesRefresh] = useState(false);
+
+    const refreshProject = async () => {
+        await fetchProjectDetails();
+        await fetchIsProjectInstructor();
+    };
+
 
 
     const fetchProjectDetails = async () => {
@@ -251,9 +259,25 @@ const ProjectDetails = () => {
                                             עדכן שלב פרויקט
                                         </button>
                                     )}
+                                    {!isProjectInstructor && (
+                                        <button className="back-button" onClick={() => setShowUpdateInstructor(true)}>
+                                            שנה מנחה
+                                        </button>
+                                    )}
                                 </div>
 
-                                <div className="project-title">{project.title}</div>
+                                <h2 className="project-title">{project.title}</h2>
+                                <div className="project-title">
+                                    סטודנט: {project.student1_first_name} {project.student1_last_name}
+                                    {project.student2_first_name && project.student2_last_name && (
+                                        <> | {project.student2_first_name} {project.student2_last_name}</>
+                                    )}
+                                </div>
+                                <div className="project-title">
+                                    מנחה: {project.instructor_first_name && project.instructor_last_name
+                                    ? `${project.instructor_first_name} ${project.instructor_last_name}`
+                                    : "בטיפול"}
+                                </div>
                                 <div className="project-description">{project.description}</div>
 
                                 <div className="project-github">
@@ -273,7 +297,7 @@ const ProjectDetails = () => {
                                         <ul>
                                             {project.technologies.map((tech) => (
                                                 <li key={tech.id}>
-                                                    {tech.language} {tech.language && `(${tech.title})`}
+                                                    {tech.language}
                                                 </li>
                                             ))}
                                         </ul>
@@ -354,7 +378,16 @@ const ProjectDetails = () => {
                     />
                 </Modal>
             )}
-
+            {showUpdateInstructor && (
+                <Modal onClose={() => setShowUpdateInstructor(false)} width="40vw">
+                    <UpdateInstructor
+                        projectId={projectId}
+                        instructorId={project.instructor_id}
+                        onClose={() => setShowUpdateInstructor(false)}
+                        onUpdated={refreshProject}
+                    />
+                </Modal>
+            )}
         </div>
     );
 };

@@ -230,7 +230,20 @@ const ProjectDetails = () => {
                                     <button className="edit-button" onClick={handleEditClick}>עריכה</button>
                                     <button className="delete-button" onClick={handleDeleteClick}>מחיקה</button>
                                 </div>
-                                <div className="project-title">{project.title}</div>
+                                <h2 className="project-title">{project.title}</h2>
+                                <div className="project-title">
+                                    סטודנט: {project.student1_first_name} {project.student1_last_name}
+                                    {project.student2_first_name && project.student2_last_name && (
+                                        <> | {project.student2_first_name} {project.student2_last_name}</>
+                                    )}
+                                </div>
+                                <div className="project-title">
+                                    מנחה: {project.instructor_first_name && project.instructor_last_name
+                                    ? `${project.instructor_first_name} ${project.instructor_last_name}`
+                                    : "בטיפול"}
+                                </div>
+
+
                                 <div className="project-description">{project.description}</div>
                                 <div className="project-github">
                                     <div>קישור לגיטהאב</div>
@@ -250,7 +263,7 @@ const ProjectDetails = () => {
                                         <ul>
                                             {project.technologies.map(tech => (
                                                 <li key={tech.id}>
-                                                    {tech.language} {tech.language && `(${tech.title})`}
+                                                    {tech.language}
                                                 </li>
                                             ))}
                                         </ul>

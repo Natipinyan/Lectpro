@@ -370,7 +370,6 @@ async function assignInstructorToProject(req, res, next) {
 
         const admin = adminRows[0];
 
-
         const [projectRows] = await promisePool.query(
             `SELECT id, instructor_id
              FROM projects
@@ -381,13 +380,6 @@ async function assignInstructorToProject(req, res, next) {
         if (projectRows.length === 0) {
             res.assignStatus = 404;
             res.assignMessage = "פרויקט לא נמצא או לא שייך למגמה שלך";
-            return next();
-        }
-
-        const project = projectRows[0];
-        if (project.instructor_id) {
-            res.assignStatus = 400;
-            res.assignMessage = "הפרויקט כבר משויך למרצה אחר";
             return next();
         }
 
@@ -412,7 +404,7 @@ async function assignInstructorToProject(req, res, next) {
         );
 
         res.assignStatus = 200;
-        res.assignMessage = "המרצה קושר לפרויקט בהצלחה";
+        res.assignMessage = "המרצה עודכן בהצלחה בפרויקט";
         return next();
     } catch (err) {
         console.error("שגיאה בקישור מרצה לפרויקט:", err);
@@ -421,6 +413,7 @@ async function assignInstructorToProject(req, res, next) {
         return next();
     }
 }
+
 
 async function UpdateUser(req, res, next) {
     const id = req.user.id;
