@@ -1,0 +1,62 @@
+.notifications-list {
+    max-height: 60vh;
+    width: 100%;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.notification-item {
+    background: #f5f6fa;
+    border-left: 4px solid #7494ec;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.notification-item:hover {
+    background: #e1e5f8;
+    transform: translateY(-2px);
+}
+
+.notification-item strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.notification-item p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.notification-item small {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #999;
+    text-align: right;
+}
+
+/* גלילה חלקה */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: transparent;
+}

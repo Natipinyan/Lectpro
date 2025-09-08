@@ -45,6 +45,7 @@ const commentsRouter = require("./routers/tablesDB/comments");
 const departmentsRouter = require("./routers/tablesDB/departments");
 const adminRouter = require("./routers/users/admin");
 const stagesRouter = require("./routers/tablesDB/stages");
+const notificationsRouter = require("./routers/tablesDB/notification");
 
 app.use("/students", studentsRouter);
 app.use("/instructor", instructorRouter);
@@ -58,6 +59,7 @@ app.use("/comments", commentsRouter);
 app.use("/departments", departmentsRouter);
 app.use("/admin", adminRouter);
 app.use("/stages", stagesRouter);
+app.use("/notifications", notificationsRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

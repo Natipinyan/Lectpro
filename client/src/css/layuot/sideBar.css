@@ -21,8 +21,8 @@ body {
     overflow: hidden;
     transition: width 0.6s ease-in-out;
     z-index: 1000;
-
 }
+
 .side-logo{
     width: 120px;
     height: auto;
@@ -106,6 +106,9 @@ body {
     background: rgba(255, 255, 255, 0.9);
     padding: 20px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     align-items: flex-start;
     overflow-y: auto;
 }
@@ -147,6 +150,45 @@ body {
     font-weight: 500;
 }
 
+.notifications-section {
+    margin-top: auto;
+    width: 100%;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+}
+
+.notifications-button {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    width: 100% !important;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    margin: 0 !important;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.notifications-button:hover {
+    background: linear-gradient(135deg, #ee5a52, #ff6b6b);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transform: translateY(-2px);
+}
+
+.notifications-button .fa-bell {
+    font-size: 18px;
+    animation: ring 2s linear infinite;
+}
+
 .sidebar:hover {
     width: 300px;
 }
@@ -168,3 +210,4 @@ body {
     flex-wrap: wrap;
     gap: 8px;
 }
+

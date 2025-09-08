@@ -233,7 +233,8 @@ const ProjectDetails = () => {
                                     <button className="edit-button" onClick={handleEditClick}>עריכה</button>
                                     <button className="delete-button" onClick={handleDeleteClick}>מחיקה</button>
                                     {project.status === 1 && (
-                                        <button className="back-button" onClick={() => setShowUpload(true)}>העלאת מסמך מאושר</button>
+                                        <button className="back-button" onClick={() => setShowUpload(true)}>העלאת מסמך
+                                            מאושר</button>
                                     )}
                                 </div>
                                 <h2 className="project-title">{project.title}</h2>
@@ -263,22 +264,25 @@ const ProjectDetails = () => {
                                         <span>לא הוזן קישור לגיטהאב</span>
                                     )}
                                 </div>
-                                {project.technologies && project.technologies.length > 0 && (
-                                    <div className="project-technologies">
-                                        <h4>טכנולוגיות בפרויקט:</h4>
-                                        <ul>
-                                            {project.technologies.map(tech => (
-                                                <li key={tech.id}>
-                                                    {tech.language}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
+                                <div className="project-tech-wrapper">
+                                    {project.technologies && project.technologies.length > 0 && (
+                                        <div className="project-technologies">
+                                            <h4>טכנולוגיות בפרויקט:</h4>
+                                            <ul>
+                                                {project.technologies.map(tech => (
+                                                    <li key={tech.id}>
+                                                        {tech.language}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+
                             </div>
 
                             <div className="notes-container">
-                                {commentsLoading ? (
+                            {commentsLoading ? (
                                     <div>טוען הערות...</div>
                                 ) : commentsError ? (
                                     <div className="error">{commentsError}</div>

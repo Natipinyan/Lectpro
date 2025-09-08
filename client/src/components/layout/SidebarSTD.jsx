@@ -3,14 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import logo from '../../logoMin.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faPlusCircle, faFolderOpen, faUpload  } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBars,
+    faHouse,
+    faSignInAlt,
+    faUser,
+    faPlusCircle,
+    faFolderOpen,
+    faUpload,
+    faBell
+} from '@fortawesome/free-solid-svg-icons';
 import NotificationPopup from "../projects/NotificationPopup";
 import axios from "axios";
+import Modal from "../base/Modal";
+import NotificationsDropdown from "../base/NotificationsDropdown";
+
+
 
 function SidebarSTD(props) {
     const navigate = useNavigate();
     const [popupMessage, setPopupMessage] = useState(null);
     const [department, setDepartment] = useState(null);
+    const [showNotifications, setShowNotifications] = useState(false);
+
 
     const handleLogout = async () => {
         try {
@@ -74,10 +89,12 @@ function SidebarSTD(props) {
                 {department && (
                     <h2 style={{ marginTop: 'auto', textAlign: 'center',}}> {department.name}</h2>
                 )}
+                <img src={logo} alt="Logo" className="side-logo-min" />
             </div>
 
             <div className="right">
                 <img src={logo} alt="Logo" className="side-logo" />
+
                 <nav className="buttons">
                     {buttons.map((btn, index) => (
                         <button key={index} onClick={btn.onClick || (() => handleNavigate(btn.page))}>
@@ -86,7 +103,22 @@ function SidebarSTD(props) {
                         </button>
                     ))}
                 </nav>
+                <div className="notifications-section">
+                    <button className="notifications-button"  onClick={() => setShowNotifications(true)}>
+                        <FontAwesomeIcon icon={faBell} />
+                        <span>התראות</span>
+                    </button>
+                </div>
             </div>
+
+            {showNotifications && (
+                <Modal onClose={() => setShowNotifications(false)} width="40vw">
+                    <NotificationsDropdown
+                        onClose={() => setShowNotifications(false)}
+                    />
+                </Modal>
+            )}
+
 
             {popupMessage && <NotificationPopup message={popupMessage.message} type={popupMessage.type} />}
         </aside>

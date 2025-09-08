@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
 const middleRole = require("../role");
+const addNotification = require("../../services/notificationsService").addNotification;
 
 //role only for students//
 async function addProject(req, res, next) {
@@ -74,6 +75,19 @@ async function addProject(req, res, next) {
             )
         );
         await Promise.all(technologyPromises);
+
+        try {
+            await addNotification(
+                studentId,
+                'student',
+                'פרויקט נפתח בהצלחה',
+                `הפרויקט ${projectName} נפתח בהצלחה במערכת. אתה יכול להתחיל לעבוד עליו.`,
+                'system',
+                projectId
+            );
+        } catch (notifErr) {
+            console.error('שגיאה ביצירת התראה:', notifErr);
+        }
 
         res.getStatus = 201;
         res.getMessage = "הפרויקט נוצר בהצלחה!";
@@ -368,23 +382,31 @@ async function deleteProject(req, res, next) {
                     return next();
                 }
 
-                db_pool.query(`DELETE FROM projects WHERE id = ?`, [projectId], (err) => {
+                db_pool.query(`DELETE FROM notifications WHERE project_id = ?`, [projectId], (err) => {
                     if (err) {
                         res.deleteStatus = 500;
-                        res.deleteMessage = "שגיאה במחיקת פרויקט";
+                        res.deleteMessage = "שגיאה במחיקת ההתראות של הפרויקט";
                         return next();
                     }
 
-                    const filePath = path.join(__dirname, '..', '..', 'filesApp', `${projectId}.pdf`);
-                    fs.unlink(filePath, (err) => {
-                        if (err && err.code !== 'ENOENT') {
+                    db_pool.query(`DELETE FROM projects WHERE id = ?`, [projectId], (err) => {
+                        if (err) {
                             res.deleteStatus = 500;
-                            res.deleteMessage = "הפרויקט נמחק, אך שגיאה במחיקת קובץ הפרויקט";
-                        } else {
-                            res.deleteStatus = 200;
-                            res.deleteMessage = "הפרויקט נמחק בהצלחה!";
+                            res.deleteMessage = "שגיאה במחיקת פרויקט";
+                            return next();
                         }
-                        next();
+
+                        const filePath = path.join(__dirname, '..', '..', 'filesApp', `${projectId}.pdf`);
+                        fs.unlink(filePath, (err) => {
+                            if (err && err.code !== 'ENOENT') {
+                                res.deleteStatus = 500;
+                                res.deleteMessage = "הפרויקט נמחק, אך שגיאה במחיקת קובץ הפרויקט";
+                            } else {
+                                res.deleteStatus = 200;
+                                res.deleteMessage = "הפרויקט נמחק בהצלחה!";
+                            }
+                            next();
+                        });
                     });
                 });
             });

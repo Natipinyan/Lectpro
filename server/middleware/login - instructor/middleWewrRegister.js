@@ -627,7 +627,6 @@ async function addStudentToProject(req, res, next) {
             return next();
         }
 
-        // בדיקה אם הסטודנט כבר נמצא בפרויקט
         if (projRows[0].student_id1 === Number(studentId) || projRows[0].student_id2 === Number(studentId)) {
             res.addStudentStatus = 400;
             res.addStudentMessage = "סטודנט כבר קיים בפרויקט";

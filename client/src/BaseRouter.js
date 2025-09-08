@@ -53,5 +53,8 @@ export default function BaseRouter() {
         }
     ]);
 
-    return <Imports.RouterProvider router={router} />;
+
+    return (
+        <Imports.RouterProvider router={router} />
+    );
 }

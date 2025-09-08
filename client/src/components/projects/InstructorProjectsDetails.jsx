@@ -381,19 +381,20 @@ const ProjectDetails = () => {
                                         <span>לא הוזן קישור לגיטהאב</span>
                                     )}
                                 </div>
-
-                                {project.technologies?.length > 0 && (
-                                    <div className="project-technologies">
-                                        <h4>טכנולוגיות בפרויקט:</h4>
-                                        <ul>
-                                            {project.technologies.map((tech) => (
-                                                <li key={tech.id}>
-                                                    {tech.language}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
+                                <div className="project-tech-wrapper">
+                                    {project.technologies?.length > 0 && (
+                                        <div className="project-technologies">
+                                            <h4>טכנולוגיות בפרויקט:</h4>
+                                            <ul>
+                                                {project.technologies.map((tech) => (
+                                                    <li key={tech.id}>
+                                                        {tech.language}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="notes-container">

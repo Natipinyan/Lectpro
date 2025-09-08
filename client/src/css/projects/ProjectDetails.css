@@ -126,18 +126,13 @@
     font-size: 16px;
     color: #888;
     font-weight: 400;
-    margin-bottom: 20px;
 }
 
-.project-github {
-    margin-bottom: 20px;
-}
 
 .project-github div {
     font-size: 18px;
     font-weight: 500;
     color: #333;
-    margin-bottom: 5px;
 }
 
 .project-github a {
@@ -166,7 +161,6 @@
     font-size: 18px;
     font-weight: 500;
     color: #333;
-    margin-bottom: 10px;
 }
 
 .project-technologies ul {
@@ -188,8 +182,6 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     white-space: nowrap;
     flex: 0 0 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .project-technologies li::before {
