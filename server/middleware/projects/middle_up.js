@@ -2,6 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const middleRole = require("../role");
+const addNotification = require("../../services/notificationsService").addNotification;
+
 
 
 const storage = multer.diskStorage({
@@ -18,6 +20,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const handleFileUpload = async (req, res, next) => {
+    const type = req.user?.role;
+    const userId = req.user?.id;
+    const projectId = req.params.projectId;
+
     try {
         if (!req.file) {
             return res.status(400).json({ message: "לא נשלח קובץ" });
@@ -39,6 +45,27 @@ const handleFileUpload = async (req, res, next) => {
             message: "הקובץ הועלה בהצלחה!",
             filePath
         };
+
+        let projectName = '';
+        db_pool.query(
+            'SELECT title FROM projects WHERE id = ?',
+            [projectId],
+            (err, results) => {
+                if (err) {
+                    console.error('שגיאה בטעינת שם הפרויקט:', err);
+                } else if (results.length > 0) {
+                    projectName = results[0].title;
+                    addNotification(
+                        userId,
+                        type,
+                        'מסמך הפרויקט עלה בהצלחה',
+                        `מסמך הפרויקט ${projectName} הועלה בהצלחה למערכת.`,
+                        'system',
+                        projectId
+                    ).catch(err => console.error('שגיאה ביצירת התראה:', err));
+                }
+            }
+        );
 
         next();
     } catch (err) {

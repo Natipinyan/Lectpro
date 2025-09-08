@@ -1,12 +1,11 @@
 const middleRole = require('../role');
+const addNotification = require("../../services/notificationsService").addNotification;
 
 //role for student instructor admin//
 async function getCommentsByProject(req, res, next) {
     const { projectId } = req.params;
     const userId = req.user?.id;
     const type = req.user?.role;
-
-
 
     if (!projectId || isNaN(projectId)) {
         res.getStatus = 400;
@@ -248,11 +247,11 @@ async function getPrevComment(req, res, next) {
     }
 }
 
-//role instructor only//
+// role instructor only
 async function addComment(req, res, next) {
     const { project_id, title, section, page, text, is_done } = req.body;
-    const userId = req.user.id;
-    const type = req.user.role;
+    const userId = req.user?.id;
+    const type = req.user?.role;
 
     if (!project_id) {
         res.getStatus = 400;
@@ -289,28 +288,61 @@ async function addComment(req, res, next) {
             return next();
         }
 
-        const insertQuery = `
-            INSERT INTO comments (project_id, title, section, page, text, is_done)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
+        await new Promise((resolve, reject) => {
+            const query = `
+                INSERT INTO comments (project_id, title, section, page, text, is_done)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            db_pool.query(query, [project_id, title, section, page, text, is_done || 0], (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
 
-        db_pool.query(
-            insertQuery,
-            [project_id, title, section, page, text, is_done || 0],
-            (err, result) => {
-                if (err) {
-                    res.getStatus = 500;
-                    res.getMessage = "שגיאה בהוספת ההערה";
-                } else {
-                    res.getStatus = 200;
-                    res.getMessage = "ההערה נוספה בהצלחה";
-                }
-                next();
+        const projectName = await new Promise((resolve, reject) => {
+            db_pool.query(`SELECT title FROM projects WHERE id = ?`, [project_id], (err, rows) => {
+                if (err) reject(err);
+                else if (rows.length === 0) reject(new Error("פרויקט לא נמצא"));
+                else resolve(rows[0].title);
+            });
+        });
+
+        const students = await new Promise((resolve, reject) => {
+            const query = `
+        SELECT id FROM students
+        WHERE id = (SELECT student_id1 FROM projects WHERE id = ?)
+           OR id = (SELECT student_id2 FROM projects WHERE id = ?)
+    `;
+            db_pool.query(query, [project_id, project_id], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+
+        for (const student of students) {
+            try {
+                await addNotification(
+                    student.id,
+                    "student",
+                    "העברה חדשה",
+                    `הפרויקט ${projectName} עודכן ויש לו הערה חדשה.`,
+                    "system",
+                    project_id
+                );
+            } catch (notifErr) {
+                console.error('שגיאה ביצירת התראה:', notifErr);
             }
-        );
+        }
+
+        res.getStatus = 200;
+        res.getMessage = "ההערה נוספה בהצלחה והסטודנטים קיבלו התראה";
+        next();
+
     } catch (err) {
+        console.error("שגיאה בהוספת הערה או בהתראות:", err);
         res.getStatus = 500;
-        res.getMessage = "שגיאה כללית בהוספת ההערה";
+        res.getMessage = "שגיאה בהוספת ההערה או יצירת ההתראות";
         next();
     }
 }
@@ -374,54 +406,72 @@ async function updateComment(req, res, next) {
     }
 }
 
-//role instructor only//
+// role instructor only
 async function setCommentDone(req, res, next) {
     const { commentId } = req.params;
     const userId = req.user.id;
     const type = req.user.role;
 
     try {
-        const accessInfo = await middleRole.checkUserCommentActionAccess(userId, type, {commentId});
+        const accessInfo = await middleRole.checkUserCommentActionAccess(userId, type, { commentId });
         if (!accessInfo.hasAccess) {
             res.updateStatus = 403;
             res.updateMessage = "אין לך הרשאה לסמן את ההערה הזו כבוצעה";
             return next();
         }
 
-        const selectQuery = `SELECT is_done FROM comments WHERE id = ?`;
-        db_pool.query(selectQuery, [commentId], (err, results) => {
-            if (err) {
-                res.updateStatus = 500;
-                res.updateMessage = "שגיאה בבדיקת ההערה";
-                return next();
-            }
-
-            if (results.length === 0) {
-                res.updateStatus = 404;
-                res.updateMessage = "הערה לא נמצאה";
-                return next();
-            }
-
-            const comment = results[0];
-            if (comment.is_done) {
-                res.updateStatus = 400;
-                res.updateMessage = "ההערה כבר מסומנת כבוצעה";
-                return next();
-            }
-
-            const updateQuery = `UPDATE comments SET is_done = 1 WHERE id = ?`;
-            db_pool.query(updateQuery, [commentId], (err2) => {
-                if (err2) {
-                    res.updateStatus = 500;
-                    res.updateMessage = "שגיאה בסימון ההערה כבוצעה";
-                } else {
-                    res.updateStatus = 200;
-                    res.updateMessage = "ההערה סומנה כבוצעה בהצלחה";
-                }
-                next();
+        const commentData = await new Promise((resolve, reject) => {
+            const query = `
+                SELECT c.is_done, c.title AS commentTitle, p.id AS projectId, p.title AS projectTitle,
+                       p.student_id1, p.student_id2
+                FROM comments c
+                JOIN projects p ON p.id = c.project_id
+                WHERE c.id = ?
+            `;
+            db_pool.query(query, [commentId], (err, results) => {
+                if (err) reject(err);
+                else resolve(results[0]);
             });
         });
+
+        if (!commentData) {
+            res.updateStatus = 404;
+            res.updateMessage = "הערה לא נמצאה";
+            return next();
+        }
+
+        if (commentData.is_done) {
+            res.updateStatus = 400;
+            res.updateMessage = "ההערה כבר מסומנת כבוצעה";
+            return next();
+        }
+
+        await new Promise((resolve, reject) => {
+            db_pool.query(`UPDATE comments SET is_done = 1 WHERE id = ?`, [commentId], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        const studentIds = [commentData.student_id1, commentData.student_id2].filter(Boolean);
+
+        const notificationPromises = studentIds.map(studentId => addNotification(
+            studentId,
+            'student',
+            `ההערה '${commentData.commentTitle}' סומנה כבוצעה`,
+            `ההערה '${commentData.commentTitle}' בפרויקט '${commentData.projectTitle}' סומנה כבוצעה בהצלחה והסתיימה.`,
+            'system',
+            commentData.projectId
+        ));
+
+        await Promise.all(notificationPromises);
+
+        res.updateStatus = 200;
+        res.updateMessage = `ההערה סומנה כבוצעה בהצלחה. התראות נשלחו ל-${studentIds.length} סטודנטים.`;
+        next();
+
     } catch (err) {
+        console.error("שגיאה בסימון ההערה כבוצעה:", err);
         res.updateStatus = 500;
         res.updateMessage = "שגיאה כללית בשרת";
         next();
@@ -442,6 +492,7 @@ async function markDoneByUser(req, res, next) {
     }
 
     try {
+        // בדיקה אם המשתמש רשאי לעדכן את ההערה
         const accessInfo = await middleRole.checkUserCommentAccess(userId, type, commentId);
         if (!accessInfo.hasAccess) {
             res.updateStatus = 403;
@@ -449,8 +500,18 @@ async function markDoneByUser(req, res, next) {
             return next();
         }
 
-        const selectQuery = `SELECT done_by_user, user_response FROM comments WHERE id = ?`;
-        db_pool.query(selectQuery, [commentId], (err, results) => {
+        // שליפת נתוני ההערה כולל שם ההערה, הפרויקט והמרצה
+        const selectQuery = `
+            SELECT c.done_by_user, c.user_response, c.title AS commentTitle,
+                   p.title AS projectTitle, p.instructor_id,
+                   s.first_name AS studentFirstName, s.last_name AS studentLastName,
+                   p.id AS projectId
+            FROM comments c
+                     JOIN projects p ON c.project_id = p.id
+                     JOIN students s ON s.id = ?
+            WHERE c.id = ?
+        `;
+        db_pool.query(selectQuery, [userId, commentId], async (err, results) => {
             if (err) {
                 res.updateStatus = 500;
                 res.updateMessage = "שגיאה בבדיקת ההערה";
@@ -463,26 +524,44 @@ async function markDoneByUser(req, res, next) {
                 return next();
             }
 
-            const comment = results[0];
-            if (comment.done_by_user === 1 || (comment.user_response && comment.user_response.trim() !== "")) {
+            const commentData = results[0];
+            if (commentData.done_by_user === 1 || (commentData.user_response && commentData.user_response.trim() !== "")) {
                 res.updateStatus = 400;
                 res.updateMessage = "ההערה כבר טופלה";
                 return next();
             }
 
+            // עדכון ההערה כטופלה
             const updateQuery = `
                 UPDATE comments
                 SET done_by_user = 1, user_response = ?
                 WHERE id = ?
             `;
-            db_pool.query(updateQuery, [user_response.trim(), commentId], (err2) => {
+            db_pool.query(updateQuery, [user_response.trim(), commentId], async (err2) => {
                 if (err2) {
                     res.updateStatus = 500;
                     res.updateMessage = "שגיאה בעדכון תגובת המשתמש";
-                } else {
-                    res.updateStatus = 200;
-                    res.updateMessage = "התגובה נקלטה בהצלחה";
+                    return next();
                 }
+
+                if (commentData.instructor_id) {
+                    const notificationMessage = `ההערה '${commentData.commentTitle}' סומנה כבוצעה על ידי ${commentData.studentFirstName} ${commentData.studentLastName} בפרויקט '${commentData.projectTitle}'`;
+                    try {
+                        await addNotification(
+                            commentData.instructor_id,
+                            'instructor',
+                            `הערה סומנה כבוצעה`,
+                            notificationMessage,
+                            'system',
+                            commentData.projectId
+                        );
+                    } catch (notifyErr) {
+                        console.error("שגיאה ביצירת התראה למרצה:", notifyErr);
+                    }
+                }
+
+                res.updateStatus = 200;
+                res.updateMessage = "התגובה נקלטה בהצלחה וההערה סומנה כבוצעה";
                 next();
             });
         });

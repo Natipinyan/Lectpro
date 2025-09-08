@@ -6,7 +6,7 @@ const { upload, handleFileUpload } = require("../../middleware/projects/middle_u
 const { uploadTwoFiles, handleTwoFileUpload } = require("../../middleware/projects/middle_up");
 
 // REST: Upload a file for a project
-router.post('/:projectId/file', middleLog.authenticateToken, upload.single('file'), handleFileUpload, (req, res) => {
+router.post('/:projectId/file', middleLog.authenticateToken,middleRole.getRole, upload.single('file'), handleFileUpload, (req, res) => {
     try {
         return res.status(201).json({
             success: true,

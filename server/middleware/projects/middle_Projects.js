@@ -324,9 +324,20 @@ async function editProject(req, res, next) {
                             });
 
                             Promise.all(techPromises)
+
                                 .then(() => {
                                     res.updateStatus = 200;
                                     res.updateMessage = "הפרויקט עודכן בהצלחה!";
+
+                                    addNotification(
+                                        userId,
+                                        type,
+                                        'פרויקט עודכן בהצלחה',
+                                        `הפרויקט ${projectName} עודכן בהצלחה במערכת.`,
+                                        'system',
+                                        projectId
+                                    ).catch(err => console.error('שגיאה ביצירת התראה:', err));
+
                                     next();
                                 })
                                 .catch(error => {
