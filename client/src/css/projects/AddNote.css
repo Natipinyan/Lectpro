@@ -1,10 +1,11 @@
 /* Popup container styling */
-.popup-container {
+.popup-container-a {
     padding: 25px 30px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 /* Popup title styling */
@@ -16,7 +17,7 @@
 }
 
 /* Labels styling */
-.popup-container label {
+.popup-container-a label {
     font-weight: 600;
     color: #444;
     margin-bottom: 6px;
@@ -24,8 +25,8 @@
 }
 
 /* Inputs and textarea styling */
-.popup-container input,
-.popup-container textarea {
+.popup-container-a input,
+.popup-container-a textarea {
     width: 100%;
     padding: 10px 12px;
     border-radius: 8px;

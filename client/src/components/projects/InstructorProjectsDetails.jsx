@@ -34,6 +34,7 @@ const ProjectDetails = () => {
 
     const [department, setDepartment] = useState(null);
     const [isProjectInstructor, setIsProjectInstructor] = useState(false);
+    const [isAdminOnly, setIsAdminOnly] = useState(false);
 
 
     const [gradesRefresh, setGradesRefresh] = useState(false);
@@ -139,6 +140,7 @@ const ProjectDetails = () => {
             }
 
             setIsProjectInstructor(data.isProjectInstructor);
+            setIsAdminOnly(data.isAdminOnly);
 
         } catch (err) {
             console.error("שגיאה בבדיקת המרצה של הפרויקט:", err);
@@ -360,9 +362,14 @@ const ProjectDetails = () => {
                                     {project.student2_first_name && project.student2_last_name ? (
                                         <> | {project.student2_first_name} {project.student2_last_name}</>
                                     ) : (
-                                        <button onClick={()=>setShowAddStudents(true)} className="add-student-btn">להוספת סטודנט לפרויקט</button>
+                                        isAdminOnly && (
+                                            <button onClick={() => setShowAddStudents(true)} className="add-student-btn">
+                                                להוספת סטודנט לפרויקט
+                                            </button>
+                                        )
                                     )}
                                 </div>
+
 
                                 <div className="project-title">
                                     מנחה: {project.instructor_first_name && project.instructor_last_name

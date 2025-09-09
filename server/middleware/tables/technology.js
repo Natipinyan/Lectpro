@@ -1,3 +1,5 @@
+const addNotification = require("../../services/notificationsService").addNotification;
+
 async function getTechnologies(req, res, next) {
     const q = `SELECT * FROM technology_in_use`;
     db_pool.query(q, function (err, rows) {
@@ -46,7 +48,7 @@ async function addTechnology(req, res, next) {
 
     try {
         const checkQuery = `SELECT * FROM technology_in_use WHERE language = ? AND department_id = ?`;
-        db_pool.query(checkQuery, [technologyName, departmentId], (err, results) => {
+        db_pool.query(checkQuery, [technologyName, departmentId], async (err, results) => {
             if (err) {
                 res.addStatus = 500;
                 res.addMessage = "שגיאה בחיבור למסד הנתונים";
@@ -60,15 +62,37 @@ async function addTechnology(req, res, next) {
             }
 
             const insertQuery = `INSERT INTO technology_in_use (title, language, department_id) VALUES (?, ?, ?)`;
-            db_pool.query(insertQuery, [technologyTitle, technologyName, departmentId], (err, result) => {
+            db_pool.query(insertQuery, [technologyTitle, technologyName, departmentId], async (err, result) => {
                 if (err) {
                     res.addStatus = 500;
                     res.addMessage = "שגיאה בהוספת טכנולוגיה";
+                    return next();
                 } else {
                     res.addStatus = 200;
                     res.addMessage = "הטכנולוגיה נוספה בהצלחה למגמה שלך";
+
+                    db_pool.query(
+                        "SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1",
+                        [departmentId],
+                        async (err, admins) => {
+                            if (err) {
+                                console.error("שגיאה בשליפת מנהל המגמה:", err);
+                                return;
+                            }
+                            for (const admin of admins) {
+                                await addNotification(
+                                    admin.id,
+                                    'instructor',
+                                    'טכנולוגיה חדשה הוספה',
+                                    `הטכנולוגיה "${technologyName}" נוספה לרשימת הטכנולוגיות. אנא בדוק את תקינות הטכנולוגיה או ערוך אותה במידת הצורך.`,
+                                    'system'
+                                ).catch(err => console.error('שגיאה בשליחת התראה למנהל המגמה:', err));
+                            }
+                        }
+                    );
+
+                    return next();
                 }
-                next();
             });
         });
     } catch (error) {

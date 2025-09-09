@@ -8,8 +8,9 @@ const addNotification = require("../../services/notificationsService").addNotifi
 async function addProject(req, res, next) {
     const { projectName, projectDesc, linkToGithub, selectedTechnologies } = req.body;
     const user = req.user;
+    const role = req.user?.role;
 
-    if (req.user.role !== "student") {
+    if (role !== "student") {
         res.getStatus = 403;
         res.getMessage = "רק סטודנט יכול להוסיף פרויקט";
         return next();
@@ -79,7 +80,7 @@ async function addProject(req, res, next) {
         try {
             await addNotification(
                 studentId,
-                'student',
+                role,
                 'פרויקט נפתח בהצלחה',
                 `הפרויקט ${projectName} נפתח בהצלחה במערכת. אתה יכול להתחיל לעבוד עליו.`,
                 'system',
@@ -88,6 +89,33 @@ async function addProject(req, res, next) {
         } catch (notifErr) {
             console.error('שגיאה ביצירת התראה:', notifErr);
         }
+
+        try {
+            const [managerRows] = await db_pool.promise().query(
+                `SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1 LIMIT 1`,
+                [departmentId]
+            );
+
+            if (managerRows.length > 0) {
+                const managerId = managerRows[0].id;
+
+                try {
+                    await addNotification(
+                        managerId,
+                        'admin',
+                        'פרויקט חדש נפתח במגמה שלך',
+                        `סטודנט מהמגמה שלך פתח פרויקט חדש בשם "${projectName}".`,
+                        'system',
+                        projectId
+                    );
+                } catch (notifErr) {
+                    console.error('שגיאה ביצירת התראה למנהל המגמה:', notifErr);
+                }
+            }
+        } catch (err) {
+            console.error('שגיאה בחיפוש מנהל מגמה:', err);
+        }
+
 
         res.getStatus = 201;
         res.getMessage = "הפרויקט נוצר בהצלחה!";
@@ -325,7 +353,7 @@ async function editProject(req, res, next) {
 
                             Promise.all(techPromises)
 
-                                .then(() => {
+                                .then(async () => {
                                     res.updateStatus = 200;
                                     res.updateMessage = "הפרויקט עודכן בהצלחה!";
 
@@ -336,15 +364,51 @@ async function editProject(req, res, next) {
                                         `הפרויקט ${projectName} עודכן בהצלחה במערכת.`,
                                         'system',
                                         projectId
-                                    ).catch(err => console.error('שגיאה ביצירת התראה:', err));
+                                    ).catch(err => console.error('שגיאה ביצירת התראה לסטודנט:', err));
+
+                                    try {
+                                        const [projectInfo] = await db_pool.promise().query(
+                                            `SELECT instructor_id, department_id FROM projects WHERE id = ?`,
+                                            [projectId]
+                                        );
+
+                                        if (projectInfo.length > 0) {
+                                            const { instructor_id, department_id } = projectInfo[0];
+
+                                            if (instructor_id) {
+                                                await addNotification(
+                                                    instructor_id,
+                                                    'instructor',
+                                                    'פרויקט עודכן',
+                                                    `הפרויקט ${projectName} עודכן על ידי הסטודנט.`,
+                                                    'system',
+                                                    projectId
+                                                ).catch(err => console.error('שגיאה ביצירת התראה למנחה:', err));
+                                            }
+
+                                            const [admins] = await db_pool.promise().query(
+                                                `SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1`,
+                                                [department_id]
+                                            );
+
+                                            for (const admin of admins) {
+                                                await addNotification(
+                                                    admin.id,
+                                                    'admin',
+                                                    'פרויקט עודכן',
+                                                    `הפרויקט ${projectName} עודכן על ידי הסטודנט.`,
+                                                    'system',
+                                                    projectId
+                                                ).catch(err => console.error('שגיאה ביצירת התראה למנהל מגמה:', err));
+                                            }
+                                        }
+                                    } catch (notifyErr) {
+                                        console.error('שגיאה ביצירת התראות למנהל מגמה/מנחה:', notifyErr);
+                                    }
 
                                     next();
                                 })
-                                .catch(error => {
-                                    res.updateStatus = 500;
-                                    res.updateMessage = error.message || "שגיאה בהוספת טכנולוגיות";
-                                    next();
-                                });
+
                         });
                     }
                 );

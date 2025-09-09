@@ -38,7 +38,7 @@ const AddNote = ({ projectTitle, onClose, onSave }) => {
 
     return (
         <div className="popup-overlay">
-            <div className="popup-container">
+            <div className="popup-container-a">
                 <h3 className="popup-title">{projectTitle}</h3>
 
                 {error && <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>}

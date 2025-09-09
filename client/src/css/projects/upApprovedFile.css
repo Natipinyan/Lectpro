@@ -69,9 +69,3 @@
     background-color: #5c78c5;
 }
 
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}

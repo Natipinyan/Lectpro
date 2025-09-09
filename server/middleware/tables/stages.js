@@ -1,4 +1,5 @@
 const middleRole = require('../role');
+const addNotification = require("../../services/notificationsService").addNotification;
 
 //role admin only(to manage stages)//
 async function getStagesByDepartment(req, res, next) {
@@ -427,14 +428,65 @@ async function updateProjectStage(req, res, next) {
         db_pool.query(
             `UPDATE projects SET stage_count = ? WHERE id = ?`,
             [stage, projectId],
-            (err) => {
+            async (err) => {
                 if (err) {
                     res.updateStatus = 500;
                     res.updateMessage = "שגיאה בעדכון שלב הפרויקט";
-                } else {
-                    res.updateStatus = 200;
-                    res.updateMessage = "שלב הפרויקט עודכן בהצלחה";
+                    return next();
                 }
+
+                db_pool.query(
+                    `SELECT p.title AS project_title, p.student_id1, p.department_id, s.title AS stage_title
+                     FROM projects p
+                     LEFT JOIN stages s
+                       ON s.position = ? AND s.department_id = p.department_id
+                     WHERE p.id = ?`,
+                    [stage, projectId],
+                    async (err, results) => {
+                        if (err || results.length === 0) {
+                            console.error("שגיאה בשליפת שם הפרויקט או השלב:", err);
+                        } else {
+                            const project = results[0];
+                            const projectName = project.project_title;
+                            const stageName = project.stage_title;
+
+                            if (project.student_id1) {
+                                await addNotification(
+                                    project.student_id1,
+                                    'student',
+                                    'שלב פרויקט עודכן',
+                                    `הפרויקט "${projectName}" עודכן לשלב: "${stageName}".`,
+                                    'system',
+                                    projectId
+                                ).catch(err => console.error('שגיאה בשליחת התראה לסטודנט:', err));
+                            }
+
+                            db_pool.query(
+                                `SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1`,
+                                [project.department_id],
+                                async (err, instructors) => {
+                                    if (err) {
+                                        console.error("שגיאה בשליפת מנהל המגמה:", err);
+                                    } else {
+                                        for (const inst of instructors) {
+                                            await addNotification(
+                                                inst.id,
+                                                'instructor',
+                                                'שלב פרויקט עודכן',
+                                                `הפרויקט "${projectName}" עודכן לשלב: "${stageName}".`,
+                                                'system',
+                                                projectId
+                                            ).catch(err => console.error('שגיאה בשליחת התראה למנהל המגמה:', err));
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                    }
+                );
+
+                res.updateStatus = 200;
+                res.updateMessage = "שלב הפרויקט עודכן בהצלחה";
                 next();
             }
         );
@@ -461,21 +513,56 @@ async function approveDocument(req, res, next) {
 
         if (!accessInfo.hasAccess) {
             res.statusCode = 403;
-            res.message = "אין לך הרשאה לאשר מסמך עבור פרויקט זה";
+            res.message = "אין לך הרשאה לעדכן שלב עבור פרויקט זה";
             return next();
         }
 
         db_pool.query(
-            "UPDATE projects SET status = 1 WHERE id = ?",
+            "SELECT title, student_id1, department_id FROM projects WHERE id = ?",
             [projectId],
-            (err) => {
-                if (err) {
-                    res.getStatus = 500;
-                    res.getMessage = "שגיאה בעדכון";
-                } else {
-                    res.getStatus = 200;
-                    res.getMessage = "עדכון בוצע בהצלחה";
+            async (err, results) => {
+                if (err || results.length === 0) {
+                    console.error("שגיאה בשליפת פרטי הפרויקט:", err);
+                    return next();
                 }
+
+                const project = results[0];
+                const projectName = project.title;
+
+                if (project.student_id1) {
+                    await addNotification(
+                        project.student_id1,
+                        'student',
+                        'הפרויקט בשלב סופי',
+                        `הפרויקט "${projectName}" הגיע לשלב הסופי. כעת ניתן להעלות מסמך Word ודוגמת חתימה.`,
+                        'system',
+                        projectId
+                    ).catch(err => console.error('שגיאה בשליחת התראה לסטודנט:', err));
+                }
+
+                db_pool.query(
+                    "SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1",
+                    [project.department_id],
+                    async (err, instructors) => {
+                        if (err) {
+                            console.error("שגיאה בשליפת מנהל המגמה:", err);
+                        } else {
+                            for (const inst of instructors) {
+                                await addNotification(
+                                    inst.id,
+                                    'instructor',
+                                    'הפרויקט בשלב סופי',
+                                    `הפרויקט "${projectName}" הגיע לשלב הסופי. הסטודנט יכול להעלות מסמך Word ודוגמת חתימה.`,
+                                    'system',
+                                    projectId
+                                ).catch(err => console.error('שגיאה בשליחת התראה למנהל המגמה:', err));
+                            }
+                        }
+                    }
+                );
+
+                res.getStatus = 200;
+                res.getMessage = "התראות נשלחו בהצלחה";
                 next();
             }
         );
@@ -483,10 +570,11 @@ async function approveDocument(req, res, next) {
     } catch (err) {
         console.error(err);
         res.statusCode = 500;
-        res.message = "שגיאה פנימית באישור המסמך";
+        res.message = "שגיאה פנימית בשליחת התראות";
         next();
     }
 }
+
 
 module.exports = {
     getStagesByDepartment,
