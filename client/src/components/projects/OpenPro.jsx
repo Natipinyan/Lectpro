@@ -139,9 +139,6 @@ const OpenPro = () => {
                         </div>
                         <div className="form-section">
                             <label className="form-label">קישור ל-GitHub</label>
-                            <label className="form-label form-hint">
-                                אל דאגה, גם אם עדיין אין לך ריפו תמיד תוכל לעדכן אחר כך את הקישור :)
-                            </label>
                             <input
                                 className="text-input"
                                 type="url"

@@ -5,6 +5,7 @@ module.exports = router;
 const middleTech = require("../../middleware/tables/technology");
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
+const middleRole = require("../../services/role");
 
 // REST: Get all technologies
 router.get('/', middleLog.authenticateToken, middleTech.getTechnologies, (req, res) => {
@@ -25,7 +26,7 @@ router.get('/getAdmin', middleLogIns.authenticateToken, middleTech.getTechnologi
 });
 
 // REST: Create a new technology
-router.post('/', middleLog.authenticateToken, middleTech.addTechnology, (req, res) => {
+router.post('/', middleRole.getRole, middleTech.addTechnology, (req, res) => {
     try {
         res.status(res.addStatus || 200).json({ success: res.addStatus === 200, message: res.addMessage });
     } catch (err) {

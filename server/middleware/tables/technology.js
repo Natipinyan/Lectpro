@@ -33,6 +33,14 @@ async function addTechnology(req, res, next) {
     const { technologyName, technologyTitle } = req.body;
     const userId = req.user.id;
     const departmentId = req.user.department_id;
+    const role = req.user.role;
+
+    if (role !== "student" && role !== "instructor") {
+        res.addStatus = 403;
+        res.addMessage = "אין לך הרשאה להוסיף טכנולוגיה";
+        return next();
+    }
+
 
     if (!technologyName || !technologyTitle) {
         res.addStatus = 400;

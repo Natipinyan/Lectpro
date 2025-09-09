@@ -152,7 +152,6 @@ const EditProject = () => {
                     </div>
                     <div className="form-section">
                         <label className="form-label">קישור ל-GitHub</label>
-                        <label className="form-label form-hint">אל דאגה, גם אם עדיין אין לך ריפו תמיד תוכל לעדכן אחר כך את הקישור :)</label>
                         <input className="text-input" type="url" name="linkToGithub" value={projectData.linkToGithub} onChange={handleInputChange} placeholder="https://github.com/example/repo" />
                     </div>
                 </div>

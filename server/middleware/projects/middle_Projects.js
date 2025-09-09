@@ -443,7 +443,7 @@ async function deleteProject(req, res, next) {
             return next();
         }
 
-        db_pool.query(`UPDATE students SET project_id = NULL WHERE id = ? AND project_id = ?`, [userId, projectId], (err) => {
+        db_pool.query( `UPDATE students SET project_id = NULL WHERE project_id = ?`, [projectId], (err) => {
             if (err) {
                 res.deleteStatus = 500;
                 res.deleteMessage = "שגיאה בעדכון סטודנט";
@@ -456,7 +456,6 @@ async function deleteProject(req, res, next) {
                     res.deleteMessage = "שגיאה במחיקת טכנולוגיות";
                     return next();
                 }
-
                 db_pool.query(`DELETE FROM notifications WHERE project_id = ?`, [projectId], (err) => {
                     if (err) {
                         res.deleteStatus = 500;
@@ -466,6 +465,7 @@ async function deleteProject(req, res, next) {
 
                     db_pool.query(`DELETE FROM projects WHERE id = ?`, [projectId], (err) => {
                         if (err) {
+                            console.log(err);
                             res.deleteStatus = 500;
                             res.deleteMessage = "שגיאה במחיקת פרויקט";
                             return next();

@@ -36,7 +36,7 @@ const InstructorProjectsList = () => {
 
     return (
         <div className={styles["page-wrapper"]}>
-            <h2 className={styles["formLabel"]}>רשימת הפרויקטים שלי כמנחה</h2>
+            <h2 className={styles["formLabel"]}>רשימת הפרויקטים שלי</h2>
 
             {loading ? (
                 <div className={styles["projects-container"]}>
