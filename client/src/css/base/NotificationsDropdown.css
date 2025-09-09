@@ -14,6 +14,7 @@
 }
 
 .notification-item {
+    position: relative;
     background: #f5f6fa;
     border-left: 4px solid #7494ec;
     padding: 12px 16px;
@@ -24,6 +25,21 @@
 .notification-item:hover {
     background: #e1e5f8;
     transform: translateY(-2px);
+}
+
+.notification-item.new {
+    border-left-color: #28a745;
+    background: #e6fff0;
+}
+
+.new-dot {
+    position: absolute;
+    top: 16px;
+    left: 8px;
+    width: 10px;
+    height: 10px;
+    background-color: #28a745;
+    border-radius: 50%;
 }
 
 .notification-item strong {
@@ -47,7 +63,6 @@
     text-align: right;
 }
 
-/* גלילה חלקה */
 .notifications-list::-webkit-scrollbar {
     width: 6px;
 }

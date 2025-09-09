@@ -21,6 +21,15 @@ async function getNotifications(req, res, next) {
         query += ` ORDER BY created_at DESC`;
 
         const [notifications] = await db_pool.promise().query(query, params);
+        const notificationIds = notifications.map(n => n.id);
+        if (notificationIds.length > 0) {
+            const updateQuery = `
+                UPDATE notifications
+                SET is_read = 1
+                WHERE id IN (?)
+            `;
+            await db_pool.promise().query(updateQuery, [notificationIds]);
+        }
 
         res.locals.data = { success: true, data: notifications };
         next();
