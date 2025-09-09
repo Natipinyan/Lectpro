@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
-const middleRole = require("../role");
+const middleRole = require("../../services/role");
 const addNotification = require("../../services/notificationsService").addNotification;
 
 //role only for students//

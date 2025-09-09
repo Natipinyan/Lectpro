@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const middleLog = require("../../../middleware/login - instructor/middleWareLogin");
-const middleRole = require("../../../middleware/role");
+const middleRole = require("../../../services/role");
 
 // REST: Check if instructor is admin
 router.get('/', middleLog.checkAdmin, (req, res) => {

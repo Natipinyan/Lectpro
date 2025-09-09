@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const middleLog = require("../../middleware/login - students/middleWareLogin");
-const middleRole = require("../../middleware/role");
+const middleRole = require("../../services/role");
 const { upload, handleFileUpload } = require("../../middleware/projects/middle_up");
 const { uploadTwoFiles, handleTwoFileUpload } = require("../../middleware/projects/middle_up");
 

@@ -1,7 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const middleRole = require("../role");
+const middleRole = require("../../services/role");
 const addNotification = require("../../services/notificationsService").addNotification;
 
 

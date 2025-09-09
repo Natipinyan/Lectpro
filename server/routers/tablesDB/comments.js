@@ -5,7 +5,7 @@ module.exports = router;
 const middleComments = require("../../middleware/tables/comments");
 const middleLog = require("../../middleware/login - students/middleWareLogin");
 const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
-const middleRole = require("../../middleware/role");
+const middleRole = require("../../services/role");
 const middleResponse = require("../../middleware/response");
 
 // REST: Get comments by project ID (for student)

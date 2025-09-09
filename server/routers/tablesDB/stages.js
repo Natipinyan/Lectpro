@@ -3,7 +3,7 @@ const router = express.Router();
 const middleStages = require("../../middleware/tables/stages");
 const middleLogIns = require("../../middleware/login - instructor/middleWareLogin");
 const middleLog = require("../../middleware/login - students/middleWareLogin");
-const middleRole = require("../../middleware/role");
+const middleRole = require("../../services/role");
 const middleResponse = require("../../middleware/response");
 
 // REST: Get all stages department (only department manager)

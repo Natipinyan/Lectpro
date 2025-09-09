@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const middleRole = require("../../middleware/role");
+const middleRole = require("../../services/role");
 const middleNotification = require("../../middleware/tables/notification");
 
 router.get('/', middleRole.getRole,middleNotification.getNotifications, async (req, res) => {

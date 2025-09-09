@@ -1,4 +1,4 @@
-const middleRole = require('../role');
+const middleRole = require('../../services/role');
 const addNotification = require("../../services/notificationsService").addNotification;
 
 //role admin only(to manage stages)//
