@@ -206,7 +206,8 @@ node server.js     # Start server
 
 ## Additional Documents
 
-- [Database Diagram](documents/Dbimage.pdf)
+- [Database Diagram](Diagrams/db.pdf)
+- [Database Diagram 2](Diagrams/db2.pdf)
 - [Screenshots](Screenshots%20-%20website%20pages/)
 
 ## License
@@ -218,7 +219,7 @@ Use of this project is permitted only with written approval from the developer.
 
 **Project Developer:** Nati Pinyan  
 **Email:** natipinyan@gmail.com  
-**LinkedIn:** [Nati Pinyan](https://www.linkedin.com/in/nati-pinyan)
+**LinkedIn:** [Nati Pinyan](https://www.linkedin.com/in/nati-pinyan)  
 **Institution:** Kinneret College  
 **Year:** 2024  
 **Field:** Final Project - Software Practical Engineering

@@ -1,112 +1,173 @@
-CREATE DATABASE IF NOT EXISTS `lectpro` DEFAULT CHARACTER SET utf8mb4 COLLATE=utf8mb4_general_ci;
-USE `lectpro`;
+-- Create the database and use it
+CREATE DATABASE lectpro;
+GO
+USE lectpro;
+GO
 
-DROP TABLE IF EXISTS `projects_technologies`, `comments`, `files`, `stages`, `projects`,
-    `students`, `instructor`, `technology_in_use`;
+-- -----------------------------
+-- Table: Departments
+-- -----------------------------
+CREATE TABLE departments (
+                             id INT IDENTITY(1,1) PRIMARY KEY, -- Primary key, auto-increment
+                             name VARCHAR(255) NOT NULL         -- Department name
+);
+GO
 
-CREATE TABLE `students` (
-                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                            `first_name` varchar(255) DEFAULT NULL,
-                            `last_name` varchar(255) DEFAULT NULL,
-                            `user_name` varchar(255) DEFAULT NULL,
-                            `pass` varchar(255) DEFAULT NULL,
-                            `email` varchar(255) NOT NULL,
-                            `phone` varchar(15) NOT NULL,
-                            `project_id` int(11) DEFAULT NULL,
-                            `forgot_password` varchar(255) DEFAULT NULL,
-                            `reset_password_expires` DATETIME DEFAULT NULL,
-                            `must_change_password` BOOLEAN DEFAULT FALSE,
-                            PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Students
+-- -----------------------------
+CREATE TABLE students (
+                          id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                          first_name VARCHAR(255),            -- Student's first name
+                          last_name VARCHAR(255),             -- Student's last name
+                          user_name VARCHAR(255),             -- Username
+                          pass VARCHAR(255),                  -- Password
+                          email VARCHAR(255) NOT NULL,        -- Email
+                          phone VARCHAR(15),                  -- Phone number
+                          project_id INT NULL,                -- FK to projects.id (nullable)
+                          department_id INT NULL,             -- FK to departments.id (nullable)
+                          forgot_password VARCHAR(255),       -- Forgot password token
+                          reset_password_expires DATETIME,    -- Reset password expiration
+                          must_change_password BIT            -- Flag to force password change
+);
+GO
 
-CREATE TABLE `instructor` (
-                              `id` int(11) NOT NULL AUTO_INCREMENT,
-                              `first_name` varchar(255) DEFAULT NULL,
-                              `last_name` varchar(255) DEFAULT NULL,
-                              `user_name` varchar(255) DEFAULT NULL,
-                              `pass` varchar(255) DEFAULT NULL,
-                              `email` varchar(255) NOT NULL,
-                              `phone` varchar(15) NOT NULL,
-                              `forgot_password` varchar(255) DEFAULT NULL,
-                              `reset_password_expires` DATETIME DEFAULT NULL,
-                              `must_change_password` BOOLEAN DEFAULT FALSE,
-                              `is_active` BOOLEAN DEFAULT TRUE,
-                              PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Instructor
+-- -----------------------------
+CREATE TABLE instructor (
+                            id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                            first_name VARCHAR(255),            -- Instructor's first name
+                            last_name VARCHAR(255),             -- Instructor's last name
+                            user_name VARCHAR(255),             -- Username
+                            pass VARCHAR(255),                  -- Password
+                            email VARCHAR(255) NOT NULL,        -- Email
+                            phone VARCHAR(15),                  -- Phone number
+                            is_active BIT NOT NULL DEFAULT 0,   -- Active flag
+                            is_admin BIT NOT NULL DEFAULT 0,    -- Admin flag
+                            department_id INT NULL,             -- FK to departments.id (nullable)
+                            forgot_password VARCHAR(255),       -- Forgot password token
+                            reset_password_expires DATETIME,    -- Reset password expiration
+                            must_change_password BIT            -- Flag to force password change
+);
+GO
 
-CREATE TABLE `projects` (
-                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                            `title` varchar(255) DEFAULT NULL,
-                            `description` text DEFAULT NULL,
-                            `student_id1` int(11) DEFAULT NULL,
-                            `student_id2` int(11) DEFAULT NULL,
-                            `stage_count` int(11) DEFAULT NULL,
-                            `grade` int(11) DEFAULT NULL,
-                            `link_to_github` VARCHAR(255) NULL DEFAULT NULL,
-                            PRIMARY KEY (`id`),
-                            KEY `student_id1` (`student_id1`),
-                            KEY `student_id2` (`student_id2`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Projects
+-- -----------------------------
+CREATE TABLE projects (
+                          id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                          title VARCHAR(255),                 -- Project title
+                          description TEXT,                   -- Project description
+                          student_id1 INT NULL,               -- FK to students.id (nullable)
+                          student_id2 INT NULL,               -- FK to students.id (nullable)
+                          stage_count INT,                    -- Number of stages
+                          status BIT NOT NULL DEFAULT 0,      -- Project status
+                          link_to_github VARCHAR(255),        -- GitHub link
+                          instructor_id INT NULL,             -- FK to instructor.id (nullable)
+                          department_id INT NULL              -- FK to departments.id (nullable)
+);
+GO
 
-CREATE TABLE `stages` (
-                          `id` int(11) NOT NULL AUTO_INCREMENT,
-                          `project_id` int(11) DEFAULT NULL,
-                          `title` varchar(255) DEFAULT NULL,
-                          PRIMARY KEY (`id`),
-                          KEY `project_id` (`project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Stages
+-- -----------------------------
+CREATE TABLE stages (
+                        id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                        title VARCHAR(255),                 -- Stage title
+                        department_id INT NULL,             -- FK to departments.id (nullable)
+                        position INT NOT NULL DEFAULT 0     -- Stage position/order
+);
+GO
 
-CREATE TABLE `comments` (
-                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                            `title` varchar(255) NOT NULL,
-                            `text` text NOT NULL,
-                            `project_id` int(11) DEFAULT NULL,
-                            `section` varchar(255) NOT NULL,
-                            `page` int(11) NOT NULL,
-                            `is_done` tinyint(1) DEFAULT 0,
-                            `done_by_user` tinyint(1) DEFAULT 0,
-                            PRIMARY KEY (`id`),
-                            KEY `project_id` (`project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Comments
+-- -----------------------------
+CREATE TABLE comments (
+                          id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                          title VARCHAR(255),                 -- Comment title
+                          text TEXT,                          -- Comment text
+                          project_id INT NULL,                -- FK to projects.id
+                          section VARCHAR(255),               -- Section name
+                          page INT NOT NULL,                  -- Page number
+                          user_response TEXT,                 -- User response
+                          is_done BIT,                        -- Completion flag
+                          done_by_user INT                    -- User ID who marked done
+);
+GO
 
-CREATE TABLE `files` (
-                         `id` int(11) NOT NULL AUTO_INCREMENT,
-                         `routing` varchar(255) DEFAULT NULL,
-                         `project_id` int(11) DEFAULT NULL,
-                         PRIMARY KEY (`id`),
-                         KEY `project_id` (`project_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Technology_in_use
+-- -----------------------------
+CREATE TABLE technology_in_use (
+                                   id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                                   title VARCHAR(255),                 -- Technology title
+                                   language VARCHAR(255),              -- Programming language / tech
+                                   department_id INT NULL              -- FK to departments.id
+);
+GO
 
-CREATE TABLE `technology_in_use` (
-                                     `id` int(11) NOT NULL AUTO_INCREMENT,
-                                     `title` varchar(255) DEFAULT NULL,
-                                     `language` varchar(255) DEFAULT NULL,
-                                     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Projects_Technologies (many-to-many)
+-- -----------------------------
+CREATE TABLE projects_technologies (
+                                       project_id INT NOT NULL,            -- FK to projects.id
+                                       technology_id INT NOT NULL,         -- FK to technology_in_use.id
+                                       PRIMARY KEY (project_id, technology_id)
+);
+GO
 
-CREATE TABLE `projects_technologies` (
-                                         `project_id` int(11) NOT NULL,
-                                         `technology_id` int(11) NOT NULL,
-                                         PRIMARY KEY (`project_id`,`technology_id`),
-                                         KEY `technology_id` (`technology_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- -----------------------------
+-- Table: Notifications
+-- -----------------------------
+CREATE TABLE notifications (
+                               id INT IDENTITY(1,1) PRIMARY KEY,  -- Primary key, auto-increment
+                               user_id INT NOT NULL,               -- User ID
+                               role VARCHAR(50) NOT NULL,          -- Role: student/instructor/admin
+                               title VARCHAR(255),                  -- Notification title
+                               message TEXT,                        -- Notification message
+                               type VARCHAR(50) NOT NULL,          -- Type: submission/comment/system/reminder/message
+                               project_id INT NULL,                -- FK to projects.id
+                               is_read BIT DEFAULT 0,              -- Read flag
+                               created_at DATETIME DEFAULT GETDATE() -- Creation timestamp
+);
+GO
 
-ALTER TABLE `projects`
-    ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`student_id1`) REFERENCES `students` (`id`),
-    ADD CONSTRAINT `projects_ibfk_2` FOREIGN KEY (`student_id2`) REFERENCES `students` (`id`);
+-- -----------------------------
+-- Add foreign key constraints
+-- -----------------------------
+ALTER TABLE students
+    ADD CONSTRAINT fk_student_department FOREIGN KEY (department_id) REFERENCES departments(id);
 
-ALTER TABLE `stages`
-    ADD CONSTRAINT `stages_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+ALTER TABLE students
+    ADD CONSTRAINT fk_student_project FOREIGN KEY (project_id) REFERENCES projects(id);
 
-ALTER TABLE `comments`
-    ADD CONSTRAINT `comments_fk_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+ALTER TABLE instructor
+    ADD CONSTRAINT fk_instructor_department FOREIGN KEY (department_id) REFERENCES departments(id);
 
-ALTER TABLE `files`
-    ADD CONSTRAINT `files_fk_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+ALTER TABLE projects
+    ADD CONSTRAINT fk_project_student1 FOREIGN KEY (student_id1) REFERENCES students(id);
+ALTER TABLE projects
+    ADD CONSTRAINT fk_project_student2 FOREIGN KEY (student_id2) REFERENCES students(id);
+ALTER TABLE projects
+    ADD CONSTRAINT fk_project_instructor FOREIGN KEY (instructor_id) REFERENCES instructor(id);
+ALTER TABLE projects
+    ADD CONSTRAINT fk_project_department FOREIGN KEY (department_id) REFERENCES departments(id);
 
-ALTER TABLE `projects_technologies`
-    ADD CONSTRAINT `projects_technologies_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
-    ADD CONSTRAINT `projects_technologies_ibfk_2` FOREIGN KEY (`technology_id`) REFERENCES `technology_in_use` (`id`);
+ALTER TABLE stages
+    ADD CONSTRAINT fk_stages_department FOREIGN KEY (department_id) REFERENCES departments(id);
 
-ALTER TABLE `students`
-    ADD CONSTRAINT `fk_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`);
+ALTER TABLE comments
+    ADD CONSTRAINT fk_comments_project FOREIGN KEY (project_id) REFERENCES projects(id);
+
+ALTER TABLE technology_in_use
+    ADD CONSTRAINT fk_technology_department FOREIGN KEY (department_id) REFERENCES departments(id);
+
+ALTER TABLE projects_technologies
+    ADD CONSTRAINT fk_projects_tech_project FOREIGN KEY (project_id) REFERENCES projects(id);
+ALTER TABLE projects_technologies
+    ADD CONSTRAINT fk_projects_tech_technology FOREIGN KEY (technology_id) REFERENCES technology_in_use(id);
+
+ALTER TABLE notifications
+    ADD CONSTRAINT fk_notifications_project FOREIGN KEY (project_id) REFERENCES projects(id);
+GO
