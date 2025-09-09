@@ -49,12 +49,12 @@ router.post('/logout', middleLog.authenticateToken, (req, res) => {
 
 
 // REST: Check if instructor is associated with a specific project
-router.get('/checkInstructor/:projectId',middleRole.getRole, middleLog.checkProjectInstructor, (req, res) => {
-    try {
-        res.status(200).json(res.checkProjectInstructor);
-    } catch (err) {
-        res.status(500).json({ success: false, message: 'שגיאה בבדיקת מרצה הפרויקט' });
-    }
-});
+router.get('/checkInstructor/:projectId', middleRole.getRole, middleLog.checkProjectInstructor, (req, res) => {
+        try {
+            res.status(200).json(res.checkProjectInstructor);
+        } catch (err) {
+            res.status(500).json({ success: false, message: 'שגיאה בבדיקת מרצה הפרויקט' });
+        }
+    });
 
 module.exports = router;

@@ -517,60 +517,74 @@ async function approveDocument(req, res, next) {
             return next();
         }
 
-        db_pool.query(
-            "SELECT title, student_id1, department_id FROM projects WHERE id = ?",
-            [projectId],
-            async (err, results) => {
-                if (err || results.length === 0) {
-                    console.error("שגיאה בשליפת פרטי הפרויקט:", err);
-                    return next();
-                }
-
-                const project = results[0];
-                const projectName = project.title;
-
-                if (project.student_id1) {
-                    await addNotification(
-                        project.student_id1,
-                        'student',
-                        'הפרויקט בשלב סופי',
-                        `הפרויקט "${projectName}" הגיע לשלב הסופי. כעת ניתן להעלות מסמך Word ודוגמת חתימה.`,
-                        'system',
-                        projectId
-                    ).catch(err => console.error('שגיאה בשליחת התראה לסטודנט:', err));
-                }
-
-                db_pool.query(
-                    "SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1",
-                    [project.department_id],
-                    async (err, instructors) => {
-                        if (err) {
-                            console.error("שגיאה בשליפת מנהל המגמה:", err);
-                        } else {
-                            for (const inst of instructors) {
-                                await addNotification(
-                                    inst.id,
-                                    'instructor',
-                                    'הפרויקט בשלב סופי',
-                                    `הפרויקט "${projectName}" הגיע לשלב הסופי. הסטודנט יכול להעלות מסמך Word ודוגמת חתימה.`,
-                                    'system',
-                                    projectId
-                                ).catch(err => console.error('שגיאה בשליחת התראה למנהל המגמה:', err));
-                            }
-                        }
-                    }
-                );
-
-                res.getStatus = 200;
-                res.getMessage = "התראות נשלחו בהצלחה";
-                next();
-            }
+        const [updateResult] = await db_pool.promise().query(
+            "UPDATE projects SET status = 1 WHERE id = ?",
+            [projectId]
         );
 
+        if (updateResult.affectedRows === 0) {
+            res.statusCode = 404;
+            res.message = "פרויקט לא נמצא";
+            return next();
+        }
+
+        const [projects] = await db_pool.promise().query(
+            "SELECT title, student_id1, department_id FROM projects WHERE id = ?",
+            [projectId]
+        );
+
+        if (projects.length === 0) {
+            res.statusCode = 404;
+            res.message = "פרויקט לא נמצא";
+            return next();
+        }
+
+        const project = projects[0];
+        const projectName = project.title;
+
+        if (project.student_id1) {
+            try {
+                await addNotification(
+                    project.student_id1,
+                    'student',
+                    'הפרויקט בשלב סופי',
+                    `הפרויקט "${projectName}" הגיע לשלב הסופי. כעת ניתן להעלות מסמך Word ודוגמת חתימה.`,
+                    'system',
+                    projectId
+                );
+            } catch (err) {
+                console.error('שגיאה בשליחת התראה לסטודנט:', err);
+            }
+        }
+
+        const [admins] = await db_pool.promise().query(
+            "SELECT id FROM instructor WHERE department_id = ? AND is_admin = 1",
+            [project.department_id]
+        );
+
+        for (const inst of admins) {
+            try {
+                await addNotification(
+                    inst.id,
+                    'instructor',
+                    'הפרויקט בשלב סופי',
+                    `הפרויקט "${projectName}" הגיע לשלב הסופי. הסטודנט יכול להעלות מסמך Word ודוגמת חתימה.`,
+                    'system',
+                    projectId
+                );
+            } catch (err) {
+                console.error(`שגיאה בשליחת התראה למנהל ${inst.id}:`, err);
+            }
+        }
+
+        res.getStatus = 200;
+        res.getMessage = "סטטוס הפרויקט עודכן והתראות נשלחו בהצלחה";
+        next();
+
     } catch (err) {
-        console.error(err);
+        console.error("שגיאה פנימית באישור המסמך ושליחת התראות:", err);
         res.statusCode = 500;
-        res.message = "שגיאה פנימית בשליחת התראות";
+        res.message = "שגיאה פנימית באישור המסמך ושליחת התראות";
         next();
     }
 }

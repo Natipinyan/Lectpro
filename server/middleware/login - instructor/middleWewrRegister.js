@@ -32,8 +32,8 @@ async function getInstructorsByDepartment(req, res, next) {
         const [instructors] = await db_pool.promise().query(
             `SELECT id, first_name, last_name, user_name, email, phone, is_active
              FROM instructor
-             WHERE department_id = ? AND id != ?`,
-            [user.department_id, instructorId]
+             WHERE department_id = ?`,
+            [user.department_id]
         );
 
         res.instructorsListByDept = instructors;

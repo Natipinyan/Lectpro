@@ -23,6 +23,7 @@ const UpdateInstructor = ({ projectId, instructorId, onClose, onUpdated }) => {
 
                 const curr = instructorsData.find((ins) => ins.id === instructorId);
                 setCurrentInstructor(curr || null);
+
             } catch (err) {
                 console.error("שגיאה בטעינת מרצים:", err);
                 setNotification({ message: "שגיאה בטעינת מרצים", type: "error" });

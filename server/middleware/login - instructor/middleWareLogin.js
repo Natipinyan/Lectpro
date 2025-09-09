@@ -235,7 +235,12 @@ async function checkProjectInstructor(req, res, next) {
     const userId = req.user?.id;
 
     if (!userId) {
-        res.checkProjectInstructor = { success: false, message: "משתמש לא מזוהה", isProjectInstructor: false };
+        res.checkProjectInstructor = {
+            success: false,
+            message: "משתמש לא מזוהה",
+            isProjectInstructor: false,
+            isAdminOfDepartment: false
+        };
         return next();
     }
 
@@ -248,30 +253,41 @@ async function checkProjectInstructor(req, res, next) {
         );
 
         if (projects.length === 0) {
-            res.checkProjectInstructor = { success: false, message: "פרויקט לא נמצא", isProjectInstructor: false };
+            res.checkProjectInstructor = {
+                success: false,
+                message: "פרויקט לא נמצא",
+                isProjectInstructor: false,
+                isAdminOfDepartment: false
+            };
             return next();
         }
 
         const project = projects[0];
 
-        if (project.instructor_id === userId) {
-            res.checkProjectInstructor = { success: true, isProjectInstructor: true };
-            return next();
-        }
+        const isProjectInstructor = project.instructor_id === userId;
 
         const [instructorRows] = await promisePool.query(
             `SELECT is_admin FROM instructor WHERE id = ? AND department_id = ?`,
             [userId, project.department_id]
         );
 
-        const isAdminOnly = instructorRows.length > 0 && instructorRows[0].is_admin === 1;
+        const isAdminOfDepartment = instructorRows.length > 0 && instructorRows[0].is_admin === 1;
 
-        res.checkProjectInstructor = { success: true, isProjectInstructor: false, isAdminOnly };
+        res.checkProjectInstructor = {
+            success: true,
+            isProjectInstructor,
+            isAdminOfDepartment
+        };
         next();
 
     } catch (err) {
         console.error("Error checking project instructor:", err);
-        res.checkProjectInstructor = { success: false, message: "שגיאה בבדיקת הרשאות", isProjectInstructor: false };
+        res.checkProjectInstructor = {
+            success: false,
+            message: "שגיאה בבדיקת הרשאות",
+            isProjectInstructor: false,
+            isAdminOfDepartment: false
+        };
         next();
     }
 }

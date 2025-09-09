@@ -34,17 +34,13 @@ const ProjectDetails = () => {
 
     const [department, setDepartment] = useState(null);
     const [isProjectInstructor, setIsProjectInstructor] = useState(false);
-    const [isAdminOnly, setIsAdminOnly] = useState(false);
-
-
+    const [isAdmin, setIsAdmin] = useState(false);
     const [gradesRefresh, setGradesRefresh] = useState(false);
 
     const refreshProject = async () => {
         await fetchProjectDetails();
         await fetchIsProjectInstructor();
     };
-
-
 
     const fetchProjectDetails = async () => {
         try {
@@ -133,6 +129,7 @@ const ProjectDetails = () => {
                     credentials: "include",
                 }
             );
+
             const data = await res.json();
 
             if (!res.ok || !data.success) {
@@ -140,12 +137,14 @@ const ProjectDetails = () => {
             }
 
             setIsProjectInstructor(data.isProjectInstructor);
-            setIsAdminOnly(data.isAdminOnly);
+            setIsAdmin(data.isAdminOfDepartment);
+
 
         } catch (err) {
             console.error("שגיאה בבדיקת המרצה של הפרויקט:", err);
         }
     };
+
 
     useEffect(() => {
         departmentName();
@@ -285,6 +284,7 @@ const ProjectDetails = () => {
     }
 
     return (
+
         <div className="project-details-wrapper">
             {notification && (
                 <NotificationPopup
@@ -321,13 +321,13 @@ const ProjectDetails = () => {
                                         </button>
                                     )}
 
-                                    {!isProjectInstructor && (
+                                    {isAdmin && (
                                         <button className="back-button" onClick={() => setShowUpdateInstructor(true)}>
                                             שנה מנחה
                                         </button>
                                     )}
 
-                                    {isProjectInstructor ? (
+                                    {isProjectInstructor && (
                                         project.status === 1 ? (
                                             <button
                                                 className="back-button"
@@ -343,17 +343,7 @@ const ProjectDetails = () => {
                                                 אישור מסמך וחתימה
                                             </button>
                                         )
-                                    ) : (
-                                        project.status === 1 && (
-                                            <button
-                                                className="back-button"
-                                                onClick={() => handleDownloadApproved(projectId)}
-                                            >
-                                                הורדת מסמך וחתימה
-                                            </button>
-                                        )
                                     )}
-
                                 </div>
 
                                 <h2 className="project-title">{project.title}</h2>
@@ -362,7 +352,7 @@ const ProjectDetails = () => {
                                     {project.student2_first_name && project.student2_last_name ? (
                                         <> | {project.student2_first_name} {project.student2_last_name}</>
                                     ) : (
-                                        isAdminOnly && (
+                                        isAdmin&& (
                                             <button onClick={() => setShowAddStudents(true)} className="add-student-btn">
                                                 להוספת סטודנט לפרויקט
                                             </button>
