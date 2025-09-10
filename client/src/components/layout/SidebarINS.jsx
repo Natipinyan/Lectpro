@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../css/layuot/sideBar.css';
 import logo from '../../logoMin.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen, faCheckCircle, faCogs, faChalkboardTeacher, faListAlt, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faHouse, faSignInAlt, faUser, faFolderOpen, faCheckCircle, faCogs, faChalkboardTeacher, faListAlt, faBell ,faChartPie} from '@fortawesome/free-solid-svg-icons';
 import NotificationsDropdown from "../base/NotificationsDropdown";
 import NotificationPopup from "../projects/NotificationPopup";
 import Modal from "../base/Modal";
@@ -63,6 +63,7 @@ function SidebarINS() {
         { icon: faSignInAlt, label: 'התנתקות', onClick: handleLogout },
         { icon: faUser, label: 'פרופיל', page: '/instructor/profile' },
         { icon: faFolderOpen, label: 'הפרויקטים שלי', page: '/instructor/MyProjects' },
+        { icon: faChartPie, label: 'דשבורד', page: '/instructor/dashboard' },
         ...(isAdmin ? [{ icon: faCheckCircle, label: 'המגמה שלי', page: '/instructor/department-instructors' }] : []),
         ...(isAdmin ? [{ icon: faCogs, label: 'ניהול טכנולוגיות', page: '/instructor/AdminTechnologies' }] : []),
         ...(isAdmin ? [{ icon: faChalkboardTeacher, label: 'קישור פרויקטים', page: '/instructor/projectManagement' }] : []),
